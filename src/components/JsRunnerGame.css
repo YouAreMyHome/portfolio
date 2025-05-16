@@ -1,0 +1,174 @@
+/* src/components/JsRunnerGame.css */
+
+/* Định nghĩa các biến CSS cho Light Mode (mặc định) và Dark Mode */
+:root {
+    /* Màu chữ */
+    --game-text-primary: #1f2937;
+    /* Dùng cho score, text thường */
+    --game-text-secondary: #f3f4f6;
+    --game-text-kbd: #1f2937;
+    --game-text-kbd-shadow: #fff;
+    --game-text-instructions: #1f2937;
+    --game-text-game-over: white;
+
+    /* Màu nền */
+    --game-bg-container: #fff;
+    /* Màu nền chính của game container */
+    --game-bg-obstacle-light: #EF4444;
+    /* Màu vật cản đã có */
+    --game-bg-obstacle-dark: #F87171;
+    /* Màu vật cản đã có cho dark */
+    --game-bg-instructions: rgba(229, 231, 235, 0.9);
+    /* Xám nhạt với opacity */
+    --game-bg-game-over: rgba(239, 68, 68, 0.8);
+    /* Đỏ với opacity */
+    --game-bg-kbd: #fcfcfc;
+
+    /* Màu viền */
+    --game-border-kbd: #ccc;
+    --game-border-container: #e0e0e0;
+    /* Ví dụ, nếu container có border */
+
+
+    /* Bóng (Shadows) */
+    --game-shadow-kbd-main: rgba(0, 0, 0, 0.2);
+    --game-shadow-kbd-inset: #fff;
+
+    /* Kích thước Font */
+    --game-font-size-score: 1.125rem;
+    /* tương đương text-lg */
+    --game-font-size-message: 1.25rem;
+    /* tương đương text-xl */
+    --game-font-size-kbd: 11px;
+
+    /* Spacing & Radius */
+    --game-padding-message: 1rem;
+    /* tương đương p-4 */
+    --game-radius-message: 0.375rem;
+    /* tương đương rounded-md */
+    --game-radius-kbd: 3px;
+}
+
+/* Giả sử class .dark được thêm vào <html> hoặc <body> hoặc một container cha */
+.dark {
+    --game-text-primary: #f3f4f6;
+    --game-text-secondary: #1f2937;
+    --game-text-kbd: #e5e7eb;
+    --game-text-kbd-shadow: #000;
+    --game-text-instructions: #f3f4f6;
+    --game-text-game-over: #1f2937;
+    /* Chú ý: màu này thay đổi đáng kể trong dark mode của bạn */
+
+    --game-bg-container: #1f2937;
+    /* Ví dụ màu nền tối */
+    --game-bg-instructions: rgba(55, 65, 81, 0.9);
+    /* Xám đậm với opacity */
+    --game-bg-game-over: rgba(248, 113, 113, 0.85);
+    /* Đỏ nhạt hơn với opacity */
+    --game-bg-kbd: #374151;
+
+    --game-border-kbd: #4b5563;
+    --game-border-container: #4b5563;
+    /* Ví dụ */
+
+    --game-shadow-kbd-main: rgba(255, 255, 255, 0.2);
+    --game-shadow-kbd-inset: #374151;
+}
+
+.js-game-container {
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--game-bg-container);
+    /* border: 1px solid var(--game-border-container); */
+    /* Bỏ comment nếu muốn có border */
+    /* Ví dụ background dạng ảnh: */
+    /* background: url('/assets/game/background.png') repeat-x; */
+    /* background-size: contain; */
+}
+
+.js-player {
+    position: absolute;
+    bottom: 0;
+    /* width, height, và background-image được set inline từ JavaScript */
+    background-repeat: no-repeat;
+
+    /* Thuộc tính giữ độ nét cho pixel art (quan trọng nếu dùng đồ họa pixel) */
+    image-rendering: -moz-crisp-edges;
+    /* Firefox */
+    image-rendering: -o-crisp-edges;
+    /* Opera cũ */
+    image-rendering: -webkit-optimize-contrast;
+    /* Webkit (Chrome, Safari, Edge mới) */
+    image-rendering: pixelated;
+    /* Chuẩn mới, ưu tiên dùng */
+    image-rendering: crisp-edges;
+    /* Hỗ trợ khác */
+    -ms-interpolation-mode: nearest-neighbor;
+    /* IE (chủ yếu cho thẻ <img>) */
+}
+
+.js-obstacle {
+    position: absolute;
+    bottom: 0;
+    /* Màu nền sẽ tự động thay đổi dựa trên light/dark mode nếu có .dark class ở thẻ cha */
+    background-color: var(--game-bg-obstacle-light);
+}
+
+.dark .js-obstacle {
+    background-color: var(--game-bg-obstacle-dark);
+}
+
+
+.js-score-board {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: var(--game-font-size-score);
+    font-weight: 600;
+    /* font-semibold */
+    color: var(--game-text-primary);
+    /* Màu chữ tự đổi theo theme */
+}
+
+/* Nhóm các style chung cho .js-instructions và .js-game-over-message */
+.js-instructions,
+.js-game-over-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--game-font-size-message);
+    text-align: center;
+    padding: var(--game-padding-message);
+    border-radius: var(--game-radius-message);
+    box-sizing: border-box;
+    /* Đảm bảo padding không làm tăng kích thước tổng */
+}
+
+.js-instructions {
+    background-color: var(--game-bg-instructions);
+    color: var(--game-text-instructions);
+}
+
+.js-game-over-message {
+    background-color: var(--game-bg-game-over);
+    color: var(--game-text-game-over);
+}
+
+kbd {
+    display: inline-block;
+    margin: 0 0.1em;
+    padding: 0.1em 0.6em;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    /* Cân nhắc dùng font hệ thống hoặc biến */
+    font-size: var(--game-font-size-kbd);
+    line-height: 1.4;
+    color: var(--game-text-kbd);
+    text-shadow: 0 1px 0 var(--game-text-kbd-shadow);
+    background-color: var(--game-bg-kbd);
+    border: 1px solid var(--game-border-kbd);
+    border-radius: var(--game-radius-kbd);
+    box-shadow: 0 1px 0 var(--game-shadow-kbd-main), 0 0 0 2px var(--game-shadow-kbd-inset) inset;
+    white-space: nowrap; }
