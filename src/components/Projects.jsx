@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Github as GitHub, ExternalLink } from 'lucide-react';
 
 const Projects = () => {
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const [hoveredProject, setHoveredProject] = useState(null);
   
   const projects = [
     {
