@@ -8,6 +8,7 @@ import Awards from './components/Awards'; // Đảm bảo có id="awards"
 import Projects from './components/Projects'; // Đảm bảo có id="projects"
 import Contact from './components/Contact'; // Đảm bảo có id="contact"
 import JsRunnerGame from './components/JsRunnerGame'; // Game component đã có id="fun-game"
+import { /*...,*/ ChevronDown, ChevronUp } from 'lucide-react'; // Thêm icon nếu muốn
 
 function App() {
   const [activeSection, setActiveSection] = useState('home');
@@ -23,6 +24,9 @@ function App() {
     }
     return false; // Giá trị mặc định nếu không ở client-side (ví dụ SSR)
   });
+
+  // State mới để quản lý hiển thị game
+  const [isGameSectionVisible, setIsGameSectionVisible] = useState(true); // Mặc định là hiển thị
 
   useEffect(() => {
     if (darkMode) {
@@ -75,20 +79,29 @@ function App() {
   };
 
   const scrollToSection = (sectionId) => {
+    if (sectionId === 'fun-game' && !isGameSectionVisible) {
+      setIsGameSectionVisible(true); // Tự động mở game nếu đang đóng khi click nav
+      // Đợi một chút để game kịp mở rồi mới cuộn
+      setTimeout(() => {
+        performScroll(sectionId);
+      }, 100); // Thời gian chờ có thể cần điều chỉnh
+    } else {
+      performScroll(sectionId);
+    }
+    setMobileMenuOpen(false);
+  };
+
+  const performScroll = (sectionId) => { // Tách logic cuộn ra
     const element = document.getElementById(sectionId);
     if (element) {
-      // Tính toán vị trí cuộn để section nằm ngay dưới thanh navbar cố định (cao 64px ~ 4rem)
-      const navbarHeight = 64; // Chiều cao của navbar (h-16 trong Tailwind)
+      const navbarHeight = 64;
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
       const offsetPosition = elementPosition - navbarHeight;
-      
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
       });
-      // setActiveSection(sectionId); // Intersection Observer sẽ tự động cập nhật
     }
-    setMobileMenuOpen(false);
   };
 
   const navItems = [
@@ -186,7 +199,53 @@ function App() {
         <Experience /> 
         <Awards /> 
         <Projects /> 
-        <JsRunnerGame /> 
+        {/* Fun Game Section - ĐÃ CẬP NHẬT */}
+        <section id="fun-game" className="scroll-mt-16 bg-slate-100 dark:bg-gray-800"> {/* Nền cho cả section game */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center"> {/* Container chung */}
+            <div className="mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white inline-block">
+                Mini Game Zone
+              </h2>
+              <button
+                onClick={() => setIsGameSectionVisible(!isGameSectionVisible)}
+                className="ml-4 px-4 py-2 text-sm font-medium rounded-lg
+                           bg-sky-500 hover:bg-sky-600 text-white 
+                           dark:bg-sky-600 dark:hover:bg-sky-700
+                           focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50
+                           transition-all duration-300 flex items-center justify-center mx-auto mt-4 md:mt-0 md:inline-flex"
+                aria-expanded={isGameSectionVisible}
+                aria-controls="cat-run-game-content"
+              >
+                {isGameSectionVisible ? (
+                  <>Hide Game <ChevronUp size={20} className="ml-2" /></>
+                ) : (
+                  <>Show Game <ChevronDown size={20} className="ml-2" /></>
+                )}
+              </button>
+            </div>
+            
+            {/* Khu vực nội dung game có thể thu nhỏ/mở rộng */}
+            <div
+              id="cat-run-game-content"
+              className={`transition-all duration-700 ease-in-out overflow-hidden ${
+                isGameSectionVisible 
+                  ? 'max-h-[1500px] opacity-100 visible' // max-h đủ lớn cho game và khoảng trống
+                  : 'max-h-0 opacity-0 invisible'
+              }`}
+            >
+              {/* JsRunnerGame sẽ được render ở đây.
+                  Nó không còn thẻ <section> bao ngoài với min-h-screen nữa.
+                  Nó sẽ hiển thị "chiếc TV" trực tiếp.
+                  Thêm flex và justify-center để căn giữa TV nếu cần (tùy thuộc vào return của JsRunnerGame)
+              */}
+              {isGameSectionVisible && (
+                <div className="flex justify-center items-start pt-4 pb-8"> 
+                  <JsRunnerGame />
+                </div>
+              )}
+            </div>
+          </div>
+        </section> 
         <Contact /> 
       </main>
 
