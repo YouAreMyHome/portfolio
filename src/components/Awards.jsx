@@ -30,34 +30,39 @@ const Awards = () => {
   ];
 
   return (
-    <section id="awards" className="py-20 bg-gray-100 dark:bg-gray-800">
+    <section id="awards" className="py-16 sm:py-20 bg-gray-100 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Awards & Activities</h2>
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Awards & Activities</h2>
           <div className="mt-2 h-1 w-20 bg-blue-600 mx-auto"></div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8">
           {awards.map((award, index) => (
             <div 
               key={index} 
               className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl"
             >
-              <div className="h-48 overflow-hidden">
+              <div className="h-40 sm:h-48 overflow-hidden">
                 <img 
                   src={award.image} 
                   alt={award.title} 
                   className="w-full h-full object-cover transition-transform hover:scale-110 duration-500"
                 />
               </div>
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="mr-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                    {award.icon}
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="mr-3 sm:mr-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
+                    <div className="block sm:hidden">
+                      {React.cloneElement(award.icon, { size: 24 })}
+                    </div>
+                    <div className="hidden sm:block">
+                      {award.icon}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{award.title}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-tight">{award.title}</h3>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{award.description}</p>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">{award.description}</p>
               </div>
             </div>
           ))}

@@ -5,17 +5,20 @@ Portfolio cá nhân được xây dựng bằng React, Vite và Tailwind CSS.
 ## 🚀 Deploy lên GitHub Pages
 
 ### Bước 1: Cấu hình Repository
+
 1. Đẩy code lên GitHub repository
 2. Vào Settings > Pages của repository
 3. Chọn Source: "Deploy from a branch"
 4. Chọn Branch: "gh-pages" và folder "/ (root)"
 
 ### Bước 2: Deploy tự động
+
 ```bash
 npm run deploy
 ```
 
 ### Bước 3: Cấu hình domain tùy chỉnh (nếu có)
+
 1. Trong Settings > Pages, thêm custom domain
 2. Cập nhật `base` trong `vite.config.js`:
    - Nếu dùng domain riêng: `base: '/'`

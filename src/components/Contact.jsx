@@ -110,62 +110,66 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-gray-100 dark:bg-gray-800">
+    <section id="contact" className="py-16 sm:py-20 bg-gray-100 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Contact Me</h2>
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Contact Me</h2>
           <div className="mt-2 h-1 w-20 bg-blue-600 mx-auto"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
           {/* Contact Information */}
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Get In Touch</h3>
-            <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow-md">
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">Get In Touch</h3>
+            <div className="space-y-4 sm:space-y-6">
               {/* Email */}
               <div className="flex items-center">
-                <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                  <Mail size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Mail size={20} className="sm:hidden text-blue-600 dark:text-blue-400" />
+                  <Mail size={24} className="hidden sm:block text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
-                  <a href="mailto:ltn66441@gmail.com" className="text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
+                  <a href="mailto:ltn66441@gmail.com" className="text-sm sm:text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all">
                     ltn66441@gmail.com
                   </a>
                 </div>
               </div>
               {/* GitHub */}
               <div className="flex items-center">
-                <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                  <GitHub size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <GitHub size={20} className="sm:hidden text-blue-600 dark:text-blue-400" />
+                  <GitHub size={24} className="hidden sm:block text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">GitHub</p>
-                  <a href="https://github.com/YouAreMyHome" target="_blank" rel="noopener noreferrer" className="text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">GitHub</p>
+                  <a href="https://github.com/YouAreMyHome" target="_blank" rel="noopener noreferrer" className="text-sm sm:text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all">
                     github.com/YouAreMyHome
                   </a>
                 </div>
               </div>
               {/* LinkedIn */}
               <div className="flex items-center">
-                <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                  <Linkedin size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Linkedin size={20} className="sm:hidden text-blue-600 dark:text-blue-400" />
+                  <Linkedin size={24} className="hidden sm:block text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">LinkedIn</p>
-                  <a href="https://linkedin.com/in/youaremyhome" target="_blank" rel="noopener noreferrer" className="text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">LinkedIn</p>
+                  <a href="https://linkedin.com/in/youaremyhome" target="_blank" rel="noopener noreferrer" className="text-sm sm:text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all">
                     linkedin.com/in/youaremyhome
                   </a>
                 </div>
               </div>
               {/* Facebook */}
               <div className="flex items-center">
-                <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                  <Facebook size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Facebook size={20} className="sm:hidden text-blue-600 dark:text-blue-400" />
+                  <Facebook size={24} className="hidden sm:block text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Facebook</p>
-                  <a href="https://facebook.com/consauchetduoi" target="_blank" rel="noopener noreferrer" className="text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Facebook</p>
+                  <a href="https://facebook.com/consauchetduoi" target="_blank" rel="noopener noreferrer" className="text-sm sm:text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all">
                     facebook.com/consauchetduoi
                   </a>
                 </div>
@@ -174,20 +178,22 @@ const Contact = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Send Me a Message</h3>
+          <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow-md">
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">Send Me a Message</h3>
             
             {submitSuccess && (
-              <div className="fade-in flex items-center bg-green-100 dark:bg-green-800 p-4 rounded-md mb-6 text-green-700 dark:text-green-200">
-                <CheckCircle size={20} className="mr-3 flex-shrink-0" />
-                <p>Thank you for your message! I'll get back to you soon.</p>
+              <div className="fade-in flex items-start bg-green-100 dark:bg-green-800 p-3 sm:p-4 rounded-md mb-4 sm:mb-6 text-green-700 dark:text-green-200">
+                <CheckCircle size={18} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
+                <CheckCircle size={20} className="hidden sm:block mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-sm sm:text-base">Thank you for your message! I'll get back to you soon.</p>
               </div>
             )}
 
             {submitError && (
-              <div className="fade-in flex items-center bg-red-100 dark:bg-red-800 p-4 rounded-md mb-6 text-red-700 dark:text-red-200">
-                <XCircle size={20} className="mr-3 flex-shrink-0" />
-                <p>{submitError}</p>
+              <div className="fade-in flex items-start bg-red-100 dark:bg-red-800 p-3 sm:p-4 rounded-md mb-4 sm:mb-6 text-red-700 dark:text-red-200">
+                <XCircle size={18} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
+                <XCircle size={20} className="hidden sm:block mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-sm sm:text-base">{submitError}</p>
               </div>
             )}
             
@@ -203,7 +209,7 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your Full Name"
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.name ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.name ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 />
                 {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
               </div>
@@ -219,7 +225,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your.email@example.com"
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.email ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.email ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 />
                 {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
               </div>
@@ -233,9 +239,9 @@ const Contact = () => {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  rows={5}
+                  rows={4}
                   placeholder="Tell me how I can help you..."
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.message ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white resize-vertical ${formErrors.message ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 ></textarea>
                 {formErrors.message && <p className="text-red-500 text-xs mt-1">{formErrors.message}</p>}
               </div>
@@ -243,16 +249,18 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md disabled:bg-blue-400 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md disabled:bg-blue-400 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={18} className="mr-2 animate-spin" />
+                    <Loader2 size={16} className="sm:hidden mr-2 animate-spin" />
+                    <Loader2 size={18} className="hidden sm:block mr-2 animate-spin" />
                     <span>Sending...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={18} className="mr-2" />
+                    <Send size={16} className="sm:hidden mr-2" />
+                    <Send size={18} className="hidden sm:block mr-2" />
                     <span>Send Message</span>
                   </>
                 )}

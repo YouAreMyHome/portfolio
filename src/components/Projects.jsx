@@ -32,14 +32,14 @@ const Projects = () => {
   ];
 
   return (
-    <section id="projects" className="py-20 bg-white dark:bg-gray-900">
+    <section id="projects" className="py-16 sm:py-20 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Projects</h2>
-          <div className="mt-2 h-1 w-20 bg-blue-600 mx-auto"></div>
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Projects</h2>
+          <div className="mt-2 h-1 w-16 sm:w-20 bg-blue-600 mx-auto"></div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {projects.map((project, index) => (
             <div 
               key={index} 
@@ -47,7 +47,7 @@ const Projects = () => {
               onMouseEnter={() => setHoveredProject(index)}
               onMouseLeave={() => setHoveredProject(null)}
             >
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-40 sm:h-48 overflow-hidden">
                 <img 
                   src={project.image} 
                   alt={project.title} 
