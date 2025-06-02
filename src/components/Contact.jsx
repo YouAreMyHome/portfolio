@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 import { Mail, Github as GitHub, Linkedin, Facebook, Send, Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
