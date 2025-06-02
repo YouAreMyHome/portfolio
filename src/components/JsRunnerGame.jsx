@@ -1,11 +1,16 @@
 // src/components/JsRunnerGame.jsx
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const WALK_SPRITE = { id: 'walk', sprite: '/assets/game/cat_walk_sprite.png', frames: 7, speed: 120, loop: true, width: 32, height: 32 };
 const JUMP_SPRITE = { id: 'jump', sprite: '/assets/game/cat_jump_sprite.png', frames: 13, speed: 80, loop: false, width: 32, height: 32 };
 const IDLE_SPRITE = WALK_SPRITE;
 
 const JsRunnerGame = () => {
+  const { language } = useLanguage();
+  const t = (key) => getTranslation(language, key);
+  
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
 
@@ -313,23 +318,21 @@ const JsRunnerGame = () => {
           style={{ width: '100%', minHeight: '200px' }}>
           
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="text-4xl mb-4">🖥️</div>
-            <h3 className="text-lg font-bold text-white dark:text-slate-200 mb-3">
-              Desktop Required
+            <div className="text-4xl mb-4">🖥️</div>            <h3 className="text-lg font-bold text-white dark:text-slate-200 mb-3">
+              {t('jsRunnerGame.mobileTitle')}
             </h3>
             <p className="text-sm text-white/90 dark:text-slate-300 leading-relaxed max-w-sm">
-              This game is optimized for desktop experience. Please visit this page on a PC or laptop browser for the best gaming experience!
+              {t('jsRunnerGame.mobileDescription')}
             </p>
             <div className="mt-4 text-xs text-white/70 dark:text-slate-400">
-              🎮 Use keyboard controls for jumping
+              {t('jsRunnerGame.mobileInstruction')}
             </div>
           </div>
         </div>
 
         {/* Bottom decoration */}
-        <div className="h-8 md:h-10 mt-3 flex items-center justify-between px-4">
-          <div className="px-4 py-1.5 rounded-md bg-neutral-600 text-white text-xs font-semibold">
-            Mobile Detected
+        <div className="h-8 md:h-10 mt-3 flex items-center justify-between px-4">          <div className="px-4 py-1.5 rounded-md bg-neutral-600 text-white text-xs font-semibold">
+            {t('jsRunnerGame.mobileDetected')}
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
@@ -358,9 +361,8 @@ const JsRunnerGame = () => {
       <div className="px-4 mb-4">
         <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-sky-400 dark:text-sky-300 mb-2 tracking-tight">
           Cat Run!
-        </h2>
-        <p className="mb-3 text-xs md:text-sm text-neutral-300 dark:text-neutral-400 leading-tight">
-          Press <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">Space</kbd> or <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">↑</kbd> / Click Button
+        </h2>        <p className="mb-3 text-xs md:text-sm text-neutral-300 dark:text-neutral-400 leading-tight">
+          {t('jsRunnerGame.instructions')} <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">Space</kbd> {t('jsRunnerGame.or')} <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">↑</kbd> / {t('jsRunnerGame.clickButton')}
         </p>
       </div>
 
@@ -408,12 +410,11 @@ const JsRunnerGame = () => {
           ></div>
         ))}
 
-        {/* Score Board */}
-        <div className="absolute top-2 right-3 px-2 py-0.5
+        {/* Score Board */}        <div className="absolute top-2 right-3 px-2 py-0.5
           bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm
           rounded-md shadow
           text-xl font-bold text-orange-600 dark:text-orange-400">
-          Score: {score}
+          {t('jsRunnerGame.score')}: {score}
         </div>
 
         {/* Start Instructions */}
@@ -423,7 +424,7 @@ const JsRunnerGame = () => {
             bg-white/75 dark:bg-slate-950/75 backdrop-blur-sm
             text-lg font-semibold text-sky-700 dark:text-sky-300
             transition-opacity duration-300 ease-out">
-            Press <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">Space</kbd> to Start
+            {t('jsRunnerGame.startInstructions')} <kbd className="px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-300 dark:bg-neutral-600 border border-neutral-400 dark:border-neutral-500 rounded shadow-sm">Space</kbd> {t('jsRunnerGame.toStart')}
           </div>
         )}
 
@@ -433,10 +434,9 @@ const JsRunnerGame = () => {
             p-6 rounded-lg shadow-xl text-center
             bg-red-600/75 dark:bg-red-800/75 backdrop-blur-sm
             text-lg font-bold text-white dark:text-red-100
-            transition-opacity duration-300 ease-out">
-            Game Over! Score: {score}.<br />
+            transition-opacity duration-300 ease-out">            {t('jsRunnerGame.gameOver')} {t('jsRunnerGame.score')}: {score}.<br />
             <div className="mt-1">
-              Press <kbd className="px-1.5 py-0.5 mt-1.5 text-xs font-semibold text-red-800 dark:text-red-200 bg-white dark:bg-red-300 border border-red-300 dark:border-red-400 rounded shadow-sm">Space</kbd> to Restart.
+              {t('jsRunnerGame.startInstructions')} <kbd className="px-1.5 py-0.5 mt-1.5 text-xs font-semibold text-red-800 dark:text-red-200 bg-white dark:bg-red-300 border border-red-300 dark:border-red-400 rounded shadow-sm">Space</kbd> {t('jsRunnerGame.toRestart')}.
             </div>
           </div>
         )}
@@ -452,10 +452,9 @@ const JsRunnerGame = () => {
             text-white text-sm font-semibold shadow-md
             focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75
             active:bg-sky-700 dark:active:bg-sky-800
-            transition-all duration-150 active:scale-95"
-          aria-label={gameOver || !gameStarted ? "Start Game" : "Jump"}
+            transition-all duration-150 active:scale-95"          aria-label={gameOver || !gameStarted ? t('jsRunnerGame.startGame') : t('jsRunnerGame.jump')}
         >
-          {gameOver ? "Play Again" : (!gameStarted ? "Start" : "Jump!")}
+          {gameOver ? t('jsRunnerGame.playAgain') : (!gameStarted ? t('jsRunnerGame.start') : t('jsRunnerGame.jumpButton'))}
         </button>
         <div className="flex items-center space-x-2">
           <div className={`w-2 h-2 ${gameStarted && !gameOver ? 'bg-green-500 animate-pulse' : 'bg-red-600/70'} rounded-full transition-colors duration-300`}></div>

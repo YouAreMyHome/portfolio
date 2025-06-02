@@ -1,7 +1,7 @@
 // src/pages/HomePage.jsx
 import React, { useEffect, useState } from 'react';
 import Hero from '../components/Hero';
-import Experience from '../components/Experience';
+import Education from '../components/Education';
 import Awards from '../components/Awards';
 import Projects from '../components/Projects'; // Projects này sẽ hiển thị các dự án chính, không phải CleanURI hay Game
 import Contact from '../components/Contact';
@@ -11,7 +11,7 @@ const HomePage = ({ setActiveSection, scrollToSection, performScroll }) => {
   // Bạn có thể chuyển logic IntersectionObserver từ App.jsx vào đây
   // và chỉ cho nó theo dõi các sections của HomePage
   useEffect(() => {
-    const sections = ['home', 'experience', 'awards', 'projects', 'contact'];
+    const sections = ['home', 'education', 'awards', 'projects', 'contact'];
     const observerOptions = {
       root: null,
       rootMargin: '-40% 0px -60% 0px',
@@ -44,7 +44,7 @@ const HomePage = ({ setActiveSection, scrollToSection, performScroll }) => {
   return (
     <>
       <Hero scrollToContact={() => performScroll('contact')} /> {/* Hero vẫn cần id="home" */}
-      <Experience /> {/* id="experience" */}
+      <Education /> {/* id="education" */}
       <Awards /> {/* id="awards" */}
       <Projects /> {/* id="projects" - Component Projects của bạn sẽ cần điều chỉnh để chỉ hiển thị các dự án chính*/}
       <Contact /> {/* id="contact" */}

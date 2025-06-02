@@ -1,7 +1,12 @@
 import React from 'react';
 import { Github as GitHub, Linkedin, Facebook, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const Hero = ({ scrollToContact }) => {
+  const { language } = useLanguage();
+  const t = (key) => getTranslation(language, key);
+
   return (
     <section id="home" className="py-16 sm:py-20 md:py-32 bg-gradient-to-br from-white via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,16 +17,16 @@ const Hero = ({ scrollToContact }) => {
               <div className="absolute -bottom-6 -right-6 sm:-bottom-10 sm:-right-10 w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full blur-xl opacity-70"></div>
               <div className="relative">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white">
-                  Hi, I'm <span className="text-blue-600 dark:text-blue-400 relative">
+                  {t('hero.greeting')} <span className="text-blue-600 dark:text-blue-400 relative">
                     Nghia
                     <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-600 dark:bg-blue-400 transform -translate-y-1"></span>
                   </span>
                 </h1>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-medium mb-4 sm:mb-6 text-gray-700 dark:text-gray-300">
-                  IT Student at HUFLIT
+                  {t('hero.title')}
                 </h2>
                 <p className="text-base sm:text-lg mb-6 sm:mb-8 text-gray-600 dark:text-gray-400 max-w-lg leading-relaxed">
-                  Aspiring Software Developer specializing in web development with a passion for creating efficient, user-friendly applications.
+                  {t('hero.description')}
                 </p>
               </div>
             </div>
@@ -57,7 +62,7 @@ const Hero = ({ scrollToContact }) => {
               onClick={scrollToContact}
               className="group px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md flex items-center text-sm sm:text-base"
             >
-              Contact Me
+              {t('hero.contactBtn')}
               <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px] ml-2 transform group-hover:translate-x-1 transition-transform" />
             </button>
           </div>

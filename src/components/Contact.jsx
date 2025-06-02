@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import emailjs from 'emailjs-com';
 import { Mail, Github as GitHub, Linkedin, Facebook, Send, Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../translations';
 
 const Contact = () => {
+  const { language } = useLanguage();
+  const t = (key) => getTranslation(language, key);
   const initialFormData = {
     name: '',
     email: '',
@@ -19,19 +23,19 @@ const Contact = () => {
     switch (name) {
       case 'name':
         if (!value.trim()) {
-          error = 'Name is required.';
+          error = language === 'vi' ? 'Tên là bắt buộc.' : 'Name is required.';
         }
         break;
       case 'email':
         if (!value.trim()) {
-          error = 'Email is required.';
+          error = language === 'vi' ? 'Email là bắt buộc.' : 'Email is required.';
         } else if (!/\S+@\S+\.\S+/.test(value)) {
-          error = 'Email address is invalid.';
+          error = language === 'vi' ? 'Địa chỉ email không hợp lệ.' : 'Email address is invalid.';
         }
         break;
       case 'message':
         if (!value.trim()) {
-          error = 'Message is required.';
+          error = language === 'vi' ? 'Tin nhắn là bắt buộc.' : 'Message is required.';
         }
         break;
       default:
@@ -84,7 +88,7 @@ const Contact = () => {
 
     if (!serviceID || !templateID || !userID) {
         console.error("EmailJS environment variables are not set!");
-        setSubmitError("Configuration error. Could not send message.");
+        setSubmitError(t('contact.form.configError'));
         setIsSubmitting(false);
         return;
     }
@@ -102,7 +106,7 @@ const Contact = () => {
       }, (error) => {
         console.error('EmailJS Error:', error.text);
         setIsSubmitting(false);
-        setSubmitError(`Failed to send message. ${error.text || 'Please try again later.'}`);
+        setSubmitError(`${t('contact.form.error')} ${error.text || ''}`);
         setTimeout(() => {
           setSubmitError(null);
         }, 7000);
@@ -113,14 +117,14 @@ const Contact = () => {
     <section id="contact" className="py-16 sm:py-20 bg-gray-100 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Contact Me</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{t('contact.title')}</h2>
           <div className="mt-2 h-1 w-20 bg-blue-600 mx-auto"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
           {/* Contact Information */}
           <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow-md">
-            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">Get In Touch</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">{t('contact.subtitle')}</h3>
             <div className="space-y-4 sm:space-y-6">
               {/* Email */}
               <div className="flex items-center">
@@ -129,7 +133,7 @@ const Contact = () => {
                   <Mail size={24} className="hidden sm:block text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{t('contact.info.email')}</p>
                   <a href="mailto:ltn66441@gmail.com" className="text-sm sm:text-lg text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all">
                     ltn66441@gmail.com
                   </a>
@@ -179,13 +183,13 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow-md">
-            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">Send Me a Message</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">{t('contact.form.title')}</h3>
             
             {submitSuccess && (
               <div className="fade-in flex items-start bg-green-100 dark:bg-green-800 p-3 sm:p-4 rounded-md mb-4 sm:mb-6 text-green-700 dark:text-green-200">
                 <CheckCircle size={18} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
                 <CheckCircle size={20} className="hidden sm:block mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-sm sm:text-base">Thank you for your message! I'll get back to you soon.</p>
+                <p className="text-sm sm:text-base">{t('contact.form.success')}</p>
               </div>
             )}
 
@@ -200,7 +204,7 @@ const Contact = () => {
             <form onSubmit={handleSubmit} noValidate> {/* noValidate để tắt validation mặc định của browser, ưu tiên JS validation */}
               <div className="mb-4">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Name
+                  {t('contact.form.name')}
                 </label>
                 <input
                   type="text"
@@ -208,7 +212,7 @@ const Contact = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Your Full Name"
+                  placeholder={t('contact.form.namePlaceholder')}
                   className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.name ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 />
                 {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
@@ -216,7 +220,7 @@ const Contact = () => {
               
               <div className="mb-4">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
+                  {t('contact.form.email')}
                 </label>
                 <input
                   type="email"
@@ -224,7 +228,7 @@ const Contact = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="your.email@example.com"
+                  placeholder={t('contact.form.emailPlaceholder')}
                   className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white ${formErrors.email ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 />
                 {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
@@ -232,7 +236,7 @@ const Contact = () => {
               
               <div className="mb-6">
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Message
+                  {t('contact.form.message')}
                 </label>
                 <textarea
                   id="message"
@@ -240,7 +244,7 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  placeholder="Tell me how I can help you..."
+                  placeholder={t('contact.form.messagePlaceholder')}
                   className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-md focus:outline-none dark:bg-gray-800 dark:text-white resize-vertical ${formErrors.message ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'}`}
                 ></textarea>
                 {formErrors.message && <p className="text-red-500 text-xs mt-1">{formErrors.message}</p>}
@@ -255,13 +259,13 @@ const Contact = () => {
                   <>
                     <Loader2 size={16} className="sm:hidden mr-2 animate-spin" />
                     <Loader2 size={18} className="hidden sm:block mr-2 animate-spin" />
-                    <span>Sending...</span>
+                    <span>{t('contact.form.sending')}</span>
                   </>
                 ) : (
                   <>
                     <Send size={16} className="sm:hidden mr-2" />
                     <Send size={18} className="hidden sm:block mr-2" />
-                    <span>Send Message</span>
+                    <span>{t('contact.form.submit')}</span>
                   </>
                 )}
               </button>

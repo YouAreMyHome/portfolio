@@ -2,7 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate, BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 // Icons
-import { Menu, X, Github as GitHub, Linkedin, Facebook, Mail, Sun, Moon, Home, Briefcase, Award, Code as CodeIcon, Gamepad2, Link as LinkIcon } from 'lucide-react'; // Thêm LinkIcon
+import { Menu, X, Github as GitHub, Linkedin, Facebook, Mail, Sun, Moon, Home, Briefcase, Award, Code as CodeIcon, Gamepad2, Link as LinkIcon, Languages } from 'lucide-react'; // Thêm LinkIcon và Languages
+
+// Context
+import { useLanguage } from './contexts/LanguageContext';
+import { getTranslation } from './translations';
 
 // Page Components
 import HomePage from './pages/HomePage';
@@ -22,6 +26,9 @@ function App() {
     }
     return false;
   });
+
+  const { language, toggleLanguage } = useLanguage();
+  const t = (key) => getTranslation(language, key);
 
   const location = useLocation(); // Hook để lấy path hiện tại
   const navigate = useNavigate(); // Hook để điều hướng programmatic
@@ -77,13 +84,13 @@ function App() {
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', path: '/', icon: Home, isPage: false }, // isPage=false nghĩa là section trên HomePage
-    { id: 'experience', label: 'Experience', path: 'experience', icon: Briefcase, isPage: false },
-    { id: 'awards', label: 'Awards', path: 'awards', icon: Award, isPage: false },
-    { id: 'projects', label: 'Projects', path: 'projects', icon: CodeIcon, isPage: false },
-    { id: 'url-shortener', label: 'URL Shortener', path: '/url-shortener', icon: LinkIcon, isPage: true }, // Trang riêng
-    { id: 'fun-game', label: 'Fun Game', path: '/fun-game', icon: Gamepad2, isPage: true }, // Trang riêng
-    { id: 'contact', label: 'Contact', path: 'contact', icon: Mail, isPage: false },
+    { id: 'home', label: t('nav.home'), path: '/', icon: Home, isPage: false }, // isPage=false nghĩa là section trên HomePage
+    { id: 'education', label: t('nav.education'), path: 'education', icon: Briefcase, isPage: false },
+    { id: 'awards', label: t('nav.awards'), path: 'awards', icon: Award, isPage: false },
+    { id: 'projects', label: t('nav.projects'), path: 'projects', icon: CodeIcon, isPage: false },
+    { id: 'url-shortener', label: t('nav.urlShortener'), path: '/url-shortener', icon: LinkIcon, isPage: true }, // Trang riêng
+    { id: 'fun-game', label: t('nav.funGame'), path: '/fun-game', icon: Gamepad2, isPage: true }, // Trang riêng
+    { id: 'contact', label: t('nav.contact'), path: 'contact', icon: Mail, isPage: false },
   ];
 
   return (
@@ -127,12 +134,28 @@ function App() {
               >
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
+              <button
+                onClick={toggleLanguage}
+                className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center space-x-1"
+                aria-label="Toggle language"
+              >
+                <Languages size={20} />
+                <span className="text-xs font-medium">{language.toUpperCase()}</span>
+              </button>
             </div>
             
             {/* Mobile menu button and dark mode toggle */}
             <div className="md:hidden flex items-center space-x-2">
-              <button /* Dark mode toggle (giữ nguyên) */ onClick={toggleDarkMode} className="p-2 ..."> {darkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
-              <button onClick={() => setMobileMenuOpen(prev => !prev)} className="inline-flex ..."> {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+              <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" aria-label="Toggle dark mode">
+                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+              <button onClick={toggleLanguage} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center space-x-1" aria-label="Toggle language">
+                <Languages size={16} />
+                <span className="text-xs font-medium">{language.toUpperCase()}</span>
+              </button>
+              <button onClick={() => setMobileMenuOpen(prev => !prev)} className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" aria-label="Open main menu">
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
           </div>
         </div>
