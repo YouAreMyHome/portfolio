@@ -14,7 +14,7 @@ export default defineConfig({
       }
     }
   ],
-  base: '/portfolio/', // Thay 'portfolio-1' bằng tên repository của bạn
+  base: '/', // Sử dụng domain riêng letrongnghia.me
   optimizeDeps: {
     exclude: ['lucide-react'],
   },

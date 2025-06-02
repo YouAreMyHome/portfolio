@@ -7,7 +7,7 @@ import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/portfolio"> {/* Thêm basename cho GitHub Pages */}
+    <BrowserRouter> {/* Sử dụng domain riêng letrongnghia.me */}
       <App />
     </BrowserRouter>
   </React.StrictMode>
