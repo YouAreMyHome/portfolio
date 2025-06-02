@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'; // Import các hooks và components của React Router
+import { Routes, Route, Link, useLocation, useNavigate, BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 // Icons
 import { Menu, X, Github as GitHub, Linkedin, Facebook, Mail, Sun, Moon, Home, Briefcase, Award, Code as CodeIcon, Gamepad2, Link as LinkIcon } from 'lucide-react'; // Thêm LinkIcon
 

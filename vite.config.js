@@ -1,9 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'add-nojekyll',
+      writeBundle() {
+        writeFileSync(resolve('dist/.nojekyll'), '');
+      }
+    }
+  ],
+  base: '/portfolio/', // Thay 'portfolio-1' bằng tên repository của bạn
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
