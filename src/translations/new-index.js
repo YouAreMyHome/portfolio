@@ -1,4 +1,3 @@
-// src/translations/index.js
 import { vietnameseTranslations } from './vi.js';
 import { englishTranslations } from './en.js';
 

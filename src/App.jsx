@@ -12,6 +12,7 @@ import { getTranslation } from './translations';
 import HomePage from './pages/HomePage';
 import JsRunnerGamePage from './pages/JsRunnerGamePage';
 import CleanUriToolPage from './pages/CleanUriToolPage'; // Import trang mới
+import ProjectDetailPage from './pages/ProjectDetailPage'; // Import trang chi tiết dự án
 
 // (Không cần import Hero, Experience, Awards, Projects, Contact, JsRunnerGame trực tiếp ở đây nữa nếu chúng chỉ dùng trong các page)
 
@@ -201,6 +202,7 @@ function App() {
           />
           <Route path="/fun-game" element={<JsRunnerGamePage />} />
           <Route path="/url-shortener" element={<CleanUriToolPage />} />
+          <Route path="/project/:projectId" element={<ProjectDetailPage />} />
           {/* Bạn có thể thêm các route khác ở đây, ví dụ trang chi tiết dự án */}
         </Routes>
       </main>
