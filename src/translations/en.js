@@ -53,11 +53,10 @@ export const englishTranslations = {
       }
     ]
   },
-  
-  // Projects Section
+    // Projects Section
   projects: {
     title: 'My Projects',
-    description: 'Explore the projects I have worked on',
+    description: 'Explore the projects I have built with comprehensive features and modern technologies',
     viewDetails: 'View Details',
     backToProjects: 'Back to Projects',
     projectOverview: 'Project Overview',
@@ -69,6 +68,8 @@ export const englishTranslations = {
     challenges: 'Challenges',
     github: 'Source Code',
     demo: 'Live Demo',
+    viewCode: 'View Source Code',
+    liveDemo: 'Live Demo',
     items: [
       {
         id: 'shn-gear',
@@ -88,46 +89,48 @@ export const englishTranslations = {
         ],
         role: 'Full-stack Developer',
         team: '3 members - 1 Backend Developer, 1 Frontend Developer, 1 UI/UX Designer',
-        duration: '4 months',
-        challenges: [
+        duration: '4 months',        challenges: [
           'Performance optimization with large product catalog',
           'Ensuring security in payment processing',
           'Designing intuitive UX/UI for gaming users',
           'Integrating complex payment APIs'
         ],
-        githubUrl: 'https://github.com/letrongnghia/shn-gear',
+        githubUrl: 'https://github.com/Waito3007/SHNGear.git',
         demoUrl: 'https://shn-gear.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1556438064-2d7646166914?w=800',
           'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800'
         ]
-      },
-      {
-        id: 'task-manager',
-        title: 'Task Management System',
-        shortDescription: 'Intuitive task management application supporting team collaboration and progress tracking.',
-        description: 'A task management system designed to help teams work more efficiently. The application provides features for task management, work assignment, progress tracking, and detailed reporting.',
-        technologies: ['Vue.js', 'Firebase', 'Vuex', 'Bootstrap', 'Chart.js'],
+      },      {
+        id: 'hotel-booking',
+        title: 'Hotel Booking Management System',
+        shortDescription: 'Comprehensive hotel booking management system built with Node.js, React, and MongoDB, supporting full functionality for customers, hotel managers, and administrators.',
+        description: 'A comprehensive hotel booking management system developed by HUFLIT university students. The project integrates complete features from hotel management, room booking to payment processing, with modern and responsive user interface built using React and Ant Design.',
+        technologies: ['Node.js', 'React', 'MongoDB', 'Express', 'Ant Design', 'JWT', 'Cloudinary API'],
         features: [
-          'Create and manage projects',
-          'Assign tasks to team members',
-          'Real-time progress tracking',
-          'Detailed reports and analytics',
-          'Notification system',
-          'Integrated team chat'
+          'User authentication and role-based access control (Customer, Hotel Manager, Admin)',
+          'Comprehensive hotel and room management for managers',
+          'Room booking and payment processing functionality for customers',
+          'Responsive UI built with React and Ant Design',
+          'Image uploading functionality via Cloudinary API',
+          'Smart hotel and room search and filtering system',
+          'Comprehensive admin dashboard',
+          'Real-time platform activity monitoring'
         ],
-        role: 'Frontend Developer',
-        team: '2 members - 1 Frontend Developer, 1 Backend Developer',
+        role: 'Full-stack Developer',
+        team: '2 members - Sang Vu (HUFLIT student), Nghia Le (HUFLIT student)',
         duration: '3 months',
         challenges: [
-          'Real-time data synchronization',
-          'Multi-device interface optimization',
-          'Complex access control handling'
+          'Building complex role-based authorization system with 3 different roles',
+          'Integrating Cloudinary API for image management',
+          'Designing optimized MongoDB database for booking system',
+          'Ensuring high security for payment system',
+          'Performance optimization with large data volumes'
         ],
-        githubUrl: 'https://github.com/letrongnghia/task-manager',
-        demoUrl: 'https://task-manager-demo.vercel.app',
+        githubUrl: 'https://github.com/Waito3007/WEB-DAT-PHONG.git',
+        demoUrl: 'https://hotel-booking-management.vercel.app',
         images: [
-          'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800'
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
         ]
       },
       {
@@ -146,13 +149,12 @@ export const englishTranslations = {
         ],
         role: 'Solo Developer',
         team: '1 member - Solo project',
-        duration: '2 months',
-        challenges: [
+        duration: '2 months',        challenges: [
           'Loading performance optimization',
           'Attractive UX/UI design',
           'Cross-browser compatibility'
         ],
-        githubUrl: 'https://github.com/letrongnghia/portfolio',
+        githubUrl: 'https://github.com/Waito3007/KLTN04.git',
         demoUrl: 'https://letrongnghia.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'

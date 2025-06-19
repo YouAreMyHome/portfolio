@@ -53,11 +53,10 @@ export const vietnameseTranslations = {
       }
     ]
   },
-  
-  // Projects Section
+    // Projects Section
   projects: {
     title: 'Dự Án Của Tôi',
-    description: 'Khám phá các dự án tôi đã thực hiện',
+    description: 'Khám phá các dự án tôi đã thực hiện với đầy đủ tính năng và công nghệ hiện đại',
     viewDetails: 'Xem Chi Tiết',
     backToProjects: 'Trở Về Dự Án',
     projectOverview: 'Tổng Quan Dự Án',
@@ -69,6 +68,8 @@ export const vietnameseTranslations = {
     challenges: 'Thử Thách',
     github: 'Mã Nguồn',
     demo: 'Xem Demo',
+    viewCode: 'Xem Mã Nguồn',
+    liveDemo: 'Demo Trực Tiếp',
     items: [
       {
         id: 'shn-gear',
@@ -88,46 +89,48 @@ export const vietnameseTranslations = {
         ],
         role: 'Full-stack Developer',
         team: '3 thành viên - 1 Backend Developer, 1 Frontend Developer, 1 UI/UX Designer',
-        duration: '4 tháng',
-        challenges: [
+        duration: '4 tháng',        challenges: [
           'Tối ưu hóa hiệu suất với lượng lớn sản phẩm',
           'Đảm bảo bảo mật trong xử lý thanh toán',
           'Thiết kế UX/UI trực quan cho người dùng gaming',
           'Tích hợp các API thanh toán phức tạp'
         ],
-        githubUrl: 'https://github.com/letrongnghia/shn-gear',
+        githubUrl: 'https://github.com/Waito3007/SHNGear.git',
         demoUrl: 'https://shn-gear.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1556438064-2d7646166914?w=800',
           'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800'
         ]
-      },
-      {
-        id: 'task-manager',
-        title: 'Task Management System',
-        shortDescription: 'Ứng dụng quản lý công việc với giao diện trực quan, hỗ trợ làm việc nhóm và theo dõi tiến độ.',
-        description: 'Hệ thống quản lý công việc được thiết kế để giúp các nhóm làm việc hiệu quả hơn. Ứng dụng cung cấp các tính năng quản lý task, phân công công việc, theo dõi tiến độ và báo cáo chi tiết.',
-        technologies: ['Vue.js', 'Firebase', 'Vuex', 'Bootstrap', 'Chart.js'],
+      },      {
+        id: 'hotel-booking',
+        title: 'Hotel Booking Management System',
+        shortDescription: 'Hệ thống quản lý đặt phòng khách sạn được xây dựng với Node.js, React và MongoDB, hỗ trợ đầy đủ chức năng cho khách hàng, quản lý khách sạn và quản trị viên.',
+        description: 'Hệ thống quản lý đặt phòng khách sạn toàn diện được phát triển bởi đội ngũ sinh viên HUFLIT. Dự án tích hợp đầy đủ các tính năng từ quản lý khách sạn, đặt phòng đến xử lý thanh toán, với giao diện người dùng hiện đại và responsive được xây dựng bằng React và Ant Design.',
+        technologies: ['Node.js', 'React', 'MongoDB', 'Express', 'Ant Design', 'JWT', 'Cloudinary API'],
         features: [
-          'Tạo và quản lý dự án',
-          'Phân công công việc cho thành viên',
-          'Theo dõi tiến độ thời gian thực',
-          'Báo cáo và thống kê chi tiết',
-          'Hệ thống thông báo',
-          'Chat nhóm tích hợp'
+          'Hệ thống xác thực và phân quyền theo vai trò (Khách hàng, Quản lý khách sạn, Admin)',
+          'Quản lý khách sạn và phòng toàn diện cho quản lý viên',
+          'Tính năng đặt phòng và xử lý thanh toán cho khách hàng',
+          'Giao diện responsive được xây dựng với React và Ant Design',
+          'Tính năng upload hình ảnh thông qua Cloudinary API',
+          'Hệ thống tìm kiếm và lọc khách sạn, phòng thông minh',
+          'Dashboard quản trị toàn diện',
+          'Giám sát hoạt động nền tảng realtime'
         ],
-        role: 'Frontend Developer',
-        team: '2 thành viên - 1 Frontend Developer, 1 Backend Developer',
+        role: 'Full-stack Developer',
+        team: '2 thành viên - Sang Vu (sinh viên HUFLIT), Nghia Le (sinh viên HUFLIT)',
         duration: '3 tháng',
         challenges: [
-          'Đồng bộ dữ liệu thời gian thực',
-          'Tối ưu hóa giao diện cho nhiều thiết bị',
-          'Xử lý quyền truy cập phức tạp'
+          'Xây dựng hệ thống phân quyền phức tạp với 3 vai trò khác nhau',
+          'Tích hợp Cloudinary API cho việc quản lý hình ảnh',
+          'Thiết kế database MongoDB tối ưu cho hệ thống booking',
+          'Đảm bảo bảo mật cao cho hệ thống thanh toán',
+          'Tối ưu hóa hiệu suất với khối lượng dữ liệu lớn'
         ],
-        githubUrl: 'https://github.com/letrongnghia/task-manager',
-        demoUrl: 'https://task-manager-demo.vercel.app',
+        githubUrl: 'https://github.com/Waito3007/WEB-DAT-PHONG.git',
+        demoUrl: 'https://hotel-booking-management.vercel.app',
         images: [
-          'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800'
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
         ]
       },
       {
@@ -146,13 +149,12 @@ export const vietnameseTranslations = {
         ],
         role: 'Solo Developer',
         team: '1 thành viên - Solo project',
-        duration: '2 tháng',
-        challenges: [
+        duration: '2 tháng',        challenges: [
           'Tối ưu hóa hiệu suất loading',
           'Thiết kế UX/UI thu hút',
           'Tương thích cross-browser'
         ],
-        githubUrl: 'https://github.com/letrongnghia/portfolio',
+        githubUrl: 'https://github.com/Waito3007/KLTN04.git',
         demoUrl: 'https://letrongnghia.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'

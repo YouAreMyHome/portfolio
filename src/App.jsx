@@ -87,7 +87,7 @@ function App() {
   const navItems = [
     { id: 'home', label: t('nav.home'), path: '/', icon: Home, isPage: false }, // isPage=false nghĩa là section trên HomePage
     { id: 'education', label: t('nav.education'), path: 'education', icon: Briefcase, isPage: false },
-    { id: 'awards', label: t('nav.awards'), path: 'awards', icon: Award, isPage: false },
+    // { id: 'awards', label: t('nav.awards'), path: 'awards', icon: Award, isPage: false }, // Hidden awards section
     { id: 'projects', label: t('nav.projects'), path: 'projects', icon: CodeIcon, isPage: false },
     { id: 'url-shortener', label: t('nav.urlShortener'), path: '/url-shortener', icon: LinkIcon, isPage: true }, // Trang riêng
     { id: 'fun-game', label: t('nav.funGame'), path: '/fun-game', icon: Gamepad2, isPage: true }, // Trang riêng
