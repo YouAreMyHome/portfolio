@@ -162,20 +162,26 @@ export const englishTranslations = {
       }
     ]
   },
-  
-  // Contact Section
+    // Contact Section
   contact: {
     title: 'Contact',
+    subtitle: 'Contact Information',
     description: 'Get in touch with me to discuss collaboration opportunities',
     form: {
+      title: 'Send Message',
       name: 'Your Name',
       email: 'Email',
       subject: 'Subject',
       message: 'Message',
       send: 'Send Message',
+      submit: 'Send Message',
       sending: 'Sending...',
       success: 'Message sent successfully!',
-      error: 'An error occurred. Please try again.'
+      error: 'An error occurred. Please try again.',
+      configError: 'Email configuration is not set up correctly.',
+      namePlaceholder: 'Enter your name...',
+      emailPlaceholder: 'Enter your email address...',
+      messagePlaceholder: 'Enter your message...'
     },
     info: {
       email: 'letrongnghia2806@gmail.com',

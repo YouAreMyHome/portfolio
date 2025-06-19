@@ -162,20 +162,26 @@ export const vietnameseTranslations = {
       }
     ]
   },
-  
-  // Contact Section
+    // Contact Section
   contact: {
     title: 'Liên Hệ',
+    subtitle: 'Thông tin liên hệ',
     description: 'Hãy liên hệ với tôi để thảo luận về các cơ hội hợp tác',
     form: {
+      title: 'Gửi tin nhắn',
       name: 'Tên của bạn',
       email: 'Email',
       subject: 'Chủ đề',
       message: 'Tin nhắn',
       send: 'Gửi Tin Nhắn',
+      submit: 'Gửi Tin Nhắn',
       sending: 'Đang gửi...',
       success: 'Tin nhắn đã được gửi thành công!',
-      error: 'Có lỗi xảy ra. Vui lòng thử lại.'
+      error: 'Có lỗi xảy ra. Vui lòng thử lại.',
+      configError: 'Cấu hình email chưa được thiết lập đúng.',
+      namePlaceholder: 'Nhập tên của bạn...',
+      emailPlaceholder: 'Nhập địa chỉ email của bạn...',
+      messagePlaceholder: 'Nhập tin nhắn của bạn...'
     },
     info: {
       email: 'letrongnghia2806@gmail.com',
