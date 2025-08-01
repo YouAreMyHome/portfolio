@@ -128,7 +128,7 @@ export const englishTranslations = {
           'Performance optimization with large data volumes'
         ],
         githubUrl: 'https://github.com/Waito3007/WEB-DAT-PHONG.git',
-        demoUrl: 'https://hotel-booking-management.vercel.app',
+        demoUrl: 'web-dat-phong.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
         ]
