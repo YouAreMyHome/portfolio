@@ -128,7 +128,7 @@ export const vietnameseTranslations = {
           'Tối ưu hóa hiệu suất với khối lượng dữ liệu lớn'
         ],
         githubUrl: 'https://github.com/Waito3007/WEB-DAT-PHONG.git',
-        demoUrl: 'web-dat-phong.vercel.app',
+        demoUrl: 'https://web-dat-phong.vercel.app',
         images: [
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
         ]
