@@ -155,7 +155,7 @@ export const vietnameseTranslations = {
           'Tương thích cross-browser'
         ],
         githubUrl: 'https://github.com/Waito3007/KLTN04.git',
-        demoUrl: 'https://letrongnghia.vercel.app',
+        demoUrl: 'https://letrongnghia.me',
         images: [
           'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'
         ]
