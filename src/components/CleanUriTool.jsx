@@ -103,7 +103,7 @@ const CleanUriTool = () => {
               ref={inputRef}
               type="url"
               value={originalUrl}
-              onChange={(e) => setOriginalUrl(e.target.value)}              placeholder={t('cleanUriTool.placeholder')}
+              onChange={(e) => setOriginalUrl(e.target.value)}              placeholder={t('cleanUriTool.inputPlaceholder')}
               required
               className="w-full h-12 sm:h-14 pl-10 sm:pl-12 pr-10 sm:pr-12 py-3 rounded-xl 
                          bg-slate-100 dark:bg-slate-700 
@@ -113,7 +113,7 @@ const CleanUriTool = () => {
                          focus:ring-0 focus:outline-none 
                          transition-all duration-300 placeholder-gray-400 dark:placeholder-gray-500 
                          text-sm sm:text-base shadow-sm focus:shadow-md"
-              aria-label={t('cleanUriTool.inputLabel')}
+              aria-label={t('cleanUriTool.inputPlaceholder')}
             />
             {originalUrl && (
               <button
@@ -147,7 +147,7 @@ const CleanUriTool = () => {
               </>
             ) : (
               <>
-                <span>{t('cleanUriTool.submitButton')}</span>
+                <span>{t('cleanUriTool.cleanButton')}</span>
                 <ArrowRight size={18} className="sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
               </>
             )}
@@ -189,7 +189,7 @@ const CleanUriTool = () => {
                               ? 'bg-green-500 text-white cursor-default' 
                               : 'bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-400 text-white focus:ring-2 focus:ring-gray-400 focus:outline-none'
                             }`}
-                aria-label={copied ? t('cleanUriTool.copiedLabel') : t('cleanUriTool.copyLabel')}
+                aria-label={copied ? t('cleanUriTool.copied') : t('cleanUriTool.copyButton')}
               >                {copied ? (
                   <> 
                     <Check size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" /> 
@@ -199,8 +199,8 @@ const CleanUriTool = () => {
                 ) : (
                   <> 
                     <Copy size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" /> 
-                    <span className="hidden sm:inline">{t('cleanUriTool.copy')}</span>
-                    <span className="sm:hidden">{t('cleanUriTool.copy')}</span>
+                    <span className="hidden sm:inline">{t('cleanUriTool.copyButton')}</span>
+                    <span className="sm:hidden">{t('cleanUriTool.copyButton')}</span>
                   </>
                 )}
               </button>

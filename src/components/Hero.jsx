@@ -33,7 +33,7 @@ const Hero = ({ scrollToContact }) => {
             
             <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 sm:mb-8">
               <a 
-                href="github.com/YouAreMyHome" 
+                href="https://github.com/YouAreMyHome" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2.5 sm:p-3 bg-white dark:bg-gray-800 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors shadow-sm"
@@ -41,7 +41,7 @@ const Hero = ({ scrollToContact }) => {
                 <GitHub size={20} className="sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
               </a>
               <a 
-                href="www.linkedin.com/in/youaremyhome" 
+                href="https://www.linkedin.com/in/youaremyhome" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2.5 sm:p-3 bg-white dark:bg-gray-800 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors shadow-sm"
@@ -49,7 +49,7 @@ const Hero = ({ scrollToContact }) => {
                 <Linkedin size={20} className="sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
               </a>
               <a 
-                href="www.facebook.com/consauchetduoi" 
+                href="https://www.facebook.com/consauchetduoi" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2.5 sm:p-3 bg-white dark:bg-gray-800 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors shadow-sm"
