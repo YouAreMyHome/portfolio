@@ -55,7 +55,7 @@ src/
 
 ## 🌐 Live Demo
 
-Website đã được deploy tại: `https://yourusername.github.io/portfolio/`
+Website đã được deploy tại: `letrongnghia.me`
 
 ## 📝 Features
 
