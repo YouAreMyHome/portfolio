@@ -16,7 +16,7 @@ export default defineConfig({
   ],
   base: '/', // Sử dụng domain riêng letrongnghia.me
   optimizeDeps: {
-    exclude: ['lucide-react'],
+  include: ['lucide-react'],
   },
   server: {
     proxy: {
