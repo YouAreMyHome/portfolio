@@ -16,7 +16,25 @@ export default defineConfig({
   ],
   base: '/', // Sử dụng domain riêng letrongnghia.me
   optimizeDeps: {
-  include: ['lucide-react'],
+    include: ['lucide-react'],
+  },
+  build: {
+    chunkSizeWarningLimit: 700, // Three.js core is ~650KB, cannot be split further
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React
+          'vendor-react': ['react', 'react-dom'],
+          // Three.js ecosystem
+          'vendor-three': ['three'],
+          'vendor-r3f': ['@react-three/fiber', '@react-three/drei'],
+          // Animation
+          'vendor-animation': ['gsap', 'framer-motion'],
+          // State management
+          'vendor-state': ['zustand'],
+        },
+      },
+    },
   },
   server: {
     proxy: {

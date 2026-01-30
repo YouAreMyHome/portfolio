@@ -1,0 +1,23 @@
+// Colors - Palette tươi sáng cho room
+export const COLORS = {
+  wall: '#7EC8E3',
+  wallDark: '#6BB8D3',
+  floor: '#C4A574',
+  floorDark: '#A8896A',
+  desk: '#B8956B',
+  deskDark: '#9A7B5A',
+  pc: '#2D2D2D',
+  pcDark: '#1a1a1a',
+  screen: '#0f172a',
+  screenGlow: '#4ade80',
+  chair: '#D4956A',
+  chairDark: '#B87A50',
+  bed: '#E8D4C4',
+  bedSheet: '#F5A0B0',
+  cabinet: '#C9A066',
+  plant: '#4CAF50',
+  plantDark: '#388E3C',
+  white: '#F5F5F0',
+  cat: '#F5A623',
+  catDark: '#D4870A',
+}
