@@ -1,6 +1,6 @@
 import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
-import { personalInfo, aboutMe, skills, projects, experience } from '../../data/portfolio'
+import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
 import './Panels.css'
 
 /**
@@ -93,9 +93,16 @@ function AboutPanel() {
     <div className="panel-content">
       <h2>👋 About Me</h2>
       <div className="about-header">
-        <h3>{personalInfo.name}</h3>
-        <p className="about-title">{personalInfo.title}</p>
-        <p className="about-tagline">{personalInfo.tagline}</p>
+        <img 
+          src="/assets/img/avatar.jpg" 
+          alt={personalInfo.name}
+          className="about-avatar"
+        />
+        <div className="about-info">
+          <h3>{personalInfo.name}</h3>
+          <p className="about-title">{personalInfo.title}</p>
+          <p className="about-tagline">{personalInfo.tagline}</p>
+        </div>
       </div>
       <p className="about-intro">{aboutMe.intro}</p>
       <p className="about-description">{aboutMe.description}</p>
@@ -116,6 +123,32 @@ function AboutPanel() {
             </div>
             <span className="exp-company">{exp.company}</span>
             <p className="exp-description">{exp.description}</p>
+          </div>
+        ))}
+      </div>
+      
+      {/* Education */}
+      <h3 className="section-title">🎓 Education</h3>
+      <div className="education-list">
+        {education.map((edu) => (
+          <div key={edu.id} className="education-item">
+            <div className="edu-header">
+              <img 
+                src="/assets/img/huflit-logo.png" 
+                alt="HUFLIT Logo" 
+                className="edu-logo"
+              />
+              <div className="edu-info">
+                <span className="edu-school">{edu.school}</span>
+                <span className="edu-degree">{edu.degree}</span>
+                <span className="edu-duration">{edu.duration}</span>
+              </div>
+            </div>
+            <p className="edu-description">{edu.description}</p>
+            <div className="edu-details">
+              {edu.gpa && <span className="edu-gpa">📊 GPA: {edu.gpa}</span>}
+              {edu.status && <span className="edu-status">📚 {edu.status}</span>}
+            </div>
           </div>
         ))}
       </div>

@@ -7,6 +7,8 @@ import SceneLighting from './components/Room/SceneLighting'
 import PanelOverlay from './components/UI/PanelOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
+import MusicPlayer from './components/UI/MusicPlayer'
+import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
 import useStore from './store/useStore'
 import { useSounds } from './utils/useSounds'
 
@@ -132,6 +134,12 @@ function App() {
       
       {/* HUD */}
       <HUD />
+      
+      {/* Music Player - Spotify style, background playback */}
+      <MusicPlayer />
+      
+      {/* Clock Time Display */}
+      <ClockTimeDisplay />
       
       {/* Loading Screen */}
       <LoadingScreen />

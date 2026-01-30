@@ -1,94 +1,132 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { RoundedBox } from '@react-three/drei'
 import { COLORS } from './colors'
+import * as THREE from 'three'
 
-/**
- * TVSetup - TV + Console (Playground/Hobby)
- * Screen có color shift animation
- */
-function TVSetup() {
+function TVSetup(props) {
   const screenRef = useRef()
+  const lightRef = useRef()
+  const consoleLedRef = useRef()
   
-  // Screen color shift animation
   useFrame((state) => {
-    if (screenRef.current) {
-      const hue = (state.clock.elapsedTime * 0.1) % 1
-      screenRef.current.material.emissive.setHSL(hue, 0.6, 0.3)
-    }
+    const t = state.clock.elapsedTime
+    
+    // Animation màu sắc
+    const hue = (t * 0.05) % 1
+    if (screenRef.current) screenRef.current.material.emissive.setHSL(hue, 0.6, 0.2)
+    if (lightRef.current) lightRef.current.color.setHSL(hue, 0.8, 0.5)
+    if (consoleLedRef.current) consoleLedRef.current.intensity = 0.5 + Math.sin(t * 3) * 0.5
   })
   
   return (
-    <group position={[1, 0, -3.6]} rotation={[0, 0, 0]}>
-      {/* TV Stand - nhỏ hơn để vừa góc */}
-      <mesh position={[0, 0.18, 0]} castShadow>
-        <boxGeometry args={[0.7, 0.35, 0.35]} />
-        <meshToonMaterial color={COLORS.cabinet} />
-      </mesh>
+    <group position={[1, 0, -3.6]} {...props}>
       
-      {/* Stand shelf */}
-      <mesh position={[0, 0.2, 0.03]}>
-        <boxGeometry args={[0.6, 0.02, 0.28]} />
-        <meshToonMaterial color="#A08060" />
-      </mesh>
-      
-      {/* Game console */}
-      <group position={[-0.15, 0.28, 0.08]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.2, 0.05, 0.14]} />
-          <meshToonMaterial color="#1a1a1a" />
-        </mesh>
-        {/* Console LED */}
-        <mesh position={[0.08, 0.01, 0.08]}>
-          <boxGeometry args={[0.015, 0.015, 0.015]} />
-          <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={1} />
-        </mesh>
+      {/* --- KỆ TIVI (Giữ nguyên) --- */}
+      <group position={[0, 0.18, 0]}>
+         <RoundedBox args={[1.4, 0.35, 0.35]} radius={0.02} castShadow receiveShadow>
+             <meshToonMaterial color={COLORS.cabinet || '#5d4037'} />
+         </RoundedBox>
+         {[-0.6, 0.6].map((x, i) => (
+             <mesh key={i} position={[x, -0.2, 0]}>
+                 <cylinderGeometry args={[0.02, 0.015, 0.1, 8]} />
+                 <meshToonMaterial color="#333" />
+             </mesh>
+         ))}
+         <mesh position={[0, 0, 0.18]}>
+             <boxGeometry args={[1.3, 0.3, 0.01]} />
+             <meshToonMaterial color={COLORS.cabinet} />
+         </mesh>
+         {[-0.3, 0.3].map((x, i) => (
+             <mesh key={i} position={[x, 0.1, 0.19]}>
+                 <boxGeometry args={[0.1, 0.01, 0.01]} />
+                 <meshStandardMaterial color="#ffd700" />
+             </mesh>
+         ))}
       </group>
-      
-      {/* Controller on stand */}
-      <mesh position={[0.15, 0.22, 0.1]} castShadow>
-        <boxGeometry args={[0.1, 0.025, 0.06]} />
-        <meshToonMaterial color="#333" />
-      </mesh>
-      
-      {/* TV Frame - nhỏ hơn, facing INTO room */}
-      <mesh position={[0, 0.7, 0.08]} castShadow>
-        <boxGeometry args={[0.85, 0.55, 0.05]} />
-        <meshToonMaterial color={COLORS.pc} />
-      </mesh>
-      
-      {/* TV Bezel */}
-      <mesh position={[0, 0.7, 0.11]}>
-        <boxGeometry args={[0.78, 0.48, 0.02]} />
-        <meshToonMaterial color={COLORS.pcDark} />
-      </mesh>
-      
-      {/* TV Screen with animation */}
-      <mesh ref={screenRef} position={[0, 0.7, 0.125]}>
-        <planeGeometry args={[0.72, 0.42]} />
-        <meshStandardMaterial 
-          color="#0f172a" 
-          emissive="#a855f7"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      
-      {/* App icons on TV */}
-      {[[-0.22, 0.06], [-0.07, 0.06], [0.08, 0.06], [0.23, 0.06]].map(([x, y], i) => (
-        <mesh key={i} position={[x, 0.7 + y, 0.13]}>
-          <planeGeometry args={[0.1, 0.1]} />
-          <meshBasicMaterial color={['#ef4444', '#22c55e', '#3b82f6', '#f59e0b'][i]} />
-        </mesh>
-      ))}
-      
-      {/* TV Stand pole */}
-      <mesh position={[0, 0.42, 0.04]} castShadow>
-        <boxGeometry args={[0.06, 0.12, 0.06]} />
-        <meshToonMaterial color={COLORS.pc} />
-      </mesh>
-      <mesh position={[0, 0.37, 0.04]} castShadow>
-        <boxGeometry args={[0.18, 0.02, 0.12]} />
-        <meshToonMaterial color={COLORS.pc} />
-      </mesh>
+
+      {/* --- NEXT-GEN CONSOLE (Đã chỉnh vị trí & kích thước) --- */}
+      {/* Đẩy sang trái x = -0.5, Hạ thấp xuống y = 0.48 để nằm trên mặt kệ */}
+      <group position={[-0.5, 0.48, 0.05]} rotation={[0, 0.2, 0]}>
+         {/* Giảm kích thước xuống một chút cho hợp lý (args cũ 0.35 -> 0.28) */}
+         <RoundedBox args={[0.035, 0.28, 0.22]} radius={0.005} castShadow>
+             <meshStandardMaterial color="#111" roughness={0.2} />
+         </RoundedBox>
+         {/* Ốp trắng 2 bên */}
+         <group>
+             <mesh position={[-0.02, 0, 0]} rotation={[0, 0, 0.05]}>
+                 <boxGeometry args={[0.008, 0.29, 0.23]} />
+                 <meshStandardMaterial color="#eee" />
+             </mesh>
+             <mesh position={[0.02, 0, 0]} rotation={[0, 0, -0.05]}>
+                 <boxGeometry args={[0.008, 0.29, 0.23]} />
+                 <meshStandardMaterial color="#eee" />
+             </mesh>
+         </group>
+         <pointLight ref={consoleLedRef} position={[0, 0.1, 0.1]} distance={0.4} color="#3b82f6" />
+      </group>
+
+      {/* --- LOA (Đã chỉnh vị trí) --- */}
+      {/* Đẩy sang phải x = 0.5 */}
+      <group position={[0.5, 0.45, 0.05]}>
+          <RoundedBox args={[0.15, 0.2, 0.15]} radius={0.01} castShadow>
+              <meshToonMaterial color="#222" />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.08]}>
+              <circleGeometry args={[0.05, 32]} />
+              <meshBasicMaterial color="#333" />
+          </mesh>
+      </group>
+
+      {/* --- TV SET (Treo cao hơn) --- */}
+      {/* Nâng Y từ 0.75 -> 1.0 để hở khoảng trống bên dưới */}
+      <group position={[0, 1.0, 0]}>
+         
+         {/* Ambilight */}
+         <pointLight ref={lightRef} position={[0, 0, -0.2]} intensity={1} distance={3} decay={2} />
+
+         {/* Bỏ chân đế TV cũ, thay bằng Wall Mount (Giá treo tường) cho hiện đại */}
+         <mesh position={[0, 0, -0.04]}>
+             <boxGeometry args={[0.4, 0.2, 0.05]} />
+             <meshStandardMaterial color="#111" />
+         </mesh>
+
+         {/* TV Frame */}
+         <RoundedBox args={[1.2, 0.7, 0.04]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#111" roughness={0.5} />
+         </RoundedBox>
+
+         {/* Screen */}
+         <mesh ref={screenRef} position={[0, 0, 0.021]}>
+            <planeGeometry args={[1.15, 0.65]} />
+            <meshStandardMaterial 
+                color="#000" 
+                emissive="#ffffff"
+                emissiveIntensity={0.5}
+                toneMapped={false}
+            />
+         </mesh>
+
+         {/* Nội dung TV */}
+         <group position={[0, 0, 0.022]}>
+             <mesh position={[-0.3, 0.05, 0]}>
+                 <planeGeometry args={[0.4, 0.4]} />
+                 <meshBasicMaterial color="#ef4444" />
+             </mesh>
+             {[0.2, 0.05, -0.1].map((y, i) => (
+                 <mesh key={i} position={[0.3, y, 0]}>
+                     <planeGeometry args={[0.4, 0.1]} />
+                     <meshBasicMaterial color="#64748b" />
+                 </mesh>
+             ))}
+             <mesh position={[0, -0.25, 0]}>
+                 <planeGeometry args={[1, 0.02]} />
+                 <meshBasicMaterial color="#333" />
+             </mesh>
+         </group>
+
+      </group>
+
     </group>
   )
 }

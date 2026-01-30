@@ -32,9 +32,31 @@ const useStore = create((set, get) => ({
   catClicks: 0,
   showEasterEgg: false,
   
+  // Record Player
+  isRecordPlaying: false,
+  showMusicPlayer: false,
+  
+  // Clock time display
+  showClockTime: false,
+  
   // Sound callback (set by App component)
   onSoundTrigger: null,
   setSoundTrigger: (callback) => set({ onSoundTrigger: callback }),
+  
+  // Record Player controls
+  setRecordPlaying: (playing) => set({ isRecordPlaying: playing }),
+  setShowMusicPlayer: (show) => set({ showMusicPlayer: show }),
+  
+  // Clock time toggle
+  toggleClockTime: () => {
+    const { showClockTime, onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showClockTime: !showClockTime })
+    // Auto hide after 3 seconds
+    if (!showClockTime) {
+      setTimeout(() => set({ showClockTime: false }), 3000)
+    }
+  },
   
   // Actions
   setActivePanel: (panel) => {
@@ -89,6 +111,13 @@ const useStore = create((set, get) => ({
   },
   
   resetEasterEgg: () => set({ showEasterEgg: false, catClicks: 0 }),
+  
+  // Record Player toggle - show/hide music player
+  toggleRecordPlayer: () => {
+    const { onSoundTrigger, showMusicPlayer } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showMusicPlayer: !showMusicPlayer })
+  },
 }))
 
 export default useStore

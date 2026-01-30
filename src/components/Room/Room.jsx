@@ -19,6 +19,7 @@ import Cat from './Cat'
 import PlanBoard from './PlanBoard'
 import WallDecorations from './WallDecorations'
 import FloorDetails from './FloorDetails'
+import RecordPlayer from './RecordPlayer'
 
 /**
  * Room Component - Phase 3: Interaction & Logic
@@ -36,6 +37,8 @@ function Room() {
   const roomRef = useRef()
   const toggleNightMode = useStore((state) => state.toggleNightMode)
   const clickCat = useStore((state) => state.clickCat)
+  const toggleRecordPlayer = useStore((state) => state.toggleRecordPlayer)
+  const toggleClockTime = useStore((state) => state.toggleClockTime)
 
   return (
     <group ref={roomRef}>
@@ -60,7 +63,11 @@ function Room() {
       
       <Cabinet />
       <Shelf />
-      <Clock />
+      
+      {/* Clock - Show current time */}
+      <InteractiveObject name="clock" onClick={toggleClockTime} hoverScale={1.05}>
+        <Clock />
+      </InteractiveObject>
       
       {/* TV - Playground */}
       <InteractiveObject name="tv" panelId="playground">
@@ -83,9 +90,14 @@ function Room() {
       <WallDecorations />
       <FloorDetails />
       
-      {/* Cat - Easter Egg */}
+      {/* Record Player - Music (bên trái TV với tủ riêng) */}
+      <InteractiveObject name="recordplayer" onClick={toggleRecordPlayer} hoverLift={0.05}>
+        <RecordPlayer position={[-0.3, 0.35, -3.6]} />
+      </InteractiveObject>
+      
+      {/* Cat - Easter Egg (ngủ trên thảm giữa phòng) */}
       <InteractiveObject name="cat" onClick={clickCat} hoverLift={0.12}>
-        <Cat />
+        <Cat position={[0.3, 0.05, 0.5]} scale={0.8} />
       </InteractiveObject>
       
       {/* Contact Shadows - soft ground shadows */}

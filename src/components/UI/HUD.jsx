@@ -10,6 +10,7 @@ import './HUD.css'
 function HUD() {
   const hoveredObject = useStore((state) => state.hoveredObject)
   const isNightMode = useStore((state) => state.isNightMode)
+  const isRecordPlaying = useStore((state) => state.isRecordPlaying)
   const { isMuted, toggleMute } = useSoundStore()
   const { playHover, playClick } = useSounds()
   const prevHovered = useRef(null)
@@ -38,6 +39,8 @@ function HUD() {
         return isNightMode ? '☀️ Bật chế độ ngày' : '🌙 Bật chế độ đêm'
       case 'cat':
         return '🐱 Meow!'
+      case 'recordplayer':
+        return isRecordPlaying ? '🎵 Đang phát nhạc' : '🎵 Mở Music Player'
       default:
         return null
     }

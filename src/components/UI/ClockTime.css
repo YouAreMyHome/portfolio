@@ -1,0 +1,85 @@
+/* Clock Time Display */
+
+.clock-time-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+  animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.clock-time-card {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px 40px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(168, 85, 247, 0.15);
+  text-align: center;
+}
+
+.clock-time-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.clock-hours,
+.clock-minutes {
+  font-size: 64px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.clock-separator {
+  font-size: 56px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+  animation: blink 1s step-end infinite;
+  line-height: 1;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.clock-seconds {
+  font-size: 28px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 8px;
+  line-height: 1;
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+
+.clock-date {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
