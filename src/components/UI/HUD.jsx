@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react'
 import useStore from '../../store/useStore'
+import { useSounds, useSoundStore } from '../../utils/useSounds'
 import './HUD.css'
 
 /**
@@ -8,21 +10,34 @@ import './HUD.css'
 function HUD() {
   const hoveredObject = useStore((state) => state.hoveredObject)
   const isNightMode = useStore((state) => state.isNightMode)
+  const { isMuted, toggleMute } = useSoundStore()
+  const { playHover, playClick } = useSounds()
+  const prevHovered = useRef(null)
+  
+  // Play hover sound when hovering new object
+  useEffect(() => {
+    if (hoveredObject && hoveredObject !== prevHovered.current) {
+      playHover()
+    }
+    prevHovered.current = hoveredObject
+  }, [hoveredObject, playHover])
   
   const getHoverText = () => {
     switch (hoveredObject) {
       case 'pc':
-        return '💻 Click to view Projects'
+        return '💻 Xem Projects'
       case 'board':
-        return '📋 Click to view Skills'
+        return '📋 Xem Skills'
       case 'tv':
-        return '🎮 Click to view Playground'
+        return '🎮 Playground'
       case 'bed':
-        return '📱 Click to Contact'
+        return '📬 Liên hệ'
+      case 'chair':
+        return '🪑 Về tôi'
       case 'window':
-        return '🌙 Click to toggle Day/Night'
+        return isNightMode ? '☀️ Bật chế độ ngày' : '🌙 Bật chế độ đêm'
       case 'cat':
-        return '🐱 Click me!'
+        return '🐱 Meow!'
       default:
         return null
     }
@@ -41,17 +56,29 @@ function HUD() {
       
       {/* Corner info */}
       <div className="hud-corner">
-        <span className="hud-title">The Dev's Pixel Room</span>
+        <span className="hud-title">Nghia's Room</span>
         <span className="hud-subtitle">
-          {isNightMode ? '🌙 Night Mode' : '☀️ Day Mode'}
+          {isNightMode ? '🌙 Chế độ đêm' : '☀️ Chế độ ngày'}
         </span>
       </div>
       
+      {/* Sound toggle */}
+      <button 
+        className="hud-sound-toggle"
+        onClick={() => {
+          playClick()
+          toggleMute()
+        }}
+        title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+      >
+        {isMuted ? '🔇' : '🔊'}
+      </button>
+      
       {/* Instructions */}
       <div className="hud-instructions">
-        <span>🖱️ Drag to rotate</span>
-        <span>🔍 Scroll to zoom</span>
-        <span>👆 Click objects to explore</span>
+        <span>🖱️ Kéo để xoay</span>
+        <span>🔍 Cuộn để zoom</span>
+        <span>👆 Nhấn vào vật thể</span>
       </div>
     </>
   )

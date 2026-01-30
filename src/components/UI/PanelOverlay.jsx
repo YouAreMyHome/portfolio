@@ -1,4 +1,5 @@
 import useStore from '../../store/useStore'
+import { useSounds } from '../../utils/useSounds'
 import { personalInfo, aboutMe, skills, projects, experience } from '../../data/portfolio'
 import './Panels.css'
 
@@ -183,8 +184,14 @@ function PanelOverlay() {
   const activePanel = useStore((state) => state.activePanel)
   const closePanel = useStore((state) => state.closePanel)
   const showEasterEgg = useStore((state) => state.showEasterEgg)
+  const { playClick } = useSounds()
   
   if (!activePanel && !showEasterEgg) return null
+  
+  const handleClose = () => {
+    playClick()
+    closePanel()
+  }
   
   // Easter Egg display
   if (showEasterEgg) {
@@ -216,9 +223,9 @@ function PanelOverlay() {
   }
   
   return (
-    <div className="panel-overlay" onClick={closePanel}>
+    <div className="panel-overlay" onClick={handleClose}>
       <div className="panel-container" onClick={(e) => e.stopPropagation()}>
-        <button className="panel-close" onClick={closePanel}>×</button>
+        <button className="panel-close" onClick={handleClose}>×</button>
         {renderPanel()}
       </div>
     </div>

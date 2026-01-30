@@ -52,6 +52,38 @@
   color: #64748b;
 }
 
+/* Sound Toggle Button */
+.hud-sound-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hud-sound-toggle:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hud-sound-toggle:active {
+  transform: scale(0.95);
+}
+
 .hud-instructions {
   position: fixed;
   bottom: 24px;
@@ -72,10 +104,13 @@
   backdrop-filter: blur(4px);
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE MOBILE ==================== */
+
+/* Tablet */
 @media (max-width: 768px) {
   .hud-title {
     font-size: 18px;
+    padding: 10px 18px;
   }
   
   .hud-instructions {
@@ -86,5 +121,74 @@
     bottom: 80px;
     font-size: 14px;
     padding: 10px 20px;
+    max-width: 90vw;
+  }
+  
+  .hud-sound-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .hud-mode-indicator {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .hud-mode-indicator span:first-child {
+    font-size: 16px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .hud-title {
+    font-size: 16px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    top: 12px;
+    left: 12px;
+  }
+  
+  .hud-tooltip {
+    bottom: 100px;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    max-width: 85vw;
+    text-align: center;
+  }
+  
+  .hud-sound-toggle {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  
+  .hud-mode-indicator {
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+  
+  .hud-mode-indicator span:first-child {
+    font-size: 14px;
+  }
+}
+
+/* Touch-friendly hint for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .hud-tooltip {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: 0 4px 25px rgba(74, 222, 128, 0.4); }
   }
 }

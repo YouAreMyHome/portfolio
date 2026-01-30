@@ -8,6 +8,7 @@ import PanelOverlay from './components/UI/PanelOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
 import useStore from './store/useStore'
+import { useSounds } from './utils/useSounds'
 
 /**
  * THE DEV'S PIXEL ROOM - Phase 4: Polish
@@ -16,6 +17,7 @@ import useStore from './store/useStore'
  * - Click objects để mở panels
  * - Window toggle day/night với smooth transition
  * - Cat easter egg
+ * - Sound effects
  */
 
 // Background color controller component
@@ -31,6 +33,18 @@ function BackgroundController() {
   return null
 }
 
+// Sound system connector
+function SoundSystem() {
+  const setSoundTrigger = useStore((state) => state.setSoundTrigger)
+  const { playSound } = useSounds()
+  
+  useEffect(() => {
+    setSoundTrigger(playSound)
+  }, [setSoundTrigger, playSound])
+  
+  return null
+}
+
 function App() {
   const isNightMode = useStore((state) => state.isNightMode)
   
@@ -40,6 +54,7 @@ function App() {
       transition: 'background-color 0.5s ease'
     }}>
       <BackgroundController />
+      <SoundSystem />
       <Canvas
         orthographic
         camera={{ 

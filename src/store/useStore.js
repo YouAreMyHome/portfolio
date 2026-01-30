@@ -32,16 +32,28 @@ const useStore = create((set, get) => ({
   catClicks: 0,
   showEasterEgg: false,
   
-  // Actions
-  setActivePanel: (panel) => set({ 
-    activePanel: panel,
-    isZoomed: panel !== null 
-  }),
+  // Sound callback (set by App component)
+  onSoundTrigger: null,
+  setSoundTrigger: (callback) => set({ onSoundTrigger: callback }),
   
-  closePanel: () => set({ 
-    activePanel: null,
-    isZoomed: false 
-  }),
+  // Actions
+  setActivePanel: (panel) => {
+    const { onSoundTrigger } = get()
+    if (panel && onSoundTrigger) onSoundTrigger('panelOpen')
+    set({ 
+      activePanel: panel,
+      isZoomed: panel !== null 
+    })
+  },
+  
+  closePanel: () => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('panelClose')
+    set({ 
+      activePanel: null,
+      isZoomed: false 
+    })
+  },
   
   setLoading: (loading) => set({ isLoading: loading }),
   
@@ -49,15 +61,27 @@ const useStore = create((set, get) => ({
   setCameraZoom: (zoom) => set({ cameraZoom: zoom }),
   
   // Theme toggle (Window interaction)
-  toggleNightMode: () => set((state) => ({ isNightMode: !state.isNightMode })),
+  toggleNightMode: () => {
+    const { isNightMode, onSoundTrigger } = get()
+    if (onSoundTrigger) {
+      onSoundTrigger(isNightMode ? 'dayMode' : 'nightMode')
+    }
+    set({ isNightMode: !isNightMode })
+  },
   
   setHoveredObject: (obj) => set({ hoveredObject: obj }),
   
   // Cat Easter Egg
   clickCat: () => {
-    const clicks = get().catClicks + 1
+    const { catClicks, onSoundTrigger } = get()
+    const clicks = catClicks + 1
+    
+    // Play meow sound
+    if (onSoundTrigger) onSoundTrigger('meow')
+    
     set({ catClicks: clicks })
     if (clicks >= 5) {
+      if (onSoundTrigger) onSoundTrigger('easterEgg')
       set({ showEasterEgg: true })
       // Reset after 3 seconds
       setTimeout(() => set({ showEasterEgg: false, catClicks: 0 }), 3000)

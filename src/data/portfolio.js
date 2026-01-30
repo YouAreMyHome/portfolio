@@ -1,25 +1,25 @@
 export const personalInfo = {
-  name: "Your Name",
+  name: "Nghia",
   title: "Software Engineer",
   tagline: "Building pixel-perfect experiences",
-  email: "your.email@example.com",
-  github: "https://github.com/yourusername",
-  linkedin: "https://linkedin.com/in/yourusername",
-  location: "Vietnam",
+  email: "nghia@example.com",
+  github: "https://github.com/nghia",
+  linkedin: "https://linkedin.com/in/nghia",
+  location: "Vietnam 🇻🇳",
 }
 
 export const aboutMe = {
-  intro: "Hey there! I'm a passionate software engineer who loves turning ideas into reality through code.",
+  intro: "Xin chào! Mình là Nghia - một lập trình viên đam mê biến ý tưởng thành sản phẩm thực tế.",
   description: `
-    With a love for clean code and creative problem-solving, I specialize in building 
-    modern web applications that are both beautiful and functional. When I'm not coding, 
-    you'll find me exploring new technologies, gaming, or contributing to open source.
+    Với niềm yêu thích code sạch và giải quyết vấn đề sáng tạo, mình chuyên xây dựng 
+    các ứng dụng web hiện đại, đẹp mắt và hiệu quả. Khi không code, bạn sẽ thấy mình 
+    đang khám phá công nghệ mới, chơi game, hoặc đóng góp cho open source.
   `,
   highlights: [
-    "🚀 3+ years of experience in web development",
-    "💡 Passionate about UI/UX and user experience",
-    "🎮 Love creating interactive and engaging experiences",
-    "🌱 Always learning and growing",
+    "🚀 3+ năm kinh nghiệm phát triển web",
+    "💡 Đam mê UI/UX và trải nghiệm người dùng",
+    "🎮 Thích tạo ra những trải nghiệm tương tác",
+    "🌱 Luôn học hỏi và phát triển",
   ],
 }
 
