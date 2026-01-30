@@ -1,32 +1,39 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Routes, Route, Link, useLocation, useNavigate, BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 // Icons
-import { Menu, X, Github as GitHub, Linkedin, Facebook, Mail, Sun, Moon, Home, Briefcase, Award, Code as CodeIcon, Gamepad2, Link as LinkIcon, Languages } from 'lucide-react'; // Thêm LinkIcon và Languages
+import { Menu, X, Github as GitHub, Linkedin, Facebook, Mail, Home, Briefcase, Award, Code as CodeIcon, Languages } from 'lucide-react';
 
 // Context
 import { useLanguage } from './contexts/LanguageContext';
 import { getTranslation } from './translations';
 
+// Components
+import CyberCursor from './components/CyberCursor';
+import KonamiCode from './components/KonamiCode';
+import TechUniverse from './components/TechUniverse';
+import UtilityPanel from './components/UtilityPanel';
+import FloatingNotification from './components/FloatingNotification';
+import { SoundProvider, SoundControls, useCyberSounds } from './components/SoundSystem';
+import { PageTransition, CyberLoader } from './components/CyberTransition';
+
 // Page Components
 import HomePage from './pages/HomePage';
 import JsRunnerGamePage from './pages/JsRunnerGamePage';
+import FlappyCatPage from './pages/FlappyCatPage';
 import CleanUriToolPage from './pages/CleanUriToolPage'; // Import trang mới
-import ProjectDetailPage from './pages/ProjectDetailPage'; // Import trang chi tiết dự án
+import ProjectDetailPageNew from './pages/ProjectDetailPageNew'; // Import trang chi tiết dự án mới
+import ShowcasePage from './pages/ShowcasePage'; // Import showcase page
+import InteractiveCVPage from './pages/InteractiveCVPage'; // Import interactive CV experience
 
 // (Không cần import Hero, Experience, Awards, Projects, Contact, JsRunnerGame trực tiếp ở đây nữa nếu chúng chỉ dùng trong các page)
 
-function App() {
+function AppContent() {
   const [activeSection, setActiveSection] = useState('home'); // Sẽ chủ yếu dùng cho HomePage
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return savedTheme === 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+  // Cyberpunk theme luôn ở dark mode
+  const [darkMode, setDarkMode] = useState(true);
 
   const { language, toggleLanguage } = useLanguage();
   const t = (key) => getTranslation(language, key);
@@ -35,14 +42,10 @@ function App() {
   const navigate = useNavigate(); // Hook để điều hướng programmatic
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [darkMode]);
+    // Cyberpunk theme luôn ở dark mode
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }, []);
 
   // Cập nhật activeSection dựa trên route cho các trang không phải HomePage
   useEffect(() => {
@@ -53,9 +56,6 @@ function App() {
     // Các route khác nếu có
     window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển route
   }, [location.pathname]);
-
-
-  const toggleDarkMode = () => setDarkMode(prevMode => !prevMode);
 
   // Hàm này giờ đây sẽ dùng cho việc cuộn trong HomePage hoặc điều hướng
   const handleNavClick = (pathOrSectionId, isExternalPage = false) => {
@@ -89,144 +89,325 @@ function App() {
     { id: 'education', label: t('nav.education'), path: 'education', icon: Briefcase, isPage: false },
     // { id: 'awards', label: t('nav.awards'), path: 'awards', icon: Award, isPage: false }, // Hidden awards section
     { id: 'projects', label: t('nav.projects'), path: 'projects', icon: CodeIcon, isPage: false },
-    { id: 'url-shortener', label: t('nav.urlShortener'), path: '/url-shortener', icon: LinkIcon, isPage: true }, // Trang riêng
-    { id: 'fun-game', label: t('nav.funGame'), path: '/fun-game', icon: Gamepad2, isPage: true }, // Trang riêng
     { id: 'contact', label: t('nav.contact'), path: 'contact', icon: Mail, isPage: false },
   ];
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 font-sans`}>
+    <div className={`min-h-screen bg-dark-gradient text-gray-200 transition-colors duration-300 font-sans`} style={{ cursor: 'none' }}>
+      {/* Tech Universe Background */}
+      <TechUniverse />
+      
+      {/* Konami Code Easter Egg */}
+      <KonamiCode 
+        onActivate={() => {
+          // Redirect to game page when Konami code is activated
+          navigate('/fun-game');
+        }} 
+      />
+      
+      {/* Sound Controls */}
+      <SoundControls />
+      
+      {/* Utility Panel */}
+      <UtilityPanel />
+      
+      {/* Floating Notification */}
+      <FloatingNotification />
+      
+      {/* Custom Cursor */}
+      <CyberCursor />
+      
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm z-50 h-16">
+      <motion.nav 
+        className="fixed top-0 left-0 right-0 glassmorphism z-50 h-16 border-b border-cyber-blue/20"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-full">
-            <Link to="/" onClick={() => handleNavClick('home')} className="text-xl font-bold focus:outline-none hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              Le Trong Nghia
-            </Link>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link 
+                to="/" 
+                onClick={() => handleNavClick('home')} 
+                className="text-xl font-orbitron font-bold focus:outline-none gradient-cyber-text transition-colors"
+              >
+                &lt; Le Trong Nghia /&gt;
+              </Link>
+            </motion.div>
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
               {navItems.map(item => (
                 item.isPage ? (
-                  <Link
+                  <motion.div
                     key={item.id}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${activeSection === item.id ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-gray-800 scale-105' : 'hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                    aria-current={activeSection === item.id ? 'page' : undefined}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {item.label}
-                  </Link>
+                    <Link
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out outline-none focus:ring-2 focus:ring-cyber-blue/50 relative group ${
+                        activeSection === item.id 
+                          ? 'text-cyber-blue bg-cyber-blue/10 shadow-neon' 
+                          : 'text-gray-300 hover:text-cyber-blue hover:bg-cyber-blue/5'
+                      }`}
+                      aria-current={activeSection === item.id ? 'page' : undefined}
+                    >
+                      <span className="relative z-10">{item.label}</span>
+                      {activeSection === item.id && (
+                        <motion.div
+                          className="absolute bottom-0 left-0 w-full h-0.5 bg-cyber-gradient"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                      <motion.div
+                        className="absolute inset-0 rounded-lg border border-cyber-blue/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                        whileHover={{ scale: 1.02 }}
+                      />
+                    </Link>
+                  </motion.div>
                 ) : (
-                  <button 
+                  <motion.div
                     key={item.id}
-                    onClick={() => handleNavClick(item.path, false)} // path ở đây là sectionId
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${activeSection === item.id && location.pathname === '/' ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-gray-800 scale-105' : 'hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                    aria-current={activeSection === item.id && location.pathname === '/' ? 'page' : undefined}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {item.label}
-                  </button>
+                    <button 
+                      onClick={() => handleNavClick(item.path, false)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out outline-none focus:ring-2 focus:ring-cyber-blue/50 relative group ${
+                        activeSection === item.id && location.pathname === '/' 
+                          ? 'text-cyber-blue bg-cyber-blue/10 shadow-neon' 
+                          : 'text-gray-300 hover:text-cyber-blue hover:bg-cyber-blue/5'
+                      }`}
+                      aria-current={activeSection === item.id && location.pathname === '/' ? 'page' : undefined}
+                    >
+                      <span className="relative z-10">{item.label}</span>
+                      {activeSection === item.id && location.pathname === '/' && (
+                        <motion.div
+                          className="absolute bottom-0 left-0 w-full h-0.5 bg-cyber-gradient"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                      <motion.div
+                        className="absolute inset-0 rounded-lg border border-cyber-blue/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                        whileHover={{ scale: 1.02 }}
+                      />
+                    </button>
+                  </motion.div>
                 )
               ))}
-              <button
-                onClick={toggleDarkMode}
-                className="ml-3 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              <button
+              
+              <motion.button
                 onClick={toggleLanguage}
-                className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center space-x-1"
+                className="ml-2 p-3 rounded-full cyber-card text-cyber-pink flex items-center space-x-1 transition-all focus:outline-none focus:ring-2 focus:ring-cyber-blue/50 group"
                 aria-label="Toggle language"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
-                <Languages size={20} />
-                <span className="text-xs font-medium">{language.toUpperCase()}</span>
-              </button>
+                <Languages size={18} className="group-hover:text-cyber-blue transition-colors" />
+                <span className="text-xs font-mono font-bold group-hover:text-cyber-blue transition-colors">
+                  {language.toUpperCase()}
+                </span>
+              </motion.button>
             </div>
             
-            {/* Mobile menu button and dark mode toggle */}
+            {/* Mobile menu button and controls */}
             <div className="md:hidden flex items-center space-x-2">
-              <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" aria-label="Toggle dark mode">
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              <button onClick={toggleLanguage} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center space-x-1" aria-label="Toggle language">
+              <motion.button 
+                onClick={toggleLanguage} 
+                className="p-2 cyber-card rounded-full text-cyber-pink flex items-center space-x-1 transition-all focus:outline-none focus:ring-2 focus:ring-cyber-blue/50" 
+                aria-label="Toggle language"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
                 <Languages size={16} />
-                <span className="text-xs font-medium">{language.toUpperCase()}</span>
-              </button>
-              <button onClick={() => setMobileMenuOpen(prev => !prev)} className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" aria-label="Open main menu">
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
+                <span className="text-xs font-mono font-bold">{language.toUpperCase()}</span>
+              </motion.button>
+              
+              <motion.button 
+                onClick={() => setMobileMenuOpen(prev => !prev)} 
+                className="inline-flex items-center justify-center p-2 cyber-card rounded-lg text-cyber-blue transition-all focus:outline-none focus:ring-2 focus:ring-cyber-blue/50" 
+                aria-label="Open main menu"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <motion.div
+                  animate={{ rotate: mobileMenuOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </motion.div>
+              </motion.button>
             </div>
           </div>
         </div>
         
         {/* Mobile Navigation */}
-        <div
-          id="mobile-menu"
-          className={`md:hidden absolute w-full bg-white dark:bg-gray-900 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+        <motion.div
+          className={`md:hidden absolute w-full cyber-card border-t border-cyber-blue/30 overflow-hidden`}
+          initial={false}
+          animate={{
+            height: mobileMenuOpen ? 'auto' : 0,
+            opacity: mobileMenuOpen ? 1 : 0
+          }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map(item => (
-              item.isPage ? (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-colors ${activeSection === item.id ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                  aria-current={activeSection === item.id ? 'page' : undefined}
-                >
-                  <div className="flex items-center"> <item.icon size={18} className="mr-3 flex-shrink-0" /> {item.label} </div>
-                </Link>
-              ) : (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.path, false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-colors ${activeSection === item.id && location.pathname === '/' ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                  aria-current={activeSection === item.id && location.pathname === '/' ? 'page' : undefined}
-                >
-                  <div className="flex items-center"> <item.icon size={18} className="mr-3 flex-shrink-0" /> {item.label} </div>
-                </button>
-              )
+          <div className="px-4 pt-4 pb-6 space-y-2">
+            {navItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ 
+                  opacity: mobileMenuOpen ? 1 : 0, 
+                  x: mobileMenuOpen ? 0 : -20 
+                }}
+                transition={{ delay: index * 0.1, duration: 0.2 }}
+              >
+                {item.isPage ? (
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center px-4 py-3 rounded-lg text-base font-medium transition-all group ${
+                      activeSection === item.id 
+                        ? 'text-cyber-blue bg-cyber-blue/10 border border-cyber-blue/30' 
+                        : 'text-gray-300 hover:text-cyber-blue hover:bg-cyber-blue/5'
+                    }`}
+                    aria-current={activeSection === item.id ? 'page' : undefined}
+                  >
+                    <item.icon size={20} className="mr-3 flex-shrink-0 group-hover:text-cyber-blue transition-colors" />
+                    <span>{item.label}</span>
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => handleNavClick(item.path, false)}
+                    className={`flex items-center w-full px-4 py-3 rounded-lg text-base font-medium transition-all group ${
+                      activeSection === item.id && location.pathname === '/' 
+                        ? 'text-cyber-blue bg-cyber-blue/10 border border-cyber-blue/30' 
+                        : 'text-gray-300 hover:text-cyber-blue hover:bg-cyber-blue/5'
+                    }`}
+                    aria-current={activeSection === item.id && location.pathname === '/' ? 'page' : undefined}
+                  >
+                    <item.icon size={20} className="mr-3 flex-shrink-0 group-hover:text-cyber-blue transition-colors" />
+                    <span>{item.label}</span>
+                  </button>
+                )}
+              </motion.div>
             ))}
           </div>
-        </div>
-      </nav>
+        </motion.div>
+      </motion.nav>
 
       {/* Main Content - Outlet sẽ render page component tương ứng */}
       <main className="pt-16"> 
-        <Routes>
-          <Route 
-            path="/" 
-            element={<HomePage setActiveSection={setActiveSection} scrollToSection={performScroll} performScroll={performScroll} />} 
-          />
-          <Route path="/fun-game" element={<JsRunnerGamePage />} />
-          <Route path="/url-shortener" element={<CleanUriToolPage />} />
-          <Route path="/project/:projectId" element={<ProjectDetailPage />} />
-          {/* Bạn có thể thêm các route khác ở đây, ví dụ trang chi tiết dự án */}
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route 
+              path="/" 
+              element={
+                <PageTransition pageKey="home">
+                  <HomePage setActiveSection={setActiveSection} scrollToSection={performScroll} performScroll={performScroll} />
+                </PageTransition>
+              } 
+            />
+            <Route 
+              path="/fun-game" 
+              element={
+                <PageTransition pageKey="game">
+                  <FlappyCatPage />
+                </PageTransition>
+              } 
+            />
+            {/* Optimized full-page removed */}
+            <Route 
+              path="/url-shortener" 
+              element={
+                <PageTransition pageKey="url-tool">
+                  <CleanUriToolPage />
+                </PageTransition>
+              } 
+            />
+            <Route 
+              path="/project/:projectId" 
+              element={
+                <PageTransition pageKey="project-detail">
+                  <ProjectDetailPageNew />
+                </PageTransition>
+              } 
+            />
+            <Route 
+              path="/showcase" 
+              element={
+                <PageTransition pageKey="showcase">
+                  <ShowcasePage />
+                </PageTransition>
+              } 
+            />
+            <Route 
+              path="/interactive-cv" 
+              element={
+                <PageTransition pageKey="interactive-cv">
+                  <InteractiveCVPage />
+                </PageTransition>
+              } 
+            />
+            {/* Bạn có thể thêm các route khác ở đây, ví dụ trang chi tiết dự án */}
+          </Routes>
+        </AnimatePresence>
       </main>
 
-      {/* Footer (giữ nguyên) */}
-      <footer className="bg-gray-100 dark:bg-gray-800 py-8 border-t border-gray-200 dark:border-gray-700">
-        {/* ... nội dung footer ... */}
+      {/* Footer */}
+      <footer className="bg-black border-t border-cyber-blue/20 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                © {new Date().getFullYear()} Le Trong Nghia. All rights reserved.
+              <p className="text-sm text-gray-400 font-mono">
+                © {new Date().getFullYear()} <span className="text-cyber-blue">Le Trong Nghia</span>. All rights reserved.
               </p>
             </div>
             <div className="flex space-x-6">
-              <a href="https://github.com/YouAreMyHome" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <GitHub size={20} />
-              </a>
-              {/* ... các social links khác ... */}
+              {[
+                { icon: GitHub, href: "https://github.com/YouAreMyHome", color: "hover:text-cyber-blue" },
+                { icon: Linkedin, href: "https://www.linkedin.com/in/youaremyhome", color: "hover:text-cyber-purple" },
+                { icon: Facebook, href: "https://facebook.com/youaremyhome", color: "hover:text-cyber-pink" }
+              ].map(({ icon: Icon, href, color }) => (
+                <motion.a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Social Media Profile"
+                  className={`p-2 text-gray-400 ${color} transition-all duration-300 rounded-full hover:bg-white/5`}
+                  whileHover={{ scale: 1.2, rotate: 360 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Icon size={20} />
+                </motion.a>
+              ))}
             </div>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+// Main App component with providers
+function App() {
+  return (
+    <SoundProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </SoundProvider>
   );
 }
 

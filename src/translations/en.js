@@ -6,7 +6,8 @@ export const englishTranslations = {
     awards: 'Awards',
     projects: 'Projects',
     contact: 'Contact',
-    funGame: 'Fun Game',
+  funGame: 'Fun Game',
+  back: 'Back',
     urlShortener: 'URL Shortener'
   },
   

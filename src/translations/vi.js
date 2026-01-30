@@ -6,7 +6,8 @@ export const vietnameseTranslations = {
     awards: 'Giải Thưởng',
     projects: 'Dự Án',
     contact: 'Liên Hệ',
-    funGame: 'Game Vui',
+  funGame: 'Game Vui',
+  back: 'Quay Lại',
     urlShortener: 'Rút Gọn Link'
   },
   
