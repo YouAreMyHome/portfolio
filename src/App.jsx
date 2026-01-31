@@ -4,6 +4,7 @@ import { OrbitControls, SoftShadows } from '@react-three/drei'
 import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessing'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
+import CameraController from './components/Room/CameraController'
 import PanelOverlay from './components/UI/PanelOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
@@ -84,19 +85,22 @@ function App() {
           {/* Room */}
           <Room />
           
+          <CameraController />
+
           {/* OrbitControls - giới hạn góc xoay */}
           <OrbitControls 
+            makeDefault
             enableDamping
             dampingFactor={0.05}
             minZoom={40}
-            maxZoom={150}
+            maxZoom={500}
             minAzimuthAngle={-Math.PI / 4}
             maxAzimuthAngle={Math.PI / 4}
             minPolarAngle={Math.PI / 6}
             maxPolarAngle={Math.PI / 2.5}
-            enablePan={true}
+            enablePan={false} // Disable pan to keep scene centered
             panSpeed={0.5}
-            target={[0, 0.5, 0]}
+            // target is managed by CameraController when active
           />
           
           {/* Post-processing Effects */}

@@ -119,7 +119,7 @@ function LoadingScreen() {
             <div className="loading-icon-glow"></div>
           </div>
           
-          <h1 className="loading-title">Nghia's Room</h1>
+          <h1 className="loading-title">Nghia&apos;s Room</h1>
           <p className="loading-subtitle">Interactive 3D Portfolio</p>
           
           {/* Progress Section */}
@@ -154,7 +154,7 @@ function LoadingScreen() {
         <div className="welcome-content show">
           <div className="welcome-emoji">👋</div>
           <h1 className="welcome-title">Chào mừng đến với</h1>
-          <h2 className="welcome-name">Nghia's Room</h2>
+          <h2 className="welcome-name">Nghia&apos;s Room</h2>
           <p className="welcome-hint">Click vào các vật thể để khám phá!</p>
           <div className="welcome-icons">
             <span title="Projects">💻</span>
