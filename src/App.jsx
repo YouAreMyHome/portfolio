@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 import { OrbitControls, SoftShadows } from '@react-three/drei'
 import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessing'
+import { Analytics } from '@vercel/analytics/react'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
 import PanelOverlay from './components/UI/PanelOverlay'
@@ -143,6 +144,9 @@ function App() {
       
       {/* Loading Screen */}
       <LoadingScreen />
+      
+      {/* Vercel Analytics */}
+      <Analytics />
     </div>
   )
 }
