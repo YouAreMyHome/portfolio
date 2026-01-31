@@ -93,7 +93,7 @@ function App() {
             enableDamping
             dampingFactor={0.05}
             minZoom={40}
-            maxZoom={150}
+            maxZoom={500}
             minAzimuthAngle={-Math.PI / 4}
             maxAzimuthAngle={Math.PI / 4}
             minPolarAngle={Math.PI / 6}
