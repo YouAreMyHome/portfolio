@@ -82,7 +82,7 @@ function WallDecorations() {
       </InteractiveObject>
       
       {/* Large poster - GÓC SAU TRÁI tường (Z = -3), xa PlanBoard */}
-      <InteractiveObject name="poster" panelId="instagram">
+      <InteractiveObject name="poster" panelId="about">
         <group position={[-3.88, 1.6, -3]} rotation={[0, Math.PI / 2, 0]}>
           {/* Frame */}
           <mesh castShadow>

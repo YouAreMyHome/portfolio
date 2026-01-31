@@ -47,7 +47,7 @@ function Room() {
       <Floor />
       
       {/* Window - Theme Toggle */}
-      <InteractiveObject name="window" onClick={toggleNightMode} hoverScale={1.02}>
+      <InteractiveObject name="window" onClick={toggleNightMode} hoverLift={0.02}>
         <Window />
       </InteractiveObject>
       
@@ -61,11 +61,16 @@ function Room() {
         <Chair />
       </InteractiveObject>
       
-      <Cabinet />
-      <Shelf />
+      <InteractiveObject name="cabinet" panelId="about">
+        <Cabinet />
+      </InteractiveObject>
+      
+      <InteractiveObject name="shelf" panelId="about">
+        <Shelf />
+      </InteractiveObject>
       
       {/* Clock - Show current time */}
-      <InteractiveObject name="clock" onClick={toggleClockTime} hoverScale={1.05}>
+      <InteractiveObject name="clock" onClick={toggleClockTime} hoverLift={0.05}>
         <Clock />
       </InteractiveObject>
       

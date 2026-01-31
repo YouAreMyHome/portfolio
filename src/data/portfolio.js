@@ -2,7 +2,7 @@ export const personalInfo = {
   name: "Le Trong Nghia",
   title: "IT Student at HUFLIT",
   tagline: "Future Software Developer passionate about web development",
-  email: "letrongnghia2806@gmail.com",
+  email: "ltn66441@gmail.com",
   github: "https://github.com/YouAreMyHome",
   linkedin: "https://www.linkedin.com/in/youaremyhome/",
   website: "https://letrongnghia.me",
