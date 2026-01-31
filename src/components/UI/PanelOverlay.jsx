@@ -286,6 +286,11 @@ function PanelOverlay() {
       </div>
     )
   }
+
+  // If in playground/game mode, don't show the standard overlay panel
+  if (activePanel === 'playground') {
+    return null
+  }
   
   const renderPanel = () => {
     switch (activePanel) {

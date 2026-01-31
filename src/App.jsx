@@ -4,6 +4,7 @@ import { OrbitControls, SoftShadows } from '@react-three/drei'
 import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessing'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
+import CameraController from './components/Room/CameraController'
 import PanelOverlay from './components/UI/PanelOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
@@ -84,8 +85,11 @@ function App() {
           {/* Room */}
           <Room />
           
+          <CameraController />
+
           {/* OrbitControls - giới hạn góc xoay */}
           <OrbitControls 
+            makeDefault
             enableDamping
             dampingFactor={0.05}
             minZoom={40}
