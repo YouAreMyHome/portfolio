@@ -58,7 +58,7 @@ function HUD() {
       )}
       
       {/* Corner info */}
-      <div className="hud-corner">
+      <div className={`hud-corner ${isNightMode ? 'dark' : ''}`}>
         <span className="hud-title">Nghia's Room</span>
         <span className="hud-subtitle">
           {isNightMode ? '🌙 Chế độ đêm' : '☀️ Chế độ ngày'}
@@ -67,7 +67,7 @@ function HUD() {
       
       {/* Sound toggle */}
       <button 
-        className="hud-sound-toggle"
+        className={`hud-sound-toggle ${isNightMode ? 'dark-mode' : ''}`}
         onClick={() => {
           playClick()
           toggleMute()
@@ -78,7 +78,7 @@ function HUD() {
       </button>
       
       {/* Instructions */}
-      <div className="hud-instructions">
+      <div className={`hud-instructions ${isNightMode ? 'dark' : ''}`}>
         <span>🖱️ Kéo để xoay</span>
         <span>🔍 Cuộn để zoom</span>
         <span>👆 Nhấn vào vật thể</span>

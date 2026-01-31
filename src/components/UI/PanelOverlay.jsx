@@ -17,10 +17,10 @@ import './Panels.css'
  */
 
 // Projects Panel - Connected to portfolio.js
-function ProjectsPanel() {
+function ProjectsPanel({ isNightMode }) {
   return (
     <div className="panel-content">
-      <h2>🖥️ Projects</h2>
+      <h2>{isNightMode ? '🌙 Projects' : '🖥️ Projects'}</h2>
       <div className="projects-grid">
         {projects.map((project) => (
           <div key={project.id} className={`project-card ${project.featured ? 'featured' : ''}`}>
@@ -54,7 +54,7 @@ function ProjectsPanel() {
 }
 
 // Skills Panel - Connected to portfolio.js
-function SkillsPanel() {
+function SkillsPanel({ isNightMode }) {
   const skillCategories = [
     { key: 'frontend', label: 'Frontend', icon: '🎨' },
     { key: 'backend', label: 'Backend', icon: '⚙️' },
@@ -63,7 +63,7 @@ function SkillsPanel() {
   
   return (
     <div className="panel-content">
-      <h2>⚡ Skills</h2>
+      <h2>{isNightMode ? '🌟 Skills' : '⚡ Skills'}</h2>
       <div className="skills-grid">
         {skillCategories.map(({ key, label, icon }) => (
           <div key={key} className="skill-group">
@@ -90,7 +90,7 @@ function SkillsPanel() {
 }
 
 // About Panel - Connected to portfolio.js
-function AboutPanel() {
+function AboutPanel({ isNightMode }) {
   const [showAvatarModal, setShowAvatarModal] = useState(false)
   const { playClick } = useSounds()
 
@@ -105,7 +105,7 @@ function AboutPanel() {
 
   return (
     <div className="panel-content">
-      <h2>👋 About Me</h2>
+      <h2>{isNightMode ? '🌃 About Me' : '👋 About Me'}</h2>
       <div className="about-header">
         <img 
           src="/assets/img/avatar.jpg" 
@@ -186,7 +186,7 @@ function AboutPanel() {
 }
 
 // Playground Panel
-function PlaygroundPanel() {
+function PlaygroundPanel({ isNightMode }) {
   const games = [
     { icon: '🎲', name: 'Dice Roller', desc: 'Roll virtual dice' },
     { icon: '🎵', name: 'Music Visualizer', desc: 'Audio reactive visuals' },
@@ -196,7 +196,7 @@ function PlaygroundPanel() {
   
   return (
     <div className="panel-content">
-      <h2>🎮 Playground</h2>
+      <h2>{isNightMode ? '🌌 Playground' : '🎮 Playground'}</h2>
       <p className="panel-description">Fun experiments and mini-games</p>
       <div className="playground-grid">
         {games.map((game) => (
@@ -214,10 +214,10 @@ function PlaygroundPanel() {
 }
 
 // Contact Panel - Connected to portfolio.js
-function ContactPanel() {
+function ContactPanel({ isNightMode }) {
   return (
     <div className="panel-content">
-      <h2>📬 Contact</h2>
+      <h2>{isNightMode ? '📮 Contact' : '📬 Contact'}</h2>
       <p className="panel-description">Let's connect and build something awesome!</p>
       <div className="contact-links">
         <a href={`mailto:${personalInfo.email}`} className="contact-item">
@@ -246,6 +246,7 @@ function PanelOverlay() {
   const activePanel = useStore((state) => state.activePanel)
   const closePanel = useStore((state) => state.closePanel)
   const showEasterEgg = useStore((state) => state.showEasterEgg)
+  const isNightMode = useStore((state) => state.isNightMode)
   const { playClick } = useSounds()
   
   if (!activePanel && !showEasterEgg) return null
@@ -270,15 +271,15 @@ function PanelOverlay() {
   const renderPanel = () => {
     switch (activePanel) {
       case 'projects':
-        return <ProjectsPanel />
+        return <ProjectsPanel isNightMode={isNightMode} />
       case 'skills':
-        return <SkillsPanel />
+        return <SkillsPanel isNightMode={isNightMode} />
       case 'playground':
-        return <PlaygroundPanel />
+        return <PlaygroundPanel isNightMode={isNightMode} />
       case 'contact':
-        return <ContactPanel />
+        return <ContactPanel isNightMode={isNightMode} />
       case 'about':
-        return <AboutPanel />
+        return <AboutPanel isNightMode={isNightMode} />
       default:
         return null
     }
@@ -286,7 +287,7 @@ function PanelOverlay() {
   
   return (
     <div className="panel-overlay" onClick={handleClose}>
-      <div className="panel-container" onClick={(e) => e.stopPropagation()}>
+      <div className={`panel-container ${isNightMode ? 'dark' : ''}`} onClick={(e) => e.stopPropagation()}>
         <button className="panel-close" onClick={handleClose}>×</button>
         {renderPanel()}
       </div>

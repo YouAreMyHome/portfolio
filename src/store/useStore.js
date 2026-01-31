@@ -39,6 +39,9 @@ const useStore = create((set, get) => ({
   // Clock time display
   showClockTime: false,
   
+  // String lights
+  stringLightsOn: false,
+  
   // Sound callback (set by App component)
   onSoundTrigger: null,
   setSoundTrigger: (callback) => set({ onSoundTrigger: callback }),
@@ -56,6 +59,13 @@ const useStore = create((set, get) => ({
     if (!showClockTime) {
       setTimeout(() => set({ showClockTime: false }), 3000)
     }
+  },
+  
+  // String lights toggle
+  toggleStringLights: () => {
+    const { stringLightsOn, onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ stringLightsOn: !stringLightsOn })
   },
   
   // Actions

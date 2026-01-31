@@ -52,7 +52,17 @@
   color: #64748b;
 }
 
-/* Sound Toggle Button */
+/* Dark mode for HUD */
+.hud-corner.dark .hud-title {
+  color: #f1f5f9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hud-corner.dark .hud-subtitle {
+  color: #cbd5e1;
+}
+
+/* Dark mode for sound toggle */
 .hud-sound-toggle {
   position: fixed;
   top: 24px;
@@ -84,6 +94,18 @@
   transform: scale(0.95);
 }
 
+/* Dark mode adjustments */
+.hud-sound-toggle.dark-mode {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hud-sound-toggle.dark-mode:hover {
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
 .hud-instructions {
   position: fixed;
   bottom: 24px;
@@ -102,6 +124,12 @@
   border-radius: 6px;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
+}
+
+/* Dark mode for instructions */
+.hud-instructions.dark span {
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.8);
 }
 
 /* ==================== RESPONSIVE MOBILE ==================== */
