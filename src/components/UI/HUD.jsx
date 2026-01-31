@@ -59,7 +59,7 @@ function HUD() {
       
       {/* Corner info */}
       <div className={`hud-corner ${isNightMode ? 'dark' : ''}`}>
-        <span className="hud-title">Nghia's Room</span>
+        <span className="hud-title">Nghia&apos;s Room</span>
         <span className="hud-subtitle">
           {isNightMode ? '🌙 Chế độ đêm' : '☀️ Chế độ ngày'}
         </span>

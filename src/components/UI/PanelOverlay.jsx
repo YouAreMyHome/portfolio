@@ -2,7 +2,7 @@ import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
 import { useState } from 'react'
 import React from 'react'
-import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
+import { personalInfo, aboutMe, skills, projects, experience, education, awards } from '../../data/portfolio'
 import './Panels.css'
 
 /**
@@ -28,6 +28,9 @@ function ProjectsPanel({ isNightMode }) {
               <h3>{project.title}</h3>
               {project.featured && <span className="featured-badge">⭐ Featured</span>}
             </div>
+            <p className="project-duration" style={{ fontSize: '0.9em', color: '#888', marginBottom: '0.5rem' }}>
+              📅 {project.duration}
+            </p>
             <p>{project.description}</p>
             <div className="tech-tags">
               {project.tags.map((tag) => (
@@ -49,6 +52,7 @@ function ProjectsPanel({ isNightMode }) {
           </div>
         ))}
       </div>
+
     </div>
   )
 }
@@ -168,6 +172,21 @@ function AboutPanel({ isNightMode }) {
         ))}
       </div>
 
+      {/* Awards */}
+      <h3 className="section-title">🏆 Certificates & Awards</h3>
+      <div className="experience-list">
+        {awards.map((award) => (
+          <div key={award.id} className="experience-item">
+            <div className="exp-header">
+              <span className="exp-position">{award.title}</span>
+              <span className="exp-duration">{award.year}</span>
+            </div>
+            <span className="exp-company">{award.organization}</span>
+            <p className="exp-description">{award.description}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Avatar Modal */}
       {showAvatarModal && (
         <div className="avatar-modal-overlay" onClick={closeAvatarModal}>
@@ -218,7 +237,7 @@ function ContactPanel({ isNightMode }) {
   return (
     <div className="panel-content">
       <h2>{isNightMode ? '📮 Contact' : '📬 Contact'}</h2>
-      <p className="panel-description">Let's connect and build something awesome!</p>
+      <p className="panel-description">Let&apos;s connect and build something awesome!</p>
       <div className="contact-links">
         <a href={`mailto:${personalInfo.email}`} className="contact-item">
           <span className="contact-icon">📧</span>
