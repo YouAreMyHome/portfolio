@@ -98,9 +98,9 @@ function App() {
             maxAzimuthAngle={Math.PI / 4}
             minPolarAngle={Math.PI / 6}
             maxPolarAngle={Math.PI / 2.5}
-            enablePan={true}
+            enablePan={false} // Disable pan to keep scene centered
             panSpeed={0.5}
-            target={[0, 0.5, 0]}
+            // target is managed by CameraController when active
           />
           
           {/* Post-processing Effects */}
