@@ -1,13 +1,17 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { RoundedBox } from '@react-three/drei'
+import { RoundedBox, Html } from '@react-three/drei'
 import { COLORS } from './colors'
 import * as THREE from 'three'
+import useStore from '../../store/useStore'
+import SnakeGame from '../Games/SnakeGame'
 
 function TVSetup(props) {
   const screenRef = useRef()
   const lightRef = useRef()
   const consoleLedRef = useRef()
+  const activePanel = useStore((state) => state.activePanel)
+  const isPlaying = activePanel === 'playground'
   
   useFrame((state) => {
     const t = state.clock.elapsedTime
@@ -100,30 +104,50 @@ function TVSetup(props) {
          <mesh ref={screenRef} position={[0, 0, 0.021]}>
             <planeGeometry args={[1.15, 0.65]} />
             <meshStandardMaterial 
-                color="#000" 
-                emissive="#ffffff"
-                emissiveIntensity={0.5}
+                color={isPlaying ? "#000" : "#000"}
+                emissive={isPlaying ? "#000" : "#ffffff"}
+                emissiveIntensity={isPlaying ? 0 : 0.5}
                 toneMapped={false}
             />
+            {isPlaying && (
+              <Html
+                transform
+                occlude="blending"
+                position={[0, 0, 0.001]}
+                scale={0.0025}
+                rotation={[0, 0, 0]}
+                style={{
+                  width: '460px',
+                  height: '260px',
+                  pointerEvents: 'none' // Allow key events to window, but maybe clicks needs to work?
+                }}
+              >
+                <div onPointerDown={(e) => e.stopPropagation()} style={{ pointerEvents: 'auto' }}>
+                  <SnakeGame />
+                </div>
+              </Html>
+            )}
          </mesh>
 
-         {/* Nội dung TV */}
-         <group position={[0, 0, 0.022]}>
-             <mesh position={[-0.3, 0.05, 0]}>
-                 <planeGeometry args={[0.4, 0.4]} />
-                 <meshBasicMaterial color="#ef4444" />
-             </mesh>
-             {[0.2, 0.05, -0.1].map((y, i) => (
-                 <mesh key={i} position={[0.3, y, 0]}>
-                     <planeGeometry args={[0.4, 0.1]} />
-                     <meshBasicMaterial color="#64748b" />
-                 </mesh>
-             ))}
-             <mesh position={[0, -0.25, 0]}>
-                 <planeGeometry args={[1, 0.02]} />
-                 <meshBasicMaterial color="#333" />
-             </mesh>
-         </group>
+         {/* Nội dung TV (Static) */}
+         {!isPlaying && (
+           <group position={[0, 0, 0.022]}>
+               <mesh position={[-0.3, 0.05, 0]}>
+                   <planeGeometry args={[0.4, 0.4]} />
+                   <meshBasicMaterial color="#ef4444" />
+               </mesh>
+               {[0.2, 0.05, -0.1].map((y, i) => (
+                   <mesh key={i} position={[0.3, y, 0]}>
+                       <planeGeometry args={[0.4, 0.1]} />
+                       <meshBasicMaterial color="#64748b" />
+                   </mesh>
+               ))}
+               <mesh position={[0, -0.25, 0]}>
+                   <planeGeometry args={[1, 0.02]} />
+                   <meshBasicMaterial color="#333" />
+               </mesh>
+           </group>
+         )}
 
       </group>
 

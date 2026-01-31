@@ -87,7 +87,7 @@ export const ROOM_LAYOUT = {
  * Debug utility - log position info
  */
 export function logPosition(name, position) {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const snapped = snapPositionToGrid(position)
     const aligned = position.every((v, i) => v === snapped[i])
     console.log(`[${name}] pos: [${position.join(', ')}] ${aligned ? '✓' : '⚠ NOT ALIGNED'}`)
