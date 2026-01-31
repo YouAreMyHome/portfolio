@@ -1,6 +1,8 @@
 import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
-import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
+import { useState } from 'react'
+import React from 'react'
+import { personalInfo, aboutMe, skills, projects, experience, education, mockInstagramPhotos } from '../../data/portfolio'
 import './Panels.css'
 
 /**
@@ -89,6 +91,18 @@ function SkillsPanel() {
 
 // About Panel - Connected to portfolio.js
 function AboutPanel() {
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
+  const { playClick } = useSounds()
+
+  const handleAvatarClick = () => {
+    playClick()
+    setShowAvatarModal(true)
+  }
+
+  const closeAvatarModal = () => {
+    setShowAvatarModal(false)
+  }
+
   return (
     <div className="panel-content">
       <h2>👋 About Me</h2>
@@ -96,7 +110,8 @@ function AboutPanel() {
         <img 
           src="/assets/img/avatar.jpg" 
           alt={personalInfo.name}
-          className="about-avatar"
+          className="about-avatar clickable"
+          onClick={handleAvatarClick}
         />
         <div className="about-info">
           <h3>{personalInfo.name}</h3>
@@ -152,6 +167,114 @@ function AboutPanel() {
           </div>
         ))}
       </div>
+
+      {/* Avatar Modal */}
+      {showAvatarModal && (
+        <div className="avatar-modal-overlay" onClick={closeAvatarModal}>
+          <div className="avatar-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="avatar-modal-close" onClick={closeAvatarModal}>×</button>
+            <img 
+              src="/assets/img/avatar.jpg" 
+              alt={personalInfo.name}
+              className="avatar-modal-image"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Instagram Album Panel
+function InstagramPanel() {
+  const instagramPhotos = useStore((state) => state.instagramPhotos)
+  const instagramLoading = useStore((state) => state.instagramLoading)
+  const fetchInstagramPhotos = useStore((state) => state.fetchInstagramPhotos)
+  const { playClick } = useSounds()
+
+  // Check if we have API credentials
+  const hasApiCredentials = !!(
+    import.meta.env.REACT_APP_INSTAGRAM_ACCESS_TOKEN ||
+    import.meta.env.VITE_INSTAGRAM_ACCESS_TOKEN
+  ) && !!(
+    import.meta.env.REACT_APP_INSTAGRAM_USER_ID ||
+    import.meta.env.VITE_INSTAGRAM_USER_ID
+  )
+
+  // Use mock data if no API data and no credentials, or if API failed
+  const displayPhotos = instagramPhotos.length > 0 ? instagramPhotos : mockInstagramPhotos
+  const isUsingMockData = instagramPhotos.length === 0
+
+  React.useEffect(() => {
+    if (hasApiCredentials && instagramPhotos.length === 0 && !instagramLoading) {
+      fetchInstagramPhotos()
+    }
+  }, [hasApiCredentials, instagramPhotos.length, instagramLoading, fetchInstagramPhotos])
+
+  const handlePhotoClick = (permalink) => {
+    playClick()
+    if (isUsingMockData) {
+      // For mock data, open Unsplash instead
+      window.open('https://unsplash.com', '_blank', 'noopener,noreferrer')
+    } else {
+      window.open(permalink, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  return (
+    <div className="panel-content">
+      <h2>📸 Instagram Album</h2>
+      <p className="panel-description">
+        {isUsingMockData ? 'Sample photos (setup Instagram API for real photos)' : 'My latest photos from Instagram'}
+      </p>
+      
+      {instagramLoading ? (
+        <div className="instagram-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading your Instagram photos...</p>
+        </div>
+      ) : (
+        <div className="instagram-grid">
+          {displayPhotos.slice(0, 12).map((photo) => (
+            <div 
+              key={photo.id} 
+              className="instagram-item"
+              onClick={() => handlePhotoClick(photo.permalink)}
+            >
+              <img 
+                src={photo.media_url} 
+                alt={photo.caption || 'Instagram photo'}
+                loading="lazy"
+              />
+              {photo.caption && (
+                <div className="instagram-caption">
+                  <p>{photo.caption.slice(0, 100)}{photo.caption.length > 100 ? '...' : ''}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {isUsingMockData && (
+        <div className="instagram-setup-notice">
+          <p>💡 <strong>To show your real Instagram photos:</strong></p>
+          <ol>
+            <li>Use VPN to access <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook Developers</a></li>
+            <li>Create a Facebook App and add "Instagram Basic Display" product</li>
+            <li>Go to Instagram Basic Display → Generate Token</li>
+            <li>Get your Instagram User ID from the API response</li>
+            <li>Add credentials to <code>.env</code> file:</li>
+          </ol>
+          <div className="code-example">
+            <code>
+              REACT_APP_INSTAGRAM_ACCESS_TOKEN=your_token_here<br/>
+              REACT_APP_INSTAGRAM_USER_ID=your_user_id_here
+            </code>
+          </div>
+          <p>Then restart the development server.</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -250,6 +373,8 @@ function PanelOverlay() {
         return <ContactPanel />
       case 'about':
         return <AboutPanel />
+      case 'instagram':
+        return <InstagramPanel />
       default:
         return null
     }

@@ -17,8 +17,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .panel-container {
@@ -36,11 +41,12 @@
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -297,14 +303,14 @@
 }
 
 .about-avatar {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #60a5fa;
   box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  image-rendering: auto;
+  filter: contrast(1.1) brightness(1.05);
 }
 
 .about-info {
@@ -556,8 +562,15 @@
 }
 
 @keyframes bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .easter-egg-emoji {
@@ -580,115 +593,115 @@
   .panel-overlay {
     padding: 16px;
   }
-  
+
   .panel-container {
     padding: 24px;
     width: 95%;
     max-height: 85vh;
     border-radius: 16px;
   }
-  
+
   .panel-header h2 {
     font-size: 22px;
   }
-  
+
   .panel-header .panel-icon {
     font-size: 28px;
   }
-  
+
   .close-btn {
     width: 36px;
     height: 36px;
     font-size: 22px;
   }
-  
+
   /* Projects */
   .projects-grid {
     gap: 12px;
   }
-  
+
   .project-card {
     padding: 16px;
   }
-  
+
   .project-icon {
     font-size: 28px;
   }
-  
+
   .project-card h3 {
     font-size: 16px;
   }
-  
+
   .project-card p {
     font-size: 13px;
   }
-  
+
   .tech-tags span {
     font-size: 11px;
     padding: 3px 8px;
   }
-  
+
   /* Skills */
   .skill-name {
     width: 80px;
     font-size: 13px;
   }
-  
+
   .skill-level {
     font-size: 11px;
     width: 35px;
   }
-  
+
   /* Playground */
   .playground-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  
+
   .playground-item {
     padding: 16px;
   }
-  
+
   .playground-icon {
     font-size: 28px;
   }
-  
+
   /* About */
   .about-header h3 {
     font-size: 20px;
   }
-  
+
   .about-title {
     font-size: 14px;
   }
-  
+
   .about-intro {
     font-size: 15px;
   }
-  
+
   .about-description {
     font-size: 13px;
   }
-  
+
   /* Contact */
   .contact-item {
     padding: 14px 16px;
     gap: 12px;
   }
-  
+
   .contact-icon {
     font-size: 20px;
   }
-  
+
   /* Easter Egg */
   .easter-egg-content {
     padding: 24px 32px;
   }
-  
+
   .easter-egg-emoji {
     font-size: 48px;
   }
-  
+
   .easter-egg-content p {
     font-size: 16px;
   }
@@ -700,7 +713,7 @@
     padding: 8px;
     align-items: flex-end;
   }
-  
+
   .panel-container {
     padding: 20px 16px;
     width: 100%;
@@ -708,205 +721,274 @@
     border-radius: 20px 20px 0 0;
     margin-bottom: 0;
   }
-  
+
   .panel-header {
     margin-bottom: 16px;
   }
-  
+
   .panel-header h2 {
     font-size: 18px;
   }
-  
+
   .panel-header .panel-icon {
     font-size: 24px;
   }
-  
+
   .close-btn {
     width: 32px;
     height: 32px;
     font-size: 20px;
   }
-  
+
   /* Projects */
   .project-card {
     padding: 14px;
   }
-  
+
   .project-icon {
     font-size: 24px;
     margin-bottom: 8px;
   }
-  
+
   .project-card h3 {
     font-size: 15px;
   }
-  
+
   .project-card p {
     font-size: 12px;
     margin-bottom: 10px;
   }
-  
+
   .tech-tags {
     gap: 6px;
     margin-bottom: 10px;
   }
-  
+
   .tech-tags span {
     font-size: 10px;
     padding: 2px 6px;
   }
-  
+
   .project-links {
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .project-links a {
     font-size: 12px;
     padding: 5px 10px;
   }
-  
+
   /* Skills */
   .skills-grid {
     gap: 20px;
   }
-  
+
   .skill-group h3 {
     font-size: 12px;
   }
-  
+
   .skill-item {
     gap: 8px;
   }
-  
+
   .skill-name {
     width: 70px;
     font-size: 12px;
   }
-  
+
   .skill-bar {
     height: 6px;
   }
-  
+
   .skill-level {
     font-size: 10px;
     width: 30px;
   }
-  
+
   /* Playground */
   .playground-item {
     padding: 14px;
     gap: 12px;
   }
-  
+
   .playground-icon {
     font-size: 24px;
   }
-  
+
   .playground-name {
     font-size: 13px;
   }
-  
+
   .playground-desc {
     font-size: 11px;
   }
-  
+
   /* About */
   .about-header {
     margin-bottom: 16px;
     padding-bottom: 16px;
   }
-  
+
   .about-header h3 {
     font-size: 18px;
   }
-  
+
   .about-title {
     font-size: 13px;
   }
-  
+
   .about-tagline {
     font-size: 12px;
   }
-  
+
   .about-intro {
     font-size: 14px;
   }
-  
+
   .about-description {
     font-size: 13px;
     line-height: 1.6;
   }
-  
+
   .about-highlights {
     gap: 8px;
     margin-bottom: 24px;
   }
-  
+
   .highlight-item {
     font-size: 13px;
     padding: 8px 12px;
   }
-  
+
   .section-title {
     font-size: 16px;
     margin: 20px 0 12px 0;
   }
-  
+
   .experience-item {
     padding: 14px;
   }
-  
+
   .exp-position {
     font-size: 14px;
   }
-  
+
   .exp-duration {
     font-size: 11px;
   }
-  
+
   .exp-company {
     font-size: 12px;
   }
-  
+
   .exp-description {
     font-size: 12px;
   }
-  
+
   /* Contact */
   .contact-links {
     gap: 10px;
   }
-  
+
   .contact-item {
     padding: 12px 14px;
     gap: 10px;
     border-radius: 10px;
   }
-  
+
   .contact-icon {
     font-size: 18px;
   }
-  
+
   .contact-item span:last-child,
   .contact-item a span:last-child {
     font-size: 13px;
   }
-  
+
   /* Easter Egg */
   .easter-egg-content {
     padding: 20px 28px;
     border-radius: 16px;
   }
-  
+
   .easter-egg-emoji {
     font-size: 40px;
     margin-bottom: 8px;
   }
-  
+
   .easter-egg-content p {
     font-size: 14px;
   }
+}
+
+/* Avatar Modal */
+.avatar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.3s ease;
+}
+
+.avatar-modal-content {
+  position: relative;
+  max-width: 400px;
+  max-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.avatar-modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.avatar-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.avatar-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.about-avatar.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.about-avatar.clickable:hover {
+  transform: scale(1.05);
 }
 
 /* Very Small Phones */
@@ -914,21 +996,156 @@
   .panel-container {
     padding: 16px 12px;
   }
-  
+
   .panel-header h2 {
     font-size: 16px;
   }
-  
+
   .skill-name {
     width: 60px;
     font-size: 11px;
   }
-  
+
   .project-card h3 {
     font-size: 14px;
   }
-  
+
   .welcome-name {
     font-size: 32px;
   }
+}
+
+/* Instagram Album Styles */
+.instagram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.instagram-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.instagram-item:hover {
+  transform: scale(1.05);
+}
+
+.instagram-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.instagram-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.instagram-item:hover .instagram-caption {
+  opacity: 1;
+}
+
+.instagram-loading {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #60a5fa;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.instagram-empty {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.instagram-setup-note {
+  font-size: 14px;
+  margin-top: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.instagram-setup-notice {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.instagram-setup-notice p {
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.instagram-setup-notice ol {
+  text-align: left;
+  padding-left: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+}
+
+.instagram-setup-notice li {
+  margin-bottom: 8px;
+}
+
+.instagram-setup-notice code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #60a5fa;
+}
+
+.instagram-setup-notice a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.code-example {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 12px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #60a5fa;
+  line-height: 1.4;
 }
