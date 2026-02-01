@@ -86,7 +86,7 @@ function TVScreen({ isActive }) {
     ctx.textAlign = 'center'
     ctx.shadowColor = GAME_COLORS.text
     ctx.shadowBlur = 10
-    ctx.fillText('🎮 RETRO ARCADE', CANVAS_WIDTH / 2, 45)
+    ctx.fillText('RETRO ARCADE', CANVAS_WIDTH / 2, 45)
     ctx.shadowBlur = 0
     
     // Game options

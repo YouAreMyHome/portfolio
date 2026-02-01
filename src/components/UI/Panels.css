@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 900;
   animation: fadeIn 0.3s ease;
 }
 
@@ -29,15 +29,21 @@
 .panel-container {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 16px;
-  padding: 32px;
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
-  overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: slideUp 0.15s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-scroll-content {
+  padding: 32px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 /* Dark mode styles */
@@ -185,10 +191,14 @@
 
 .panel-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  min-height: 36px;
+  max-height: 36px;
   border: none;
   background: rgba(255, 255, 255, 0.1);
   color: white;
@@ -199,6 +209,8 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .panel-close:hover {
@@ -256,6 +268,9 @@
   background: rgba(250, 204, 21, 0.2);
   padding: 4px 8px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .project-icon {
@@ -303,6 +318,9 @@
   background: rgba(96, 165, 250, 0.1);
   border-radius: 6px;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .project-links a:hover {
@@ -322,6 +340,9 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .skill-items {
@@ -404,6 +425,7 @@
 
 .playground-icon {
   font-size: 32px;
+  color: #a78bfa;
 }
 
 .playground-info {
@@ -507,6 +529,9 @@
   color: white;
   font-size: 18px;
   margin: 24px 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .experience-list {
@@ -667,6 +692,9 @@
 
 .contact-icon {
   font-size: 24px;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
 }
 
 /* Easter Egg */
@@ -679,7 +707,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 950;
   pointer-events: none;
 }
 
@@ -726,10 +754,29 @@
   }
 
   .panel-container {
-    padding: 24px;
     width: 95%;
     max-height: 85vh;
     border-radius: 16px;
+  }
+
+  .panel-scroll-content {
+    padding: 24px;
+  }
+
+  .panel-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    font-size: 26px;
+  }
+
+  .panel-close:active {
+    background: rgba(255, 255, 255, 0.3);
   }
 
   .panel-header h2 {
@@ -846,11 +893,26 @@
   }
 
   .panel-container {
-    padding: 20px 16px;
     width: 100%;
     max-height: 90vh;
     border-radius: 20px 20px 0 0;
     margin-bottom: 0;
+  }
+
+  .panel-scroll-content {
+    padding: 20px 16px;
+  }
+
+  .panel-close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    font-size: 22px;
   }
 
   .panel-header {
@@ -1066,7 +1128,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 1100;
   animation: fadeIn 0.3s ease;
 }
 
@@ -1122,6 +1184,55 @@
   transform: scale(1.05);
 }
 
+/* Avatar Modal Mobile */
+@media (max-width: 768px) {
+  .avatar-modal-content {
+    max-width: 85vw;
+    max-height: 70vh;
+    padding: 16px;
+    padding-top: 48px;
+  }
+
+  .avatar-modal-close {
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+    transform: none;
+  }
+
+  .avatar-modal-close:active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-modal-overlay {
+    padding: 16px;
+  }
+
+  .avatar-modal-content {
+    max-width: 90vw;
+    max-height: 75vh;
+    padding: 12px;
+    padding-top: 44px;
+    border-radius: 8px;
+  }
+
+  .avatar-modal-close {
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+  }
+  
+  .avatar-modal-image {
+    border-radius: 6px;
+  }
+}
+
 /* Very Small Phones */
 @media (max-width: 360px) {
   .panel-container {
@@ -1143,5 +1254,325 @@
 
   .welcome-name {
     font-size: 32px;
+  }
+}
+
+/* ========================================= */
+/* Books Panel Styles */
+/* ========================================= */
+
+.books-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.book-card {
+  display: flex;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.book-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.book-card.mystery {
+  border-color: rgba(26, 188, 156, 0.4);
+  background: rgba(26, 188, 156, 0.05);
+}
+
+.book-card.mystery:hover {
+  background: rgba(26, 188, 156, 0.15);
+  border-color: rgba(26, 188, 156, 0.6);
+}
+
+.book-spine {
+  width: 50px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.book-info {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.book-info h3 {
+  color: #f0f0f0;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.book-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+}
+
+/* Book Content View */
+.book-back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f0f0f0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.book-back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.book-content-view {
+  text-align: center;
+}
+
+.book-cover-large {
+  width: 100px;
+  height: 130px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.book-content-view h2 {
+  margin-bottom: 24px;
+}
+
+.book-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.book-page {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  position: relative;
+}
+
+.book-page .page-number {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.book-page p {
+  color: #f0f0f0;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-line;
+}
+
+/* Dark mode */
+.panel-container.dark .book-card {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.panel-container.dark .book-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.panel-container.dark .book-info h3 {
+  color: #e2e8f0;
+}
+
+/* Books responsive */
+@media (max-width: 600px) {
+  .book-spine {
+    width: 40px;
+    min-height: 60px;
+  }
+  
+  .book-info {
+    padding: 12px;
+  }
+  
+  .book-info h3 {
+    font-size: 14px;
+  }
+  
+  .book-page p {
+    font-size: 14px;
+  }
+}
+
+/* ========================================= */
+/* Blog Panel Styles (Legacy - keeping for reference) */
+/* ========================================= */
+
+.blog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.blog-card {
+  display: block;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.blog-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(96, 165, 250, 0.4);
+  transform: translateY(-2px);
+}
+
+.blog-card.featured {
+  border-color: rgba(250, 204, 21, 0.4);
+  background: rgba(250, 204, 21, 0.05);
+}
+
+.blog-card.featured:hover {
+  border-color: rgba(250, 204, 21, 0.6);
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.blog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.blog-header h3 {
+  color: #f0f0f0;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.blog-card .featured-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(250, 204, 21, 0.2);
+  color: #fcd34d;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.blog-excerpt {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.blog-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.blog-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-tag {
+  padding: 4px 10px;
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dark mode for blog cards */
+.panel-container.dark .blog-card {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.panel-container.dark .blog-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.panel-container.dark .blog-header h3 {
+  color: #e2e8f0;
+}
+
+.panel-container.dark .blog-excerpt {
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.panel-container.dark .blog-meta {
+  color: rgba(226, 232, 240, 0.5);
+}
+
+/* Blog responsive */
+@media (max-width: 600px) {
+  .blog-card {
+    padding: 16px;
+  }
+  
+  .blog-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .blog-header h3 {
+    font-size: 16px;
+  }
+  
+  .blog-meta {
+    flex-direction: column;
+    gap: 6px;
   }
 }

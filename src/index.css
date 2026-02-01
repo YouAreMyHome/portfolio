@@ -470,3 +470,289 @@ body {
     height: 100dvh;
   }
 }
+
+/* ==================== MOBILE TOUCH HINT ==================== */
+.mobile-touch-hint {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  animation: fadeInOut 4s ease forwards;
+  pointer-events: none;
+}
+
+.touch-hint-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.touch-icon {
+  font-size: 20px;
+  animation: bounce 1s ease infinite;
+}
+
+.touch-icon.rotate {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== MOBILE PANEL OPTIMIZATION ==================== */
+@media (max-width: 480px) {
+  .panel-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 85vh !important;
+    max-height: 85vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    margin: 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    animation: slideUpMobile 0.3s ease-out !important;
+  }
+  
+  @keyframes slideUpMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  .panel-close {
+    position: sticky !important;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background: inherit;
+    z-index: 10;
+  }
+  
+  .panel-close::before {
+    content: '';
+    width: 40px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+  
+  /* Larger touch targets */
+  .project-card,
+  .skill-item,
+  .contact-item {
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  /* Better spacing */
+  .panel-content {
+    padding: 0 16px 32px !important;
+  }
+}
+
+/* ==================== TABLET OPTIMIZATION ==================== */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .panel-container {
+    width: 90% !important;
+    max-width: 700px !important;
+  }
+}
+
+/* ==================== ENHANCED MOBILE UI ==================== */
+
+/* Mobile HUD improvements */
+@media (max-width: 480px) {
+  .hud-corner {
+    top: env(safe-area-inset-top, 12px);
+    left: 12px;
+    padding-top: 8px;
+  }
+  
+  .hud-title {
+    font-size: 18px !important;
+    font-weight: 600;
+  }
+  
+  .hud-subtitle {
+    font-size: 12px;
+  }
+  
+  .hud-sound-toggle {
+    top: env(safe-area-inset-top, 12px);
+    padding-top: 8px;
+  }
+}
+
+/* Touch-optimized buttons */
+@media (hover: none) and (pointer: coarse) {
+  button, 
+  .clickable,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Active state feedback */
+  button:active,
+  .clickable:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+  
+  /* Prevent text selection on interactive elements */
+  .panel-container,
+  .hud-corner,
+  .spotify-player {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Mobile panel content improvements */
+@media (max-width: 480px) {
+  /* Panel header */
+  .panel-content h2 {
+    font-size: 22px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  /* Project cards mobile */
+  .project-card {
+    border-radius: 12px !important;
+  }
+  
+  .project-card h3 {
+    font-size: 16px !important;
+  }
+  
+  .project-card p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  
+  .tech-tags {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  
+  .tech-tags span {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+  
+  /* Skills mobile */
+  .skill-group {
+    margin-bottom: 20px !important;
+  }
+  
+  .skill-group h3 {
+    font-size: 15px !important;
+  }
+  
+  .skill-name {
+    font-size: 13px !important;
+  }
+  
+  /* Contact mobile */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  .contact-item {
+    padding: 14px !important;
+    border-radius: 12px !important;
+  }
+  
+  .contact-item .icon {
+    font-size: 24px !important;
+  }
+  
+  /* About mobile */
+  .about-header {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  
+  .about-avatar {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Smooth scrolling in panels */
+.panel-container {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* Hide scrollbar on mobile but keep functionality */
+@media (max-width: 768px) {
+  .panel-container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+/* Bottom safe area for panels */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 480px) {
+    .panel-container {
+      padding-bottom: calc(32px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .panel-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+  
+  .hud-corner {
+    top: 8px !important;
+    left: 8px !important;
+  }
+  
+  .hud-title {
+    font-size: 14px !important;
+  }
+  
+  .mobile-touch-hint {
+    bottom: 60px;
+  }
+}

@@ -93,6 +93,10 @@
   animation: float 2s ease-in-out infinite;
   position: relative;
   z-index: 1;
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .loading-icon-glow {
@@ -216,6 +220,10 @@
   transform: scale(0.8);
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   filter: grayscale(1);
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .loading-items span.loaded {
@@ -223,6 +231,7 @@
   transform: scale(1);
   filter: grayscale(0);
   animation: itemPop 0.5s ease;
+  color: #4ade80;
 }
 
 @keyframes itemPop {
@@ -265,7 +274,10 @@
   font-size: 100px;
   margin-bottom: 20px;
   animation: wave 1.5s ease-in-out infinite;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #facc15;
 }
 
 @keyframes wave {
@@ -319,10 +331,15 @@
   animation: popIn 0.5s ease forwards;
   cursor: pointer;
   transition: transform 0.2s ease;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .welcome-icons span:hover {
   transform: scale(1.2);
+  color: #4ade80;
 }
 
 .welcome-icons span:nth-child(1) { animation-delay: 0.2s; }

@@ -1,7 +1,9 @@
 import { COLORS } from './colors'
+import InteractiveObject from './InteractiveObject'
 
 /**
  * Shelf - Kệ sách trên tường sau (bên phải cửa sổ)
+ * Books are interactive - click to open blog panel
  */
 function Shelf() {
   return (
@@ -32,28 +34,32 @@ function Shelf() {
         </group>
       ))}
       
-      {/* Books with varied styles */}
-      {[
-        { x: -0.35, w: 0.07, h: 0.18, color: '#e74c3c' },
-        { x: -0.26, w: 0.05, h: 0.15, color: '#3498db' },
-        { x: -0.18, w: 0.08, h: 0.2, color: '#2ecc71' },
-        { x: -0.08, w: 0.06, h: 0.16, color: '#9b59b6' },
-        { x: 0.0, w: 0.07, h: 0.17, color: '#f39c12' },
-        { x: 0.09, w: 0.06, h: 0.14, color: '#1abc9c' },
-      ].map(({ x, w, h, color }, i) => (
-        <mesh key={i} position={[x, 0.025 + h/2, 0]} castShadow>
-          <boxGeometry args={[w, h, 0.14]} />
-          <meshToonMaterial color={color} />
-        </mesh>
-      ))}
+      {/* Interactive Books - Click to open blog panel */}
+      <InteractiveObject name="books" panelId="blog" hoverLift={0.05}>
+        <group>
+          {[
+            { x: -0.35, w: 0.07, h: 0.18, color: '#e74c3c' },
+            { x: -0.26, w: 0.05, h: 0.15, color: '#3498db' },
+            { x: -0.18, w: 0.08, h: 0.2, color: '#2ecc71' },
+            { x: -0.08, w: 0.06, h: 0.16, color: '#9b59b6' },
+            { x: 0.0, w: 0.07, h: 0.17, color: '#f39c12' },
+            { x: 0.09, w: 0.06, h: 0.14, color: '#1abc9c' },
+          ].map(({ x, w, h, color }, i) => (
+            <mesh key={i} position={[x, 0.025 + h/2, 0]} castShadow>
+              <boxGeometry args={[w, h, 0.14]} />
+              <meshToonMaterial color={color} />
+            </mesh>
+          ))}
+          
+          {/* Leaning book */}
+          <mesh position={[0.22, 0.08, 0.02]} rotation={[0, 0, 0.15]} castShadow>
+            <boxGeometry args={[0.06, 0.16, 0.12]} />
+            <meshToonMaterial color="#34495e" />
+          </mesh>
+        </group>
+      </InteractiveObject>
       
-      {/* Leaning book */}
-      <mesh position={[0.22, 0.08, 0.02]} rotation={[0, 0, 0.15]} castShadow>
-        <boxGeometry args={[0.06, 0.16, 0.12]} />
-        <meshToonMaterial color="#34495e" />
-      </mesh>
-      
-      {/* Small trophy/figurine */}
+      {/* Small trophy/figurine - không interactive */}
       <mesh position={[0.38, 0.06, 0]} castShadow>
         <cylinderGeometry args={[0.02, 0.028, 0.06, 8]} />
         <meshToonMaterial color="#FFD700" />

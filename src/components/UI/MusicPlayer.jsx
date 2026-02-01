@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Music } from 'lucide-react'
 import useStore from '../../store/useStore'
 import { playlist } from '../../data/playlist'
 import './MusicPlayer.css'
 
 /**
  * MusicPlayer - Spotify-style mini player
- * Compact, always visible, background playback
+ * Compact, mobile-optimized, background playback
+ * Volume syncs with device (no manual volume slider)
  */
 function MusicPlayer() {
   const showMusicPlayer = useStore((state) => state.showMusicPlayer)
@@ -16,12 +18,10 @@ function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(0.7)
   const [isMuted, setIsMuted] = useState(false)
   const [showPlaylist, setShowPlaylist] = useState(false)
   
   const audioRef = useRef(null)
-  const prevVolume = useRef(0.7)
   
   const track = playlist[currentTrack]
   
@@ -65,7 +65,6 @@ function MusicPlayer() {
   // Previous track
   const prevTrack = useCallback(() => {
     if (currentTime > 3) {
-      // Restart current track if > 3 seconds in
       if (audioRef.current) audioRef.current.currentTime = 0
     } else {
       const newIndex = currentTrack > 0 ? currentTrack - 1 : playlist.length - 1
@@ -86,10 +85,11 @@ function MusicPlayer() {
     setShowPlaylist(false)
   }, [])
   
-  // Seek
+  // Seek - support both mouse and touch
   const handleSeek = useCallback((e) => {
     const rect = e.currentTarget.getBoundingClientRect()
-    const percent = (e.clientX - rect.left) / rect.width
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX
+    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
     const time = percent * duration
     if (audioRef.current) {
       audioRef.current.currentTime = time
@@ -97,28 +97,13 @@ function MusicPlayer() {
     }
   }, [duration])
   
-  // Volume
-  const handleVolume = useCallback((e) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const percent = (e.clientX - rect.left) / rect.width
-    const vol = Math.max(0, Math.min(1, percent))
-    setVolume(vol)
-    setIsMuted(false)
-    if (audioRef.current) audioRef.current.volume = vol
-  }, [])
-  
-  // Mute toggle
+  // Mute toggle - uses device volume, just toggle muted
   const toggleMute = useCallback(() => {
-    if (isMuted) {
-      setVolume(prevVolume.current)
-      if (audioRef.current) audioRef.current.volume = prevVolume.current
-    } else {
-      prevVolume.current = volume
-      setVolume(0)
-      if (audioRef.current) audioRef.current.volume = 0
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted
     }
     setIsMuted(!isMuted)
-  }, [isMuted, volume])
+  }, [isMuted])
   
   // Auto-play on track change
   useEffect(() => {
@@ -149,7 +134,7 @@ function MusicPlayer() {
   
   return (
     <>
-      {/* Hidden Audio Element - persists for background playback */}
+      {/* Hidden Audio Element */}
       <audio
         ref={audioRef}
         src={track?.src}
@@ -162,8 +147,13 @@ function MusicPlayer() {
       
       {/* Mini Player */}
       <div className={`spotify-player ${showPlaylist ? 'expanded' : ''}`}>
-        {/* Progress Bar (top edge) */}
-        <div className="sp-progress-wrapper" onClick={handleSeek}>
+        {/* Progress Bar (top edge) - larger touch area on mobile */}
+        <div 
+          className="sp-progress-wrapper" 
+          onClick={handleSeek}
+          onTouchStart={handleSeek}
+          onTouchMove={handleSeek}
+        >
           <div className="sp-progress-bg">
             <div 
               className="sp-progress-fill" 
@@ -175,9 +165,9 @@ function MusicPlayer() {
         {/* Main Content */}
         <div className="sp-content">
           {/* Left: Track Info */}
-          <div className="sp-track-info">
+          <div className="sp-track-info" onClick={() => setShowPlaylist(!showPlaylist)}>
             <div className={`sp-album-art ${isPlaying ? 'playing' : ''}`}>
-              <span>♪</span>
+              <Music size={18} />
             </div>
             <div className="sp-track-text">
               <div className="sp-track-title">{track?.title || 'No track'}</div>
@@ -187,7 +177,7 @@ function MusicPlayer() {
           
           {/* Center: Controls */}
           <div className="sp-controls">
-            <button className="sp-btn sp-btn-sm" onClick={prevTrack} title="Previous">
+            <button className="sp-btn sp-btn-nav" onClick={prevTrack} title="Previous">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
               </svg>
@@ -205,45 +195,38 @@ function MusicPlayer() {
               )}
             </button>
             
-            <button className="sp-btn sp-btn-sm" onClick={nextTrack} title="Next">
+            <button className="sp-btn sp-btn-nav" onClick={nextTrack} title="Next">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
               </svg>
             </button>
           </div>
           
-          {/* Right: Time & Volume */}
+          {/* Right: Actions */}
           <div className="sp-right">
+            {/* Time - hidden on mobile */}
             <span className="sp-time">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
             
-            {/* Volume */}
-            <div className="sp-volume">
-              <button className="sp-btn sp-btn-xs" onClick={toggleMute} title="Volume">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  {volume === 0 || isMuted ? (
-                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                  ) : volume < 0.5 ? (
-                    <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>
-                  ) : (
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                  )}
-                </svg>
-              </button>
-              <div className="sp-volume-bar" onClick={handleVolume}>
-                <div className="sp-volume-bg">
-                  <div 
-                    className="sp-volume-fill" 
-                    style={{ width: `${volume * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Playlist toggle */}
+            {/* Mute Toggle */}
             <button 
-              className={`sp-btn sp-btn-xs ${showPlaylist ? 'active' : ''}`} 
+              className={`sp-btn sp-btn-action ${isMuted ? 'muted' : ''}`}
+              onClick={toggleMute}
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                {isMuted ? (
+                  <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                ) : (
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                )}
+              </svg>
+            </button>
+            
+            {/* Playlist toggle - hidden on mobile (tap track info instead) */}
+            <button 
+              className={`sp-btn sp-btn-action sp-btn-playlist ${showPlaylist ? 'active' : ''}`} 
               onClick={() => setShowPlaylist(!showPlaylist)}
               title="Playlist"
             >
@@ -253,7 +236,7 @@ function MusicPlayer() {
             </button>
             
             {/* Close */}
-            <button className="sp-btn sp-btn-xs" onClick={closePlayer} title="Close">
+            <button className="sp-btn sp-btn-action" onClick={closePlayer} title="Close">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
               </svg>

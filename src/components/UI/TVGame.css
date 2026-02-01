@@ -86,12 +86,200 @@
     flex-direction: column;
     gap: 10px;
     padding: 12px 20px;
+    bottom: 10px;
+    width: 90%;
+    max-width: 350px;
   }
   
   .tv-game-controls {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+    justify-content: center;
+  }
+  
+  .control-hint {
+    font-size: 11px;
+  }
+  
+  .tv-exit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* Touch device - show tap controls instead of keyboard */
+@media (hover: none) and (pointer: coarse) {
+  .tv-game-hud {
+    bottom: env(safe-area-inset-bottom, 10px);
+    padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .tv-exit-btn {
+    min-height: 48px;
+    font-size: 16px;
+  }
+}
+
+/* ==================== GESTURE TOUCH CONTROLS ==================== */
+
+/* Swipe indicator - shows direction feedback */
+.swipe-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  color: rgba(74, 222, 128, 0.8);
+  text-shadow: 0 0 30px rgba(74, 222, 128, 0.6);
+  pointer-events: none;
+  z-index: 1002;
+  animation: swipePop 0.3s ease-out forwards;
+}
+
+@keyframes swipePop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Touch gesture hint */
+.touch-gesture-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 16px;
+  z-index: 1001;
+  animation: hintFadeOut 4s ease forwards;
+  pointer-events: none;
+}
+
+.gesture-icon {
+  font-size: 28px;
+  animation: gestureWave 1s ease-in-out infinite;
+}
+
+@keyframes gestureWave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.gesture-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #e2e8f0;
+  font-family: system-ui, sans-serif;
+}
+
+.gesture-text span:last-child {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+@keyframes hintFadeOut {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+/* Exit button for mobile */
+.touch-exit-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.3);
+  border: 2px solid rgba(239, 68, 68, 0.6);
+  color: #ef4444;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.touch-exit-btn:active {
+  background: rgba(239, 68, 68, 0.6);
+  transform: scale(0.95);
+}
+
+/* Safe area for exit button */
+@supports (padding: env(safe-area-inset-top)) {
+  .touch-exit-btn {
+    top: calc(20px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Hide old D-pad controls */
+.touch-controls {
+  display: none;
+}
+
+.touch-btn.action-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.touch-btn.action-btn.primary {
+  background: rgba(74, 222, 128, 0.3);
+  border-color: #4ade80;
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+}
+
+.touch-btn.action-btn.primary:active {
+  background: rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 30px rgba(74, 222, 128, 0.5);
+}
+
+.touch-btn.action-btn.secondary {
+  width: 48px;
+  height: 48px;
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  font-size: 18px;
+}
+
+.touch-btn.action-btn.secondary:active {
+  background: rgba(239, 68, 68, 0.6);
+}
+
+/* Hide touch controls on desktop */
+@media (hover: hover) and (pointer: fine) {
+  .touch-controls {
+    display: none;
   }
 }
 

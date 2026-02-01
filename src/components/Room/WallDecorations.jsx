@@ -1,5 +1,7 @@
+import { useTexture } from '@react-three/drei'
 import { COLORS } from './colors'
 import InteractiveObject from './InteractiveObject'
+import DigitalGallery from './DigitalGallery'
 import useStore from '../../store/useStore'
 
 /**
@@ -11,6 +13,114 @@ import useStore from '../../store/useStore'
  * LAYOUT TƯờNG TRÁI (X = -3.88), nhìn từ trong phòng:
  * Z: -4 --- -2.5 --- -1 --- 0.5(PlanBoard) --- 1.5(Bed) --- 3 --- 4
  */
+
+/**
+ * LightSwitch - Công tắc đèn treo tường
+ * Click để bật/tắt String Lights
+ */
+function LightSwitch({ position, isOn, onToggle }) {
+  return (
+    <InteractiveObject name="lightswitch" onClick={onToggle}>
+      <group position={position} rotation={[0, Math.PI / 2, 0]}>
+        {/* Backplate - Mặt nền công tắc */}
+        <mesh>
+          <boxGeometry args={[0.08, 0.12, 0.015]} />
+          <meshStandardMaterial color="#f5f5f5" roughness={0.3} />
+        </mesh>
+        
+        {/* Viền */}
+        <mesh position={[0, 0, 0.008]}>
+          <boxGeometry args={[0.065, 0.105, 0.003]} />
+          <meshStandardMaterial color="#e0e0e0" roughness={0.4} />
+        </mesh>
+        
+        {/* Switch toggle area */}
+        <mesh position={[0, 0, 0.01]}>
+          <boxGeometry args={[0.04, 0.07, 0.008]} />
+          <meshStandardMaterial color="#d0d0d0" roughness={0.5} />
+        </mesh>
+        
+        {/* Toggle switch - nghiêng lên/xuống tùy trạng thái */}
+        <group position={[0, 0, 0.018]} rotation={[isOn ? -0.4 : 0.4, 0, 0]}>
+          <mesh>
+            <boxGeometry args={[0.025, 0.04, 0.012]} />
+            <meshStandardMaterial 
+              color={isOn ? '#4ade80' : '#94a3b8'} 
+              roughness={0.3}
+              metalness={0.2}
+            />
+          </mesh>
+        </group>
+        
+        {/* Indicator light nhỏ */}
+        <mesh position={[0, -0.045, 0.012]}>
+          <sphereGeometry args={[0.006, 8, 8]} />
+          <meshStandardMaterial 
+            color={isOn ? '#22c55e' : '#334155'}
+            emissive={isOn ? '#22c55e' : '#000000'}
+            emissiveIntensity={isOn ? 1 : 0}
+            toneMapped={false}
+          />
+        </mesh>
+        
+        {/* Glow when on */}
+        {isOn && (
+          <pointLight 
+            position={[0, 0, 0.05]} 
+            intensity={0.1} 
+            distance={0.3} 
+            color="#22c55e"
+          />
+        )}
+      </group>
+    </InteractiveObject>
+  )
+}
+
+/**
+ * Polaroid - Ảnh polaroid/frame treo tường
+ * Click để phóng to xem ảnh
+ */
+function Polaroid({ 
+  position, 
+  rotation = [0, 0, 0], 
+  tilt = 0, 
+  imagePath,
+  size = [0.14, 0.14],        // Kích thước ảnh [width, height]
+  frameSize = [0.18, 0.22],   // Kích thước frame [width, height]
+  frameColor = "#f5f5f0"      // Màu frame
+}) {
+  const openPolaroid = useStore((state) => state.openPolaroid)
+  const texture = useTexture(imagePath)
+  
+  const handleClick = () => {
+    openPolaroid(imagePath)
+  }
+  
+  // Tính offset Y cho ảnh trong frame (polaroid style có phần trắng dưới)
+  const isPolaroidStyle = frameSize[1] > frameSize[0] * 1.1
+  const photoOffsetY = isPolaroidStyle ? 0.015 : 0
+  
+  return (
+    <InteractiveObject name="polaroid" onClick={handleClick}>
+      <group position={position} rotation={rotation}>
+        <group rotation={[0, 0, tilt]}>
+          {/* Frame */}
+          <mesh castShadow>
+            <boxGeometry args={[frameSize[0], frameSize[1], 0.012]} />
+            <meshStandardMaterial color={frameColor} roughness={0.9} />
+          </mesh>
+          {/* Photo area */}
+          <mesh position={[0, photoOffsetY, 0.007]}>
+            <planeGeometry args={size} />
+            <meshBasicMaterial map={texture} />
+          </mesh>
+        </group>
+      </group>
+    </InteractiveObject>
+  )
+}
+
 function WallDecorations() {
   const stringLightsOn = useStore((state) => state.stringLightsOn)
   const toggleStringLights = useStore((state) => state.toggleStringLights)
@@ -22,26 +132,32 @@ function WallDecorations() {
       {/* => Chỉ đặt ở góc trái xa (X < -3) */}
       {/* ========================================= */}
       
-      {/* Small decorative items góc trái - cạnh Window */}
-      <group position={[-3.5, 2.2, -3.90]}>
-        {/* Small frame */}
-        <mesh castShadow>
-          <boxGeometry args={[0.25, 0.3, 0.02]} />
-          <meshToonMaterial color="#4A3520" />
-        </mesh>
-        <mesh position={[0, 0, 0.015]}>
-          <planeGeometry args={[0.2, 0.25]} />
-          <meshBasicMaterial color="#87CEEB" />
-        </mesh>
-      </group>
+      {/* Small Frame - Ảnh từ /assets/img/frame1.jpg */}
+      <Polaroid 
+        position={[-3.5, 2.2, -3.88]}
+        rotation={[0, 0, 0]}
+        tilt={0}
+        imagePath="/assets/img/frame1.jpg"
+        size={[0.2, 0.25]}
+        frameSize={[0.25, 0.3]}
+        frameColor="#4A3520"
+      />
       
       {/* ========================================= */}
       {/* TƯỜNG TRÁI (X = -3.88) - Left Wall */}
       {/* Đã có: PlanBoard(Z=0.5), Bed(Z≈1.5) */}
       {/* ========================================= */}
       
+      {/* Light Switch - Công tắc bật/tắt String Lights */}
+      {/* Đặt ngang chiều cao giường, bên trái giường (phía đầu giường) */}
+      <LightSwitch 
+        position={[-3.88, 0.6, 2.6]} 
+        isOn={stringLightsOn} 
+        onToggle={toggleStringLights} 
+      />
+      
       {/* String lights / Fairy lights - CAO trên tường, dọc theo Z (Y=2.6) */}
-      <InteractiveObject name="stringlights" onClick={toggleStringLights}>
+      <group>
         <group position={[-3.85, 2.6, 0]}>
           {/* Wire - dây treo ngang theo Z */}
           <mesh position={[0, 0, 0]}>
@@ -79,68 +195,33 @@ function WallDecorations() {
             </group>
           ))}
         </group>
-      </InteractiveObject>
+      </group>
       
-      {/* Large poster - GÓC SAU TRÁI tường (Z = -3), xa PlanBoard */}
-      <InteractiveObject name="poster" panelId="about">
-        <group position={[-3.88, 1.6, -3]} rotation={[0, Math.PI / 2, 0]}>
-          {/* Frame */}
-          <mesh castShadow>
-            <boxGeometry args={[0.5, 0.65, 0.03]} />
-            <meshToonMaterial color="#4A3520" />
-          </mesh>
-          {/* Canvas */}
-          <mesh position={[0, 0, 0.02]}>
-            <planeGeometry args={[0.42, 0.57]} />
-            <meshToonMaterial color="#1e3a5f" />
-          </mesh>
-          {/* Abstract art - geometric shapes */}
-          <mesh position={[-0.06, 0.1, 0.025]}>
-            <circleGeometry args={[0.07, 16]} />
-            <meshBasicMaterial color="#ef4444" />
-          </mesh>
-          <mesh position={[0.08, -0.06, 0.025]}>
-            <planeGeometry args={[0.1, 0.1]} />
-            <meshBasicMaterial color="#fbbf24" />
-          </mesh>
-          <mesh position={[-0.02, -0.16, 0.025]}>
-            <planeGeometry args={[0.14, 0.05]} />
-            <meshBasicMaterial color="#22c55e" />
-          </mesh>
-        </group>
-      </InteractiveObject>
+      {/* Digital Gallery - Khung tranh điện tử tương tác */}
+      {/* GÓC SAU TRÁI tường (Z = -3), xa PlanBoard */}
+      <DigitalGallery 
+        position={[-3.88, 1.6, -3]} 
+        rotation={[0, Math.PI / 2, 0]}
+        size={[0.5, 0.65]}
+        autoSlide={true}
+        slideInterval={8000}
+      />
       
-      {/* Small polaroid - GÓC SAU (Z = -2), giữa poster và PlanBoard */}
-      <InteractiveObject name="polaroid1" panelId="playground">
-        <group position={[-3.88, 2.2, -1.8]} rotation={[0, Math.PI / 2, 0]}>
-          <group rotation={[0, 0, 0.08]}>
-            <mesh castShadow>
-              <boxGeometry args={[0.16, 0.2, 0.008]} />
-              <meshToonMaterial color="#f5f5f0" />
-            </mesh>
-            <mesh position={[0, 0.018, 0.005]}>
-              <planeGeometry args={[0.12, 0.12]} />
-              <meshBasicMaterial color="#87CEEB" />
-            </mesh>
-          </group>
-        </group>
-      </InteractiveObject>
+      {/* Polaroid 1 - Ảnh từ /assets/img/polaroid1.jpg */}
+      <Polaroid 
+        position={[-3.88, 2.2, -1.8]}
+        rotation={[0, Math.PI / 2, 0]}
+        tilt={0.08}
+        imagePath="/assets/img/polaroid1.jpg"
+      />
       
-      {/* Another polaroid */}
-      <InteractiveObject name="polaroid2" panelId="playground">
-        <group position={[-3.88, 2.0, -1.5]} rotation={[0, Math.PI / 2, 0]}>
-          <group rotation={[0, 0, -0.1]}>
-            <mesh castShadow>
-              <boxGeometry args={[0.16, 0.2, 0.008]} />
-              <meshToonMaterial color="#f5f5f0" />
-            </mesh>
-            <mesh position={[0, 0.018, 0.005]}>
-              <planeGeometry args={[0.12, 0.12]} />
-              <meshBasicMaterial color="#fecaca" />
-            </mesh>
-          </group>
-        </group>
-      </InteractiveObject>
+      {/* Polaroid 2 - Ảnh từ /assets/img/polaroid2.jpg */}
+      <Polaroid 
+        position={[-3.88, 2.0, -1.5]}
+        rotation={[0, Math.PI / 2, 0]}
+        tilt={-0.1}
+        imagePath="/assets/img/polaroid2.jpg"
+      />
     </group>
   )
 }

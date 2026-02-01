@@ -42,6 +42,12 @@ const useStore = create((set, get) => ({
   // String lights
   stringLightsOn: false,
   
+  // Kanban Board overlay
+  showKanbanBoard: false,
+  
+  // Polaroid lightbox
+  polaroidImage: null, // null hoặc URL ảnh đang xem
+  
   // Sound callback (set by App component)
   onSoundTrigger: null,
   setSoundTrigger: (callback) => set({ onSoundTrigger: callback }),
@@ -67,6 +73,24 @@ const useStore = create((set, get) => ({
     if (onSoundTrigger) onSoundTrigger('click')
     set({ stringLightsOn: !stringLightsOn })
   },
+  
+  // Kanban Board toggle
+  toggleKanbanBoard: () => {
+    const { showKanbanBoard, onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showKanbanBoard: !showKanbanBoard })
+  },
+  
+  closeKanbanBoard: () => set({ showKanbanBoard: false }),
+  
+  // Polaroid lightbox
+  openPolaroid: (imageUrl) => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ polaroidImage: imageUrl })
+  },
+  
+  closePolaroid: () => set({ polaroidImage: null }),
   
   // Actions
   setActivePanel: (panel) => {

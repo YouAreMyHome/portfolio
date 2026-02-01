@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Volume2, VolumeX, Move, ZoomIn, MousePointer } from 'lucide-react'
 import useStore from '../../store/useStore'
 import { useSounds, useSoundStore } from '../../utils/useSounds'
 import './HUD.css'
@@ -7,7 +8,7 @@ import './HUD.css'
  * HUD - Heads Up Display
  * Hiển thị thông tin hover và hướng dẫn
  */
-function HUD() {
+function HUD({ isTouchDevice = false }) {
   const hoveredObject = useStore((state) => state.hoveredObject)
   const isNightMode = useStore((state) => state.isNightMode)
   const isRecordPlaying = useStore((state) => state.isRecordPlaying)
@@ -26,21 +27,23 @@ function HUD() {
   const getHoverText = () => {
     switch (hoveredObject) {
       case 'pc':
-        return '💻 Xem Projects'
+        return 'Xem Projects của mình'
       case 'board':
-        return '📋 Xem Skills'
+        return 'Kỹ năng & Công nghệ'
       case 'tv':
-        return '🎮 Playground'
+        return 'Chơi game thư giãn'
       case 'bed':
-        return '📬 Liên hệ'
+        return 'Liên hệ với mình'
       case 'chair':
-        return '🪑 Về tôi'
+        return 'Tìm hiểu về mình'
       case 'window':
-        return isNightMode ? '☀️ Bật chế độ ngày' : '🌙 Bật chế độ đêm'
+        return isNightMode ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối'
       case 'cat':
-        return '🐱 Meow!'
+        return 'Meo meo~'
       case 'recordplayer':
-        return isRecordPlaying ? '🎵 Đang phát nhạc' : '🎵 Mở Music Player'
+        return isRecordPlaying ? 'Đang phát nhạc...' : 'Nghe nhạc cùng mình'
+      case 'clock':
+        return 'Xem giờ hiện tại'
       default:
         return null
     }
@@ -61,7 +64,7 @@ function HUD() {
       <div className={`hud-corner ${isNightMode ? 'dark' : ''}`}>
         <span className="hud-title">Nghia's Room</span>
         <span className="hud-subtitle">
-          {isNightMode ? '🌙 Chế độ đêm' : '☀️ Chế độ ngày'}
+          {isNightMode ? 'Night mode' : 'Day mode'}
         </span>
       </div>
       
@@ -74,15 +77,17 @@ function HUD() {
         }}
         title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
       >
-        {isMuted ? '🔇' : '🔊'}
+        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
       </button>
       
-      {/* Instructions */}
-      <div className={`hud-instructions ${isNightMode ? 'dark' : ''}`}>
-        <span>🖱️ Kéo để xoay</span>
-        <span>🔍 Cuộn để zoom</span>
-        <span>👆 Nhấn vào vật thể</span>
-      </div>
+      {/* Instructions - hide on touch devices */}
+      {!isTouchDevice && (
+        <div className={`hud-instructions ${isNightMode ? 'dark' : ''}`}>
+          <span><Move size={14} /> Kéo để xoay</span>
+          <span><ZoomIn size={14} /> Cuộn để zoom</span>
+          <span><MousePointer size={14} /> Nhấn vào vật thể</span>
+        </div>
+      )}
     </>
   )
 }

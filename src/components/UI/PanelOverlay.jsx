@@ -2,14 +2,25 @@ import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
 import { useState } from 'react'
 import React from 'react'
-import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
+import { createPortal } from 'react-dom'
+import { 
+  Star, Code, ExternalLink,
+  Palette, Server, Wrench,
+  Briefcase, GraduationCap,
+  Dice5, Music, Droplets, Timer,
+  Mail, Github, Linkedin, MapPin,
+  Cat, PartyPopper,
+  BookOpen, Book, Sparkles, AlertTriangle
+} from 'lucide-react'
+import { personalInfo, aboutMe, skills, projects, experience, education, books } from '../../data/portfolio'
+import { PortfolioOS } from '../PortfolioOS'
 import './Panels.css'
 
 /**
  * Panel Overlay - Hiển thị nội dung portfolio
  * 
  * Panels:
- * - projects: Các dự án
+ * - projects: Portfolio OS (Windows 95 style!)
  * - skills: Kỹ năng
  * - playground: Games/Demos
  * - contact: Liên hệ
@@ -20,13 +31,13 @@ import './Panels.css'
 function ProjectsPanel({ isNightMode }) {
   return (
     <div className="panel-content">
-      <h2>{isNightMode ? '🌙 Projects' : '🖥️ Projects'}</h2>
+      <h2>Projects</h2>
       <div className="projects-grid">
         {projects.map((project) => (
           <div key={project.id} className={`project-card ${project.featured ? 'featured' : ''}`}>
             <div className="project-header">
               <h3>{project.title}</h3>
-              {project.featured && <span className="featured-badge">⭐ Featured</span>}
+              {project.featured && <span className="featured-badge"><Star size={14} /> Featured</span>}
             </div>
             <p>{project.description}</p>
             <div className="tech-tags">
@@ -37,12 +48,12 @@ function ProjectsPanel({ isNightMode }) {
             <div className="project-links">
               {project.github && (
                 <a href={project.github} target="_blank" rel="noopener noreferrer">
-                  🐙 Code
+                  <Code size={14} /> Code
                 </a>
               )}
               {project.demo && (
                 <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                  🚀 Demo
+                  <ExternalLink size={14} /> Demo
                 </a>
               )}
             </div>
@@ -56,14 +67,14 @@ function ProjectsPanel({ isNightMode }) {
 // Skills Panel - Connected to portfolio.js
 function SkillsPanel({ isNightMode }) {
   const skillCategories = [
-    { key: 'frontend', label: 'Frontend', icon: '🎨' },
-    { key: 'backend', label: 'Backend', icon: '⚙️' },
-    { key: 'tools', label: 'Tools', icon: '🛠️' },
+    { key: 'frontend', label: 'Frontend', icon: <Palette size={18} /> },
+    { key: 'backend', label: 'Backend', icon: <Server size={18} /> },
+    { key: 'tools', label: 'Tools', icon: <Wrench size={18} /> },
   ]
   
   return (
     <div className="panel-content">
-      <h2>{isNightMode ? '🌟 Skills' : '⚡ Skills'}</h2>
+      <h2>Skills</h2>
       <div className="skills-grid">
         {skillCategories.map(({ key, label, icon }) => (
           <div key={key} className="skill-group">
@@ -89,6 +100,77 @@ function SkillsPanel({ isNightMode }) {
   )
 }
 
+// Books Panel - Hiển thị sách với jokes và memes
+function BooksPanel({ isNightMode }) {
+  const [selectedBook, setSelectedBook] = useState(null)
+  
+  const handleBookClick = (book) => {
+    if (book.isRickRoll) {
+      // Easter egg - Rick Roll!
+      window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank')
+    } else {
+      setSelectedBook(book)
+    }
+  }
+  
+  const handleBack = () => {
+    setSelectedBook(null)
+  }
+  
+  // Hiển thị nội dung sách đã chọn
+  if (selectedBook) {
+    return (
+      <div className="panel-content">
+        <button className="book-back-btn" onClick={handleBack}>
+          ← Quay lại kệ sách
+        </button>
+        <div className="book-content-view">
+          <div className="book-cover-large" style={{ background: selectedBook.color }}>
+            <Book size={48} />
+          </div>
+          <h2>{selectedBook.title}</h2>
+          <div className="book-pages">
+            {selectedBook.content.map((text, index) => (
+              <div key={index} className="book-page">
+                <span className="page-number">Trang {index + 1}</span>
+                <p>{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Hiển thị danh sách sách - trông như kệ sách thật
+  return (
+    <div className="panel-content">
+      <h2><BookOpen size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Tủ Sách</h2>
+      <p className="panel-description">Bộ sưu tập sách lập trình của tôi 📚</p>
+      
+      <div className="books-grid">
+        {books.map((book) => (
+          <div 
+            key={book.id} 
+            className="book-card"
+            onClick={() => handleBookClick(book)}
+          >
+            <div className="book-spine" style={{ background: book.color }}>
+              <Book size={20} />
+            </div>
+            <div className="book-info">
+              <h3>{book.title}</h3>
+              <span className="book-type">
+                <Sparkles size={14} /> {book.content.length} chapters
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // About Panel - Connected to portfolio.js
 function AboutPanel({ isNightMode }) {
   const [showAvatarModal, setShowAvatarModal] = useState(false)
@@ -105,7 +187,7 @@ function AboutPanel({ isNightMode }) {
 
   return (
     <div className="panel-content">
-      <h2>{isNightMode ? '🌃 About Me' : '👋 About Me'}</h2>
+      <h2>About Me</h2>
       <div className="about-header">
         <img 
           src="/assets/img/avatar.jpg" 
@@ -128,7 +210,7 @@ function AboutPanel({ isNightMode }) {
       </div>
       
       {/* Experience */}
-      <h3 className="section-title">💼 Experience</h3>
+      <h3 className="section-title"><Briefcase size={18} /> Experience</h3>
       <div className="experience-list">
         {experience.map((exp) => (
           <div key={exp.id} className="experience-item">
@@ -143,7 +225,7 @@ function AboutPanel({ isNightMode }) {
       </div>
       
       {/* Education */}
-      <h3 className="section-title">🎓 Education</h3>
+      <h3 className="section-title"><GraduationCap size={18} /> Education</h3>
       <div className="education-list">
         {education.map((edu) => (
           <div key={edu.id} className="education-item">
@@ -161,15 +243,15 @@ function AboutPanel({ isNightMode }) {
             </div>
             <p className="edu-description">{edu.description}</p>
             <div className="edu-details">
-              {edu.gpa && <span className="edu-gpa">📊 GPA: {edu.gpa}</span>}
-              {edu.status && <span className="edu-status">📚 {edu.status}</span>}
+              {edu.gpa && <span className="edu-gpa">GPA: {edu.gpa}</span>}
+              {edu.status && <span className="edu-status">{edu.status}</span>}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Avatar Modal */}
-      {showAvatarModal && (
+      {/* Avatar Modal - Portal to body for proper z-index on mobile */}
+      {showAvatarModal && createPortal(
         <div className="avatar-modal-overlay" onClick={closeAvatarModal}>
           <div className="avatar-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="avatar-modal-close" onClick={closeAvatarModal}>×</button>
@@ -179,7 +261,8 @@ function AboutPanel({ isNightMode }) {
               className="avatar-modal-image"
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -188,15 +271,15 @@ function AboutPanel({ isNightMode }) {
 // Playground Panel
 function PlaygroundPanel({ isNightMode }) {
   const games = [
-    { icon: '🎲', name: 'Dice Roller', desc: 'Roll virtual dice' },
-    { icon: '🎵', name: 'Music Visualizer', desc: 'Audio reactive visuals' },
-    { icon: '🌈', name: 'Color Palette', desc: 'Generate color schemes' },
-    { icon: '⏱️', name: 'Pomodoro Timer', desc: 'Focus timer' },
+    { icon: <Dice5 size={24} />, name: 'Dice Roller', desc: 'Roll virtual dice' },
+    { icon: <Music size={24} />, name: 'Music Visualizer', desc: 'Audio reactive visuals' },
+    { icon: <Droplets size={24} />, name: 'Color Palette', desc: 'Generate color schemes' },
+    { icon: <Timer size={24} />, name: 'Pomodoro Timer', desc: 'Focus timer' },
   ]
   
   return (
     <div className="panel-content">
-      <h2>{isNightMode ? '🌌 Playground' : '🎮 Playground'}</h2>
+      <h2>Playground</h2>
       <p className="panel-description">Fun experiments and mini-games</p>
       <div className="playground-grid">
         {games.map((game) => (
@@ -217,23 +300,23 @@ function PlaygroundPanel({ isNightMode }) {
 function ContactPanel({ isNightMode }) {
   return (
     <div className="panel-content">
-      <h2>{isNightMode ? '📮 Contact' : '📬 Contact'}</h2>
+      <h2>Contact</h2>
       <p className="panel-description">Let's connect and build something awesome!</p>
       <div className="contact-links">
         <a href={`mailto:${personalInfo.email}`} className="contact-item">
-          <span className="contact-icon">📧</span>
+          <span className="contact-icon"><Mail size={20} /></span>
           <span>{personalInfo.email}</span>
         </a>
         <a href={personalInfo.github} target="_blank" rel="noopener noreferrer" className="contact-item">
-          <span className="contact-icon">🐙</span>
+          <span className="contact-icon"><Github size={20} /></span>
           <span>GitHub</span>
         </a>
         <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="contact-item">
-          <span className="contact-icon">💼</span>
+          <span className="contact-icon"><Linkedin size={20} /></span>
           <span>LinkedIn</span>
         </a>
         <div className="contact-item location">
-          <span className="contact-icon">📍</span>
+          <span className="contact-icon"><MapPin size={20} /></span>
           <span>{personalInfo.location}</span>
         </div>
       </div>
@@ -252,6 +335,11 @@ function PanelOverlay() {
   // Don't render anything for playground - TVGameOverlay handles it
   if (activePanel === 'playground') return null
   
+  // Portfolio OS for projects - renders fullscreen
+  if (activePanel === 'projects') {
+    return <PortfolioOS onExit={closePanel} />
+  }
+  
   if (!activePanel && !showEasterEgg) return null
   
   const handleClose = () => {
@@ -264,8 +352,8 @@ function PanelOverlay() {
     return (
       <div className="easter-egg-overlay">
         <div className="easter-egg-content">
-          <span className="easter-egg-emoji">🐱</span>
-          <p>Meow! You found me! 🎉</p>
+          <span className="easter-egg-emoji"><Cat size={64} /></span>
+          <p>Meow! You found me! <PartyPopper size={20} style={{display: 'inline', verticalAlign: 'middle'}} /></p>
         </div>
       </div>
     )
@@ -273,8 +361,6 @@ function PanelOverlay() {
   
   const renderPanel = () => {
     switch (activePanel) {
-      case 'projects':
-        return <ProjectsPanel isNightMode={isNightMode} />
       case 'skills':
         return <SkillsPanel isNightMode={isNightMode} />
       case 'playground':
@@ -284,6 +370,8 @@ function PanelOverlay() {
         return <ContactPanel isNightMode={isNightMode} />
       case 'about':
         return <AboutPanel isNightMode={isNightMode} />
+      case 'blog':
+        return <BooksPanel isNightMode={isNightMode} />
       default:
         return null
     }
@@ -292,8 +380,10 @@ function PanelOverlay() {
   return (
     <div className="panel-overlay" onClick={handleClose}>
       <div className={`panel-container ${isNightMode ? 'dark' : ''}`} onClick={(e) => e.stopPropagation()}>
-        <button className="panel-close" onClick={handleClose}>×</button>
-        {renderPanel()}
+        <button className="panel-close" onClick={handleClose} aria-label="Close">×</button>
+        <div className="panel-scroll-content">
+          {renderPanel()}
+        </div>
       </div>
     </div>
   )

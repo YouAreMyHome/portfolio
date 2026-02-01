@@ -1,5 +1,6 @@
 import { useProgress } from '@react-three/drei'
 import { useEffect, useState, useRef } from 'react'
+import { Home, Armchair, Monitor, Bed, Leaf, Cat, Hand, FolderKanban, Sparkles, Mail, Gamepad2 } from 'lucide-react'
 import { useSounds } from '../../utils/useSounds'
 import './LoadingScreen.css'
 
@@ -115,7 +116,7 @@ function LoadingScreen() {
         <div className="loading-content">
           {/* Pixel Art Room Icon */}
           <div className="loading-icon-container">
-            <div className="loading-icon">🏠</div>
+            <div className="loading-icon"><Home size={48} /></div>
             <div className="loading-icon-glow"></div>
           </div>
           
@@ -140,11 +141,11 @@ function LoadingScreen() {
           
           {/* Loading Items Animation */}
           <div className="loading-items">
-            <span className={roundedProgress >= 20 ? 'loaded' : ''}>🪑</span>
-            <span className={roundedProgress >= 40 ? 'loaded' : ''}>💻</span>
-            <span className={roundedProgress >= 60 ? 'loaded' : ''}>🛏️</span>
-            <span className={roundedProgress >= 80 ? 'loaded' : ''}>🌱</span>
-            <span className={roundedProgress >= 100 ? 'loaded' : ''}>🐱</span>
+            <span className={roundedProgress >= 20 ? 'loaded' : ''}><Armchair size={20} /></span>
+            <span className={roundedProgress >= 40 ? 'loaded' : ''}><Monitor size={20} /></span>
+            <span className={roundedProgress >= 60 ? 'loaded' : ''}><Bed size={20} /></span>
+            <span className={roundedProgress >= 80 ? 'loaded' : ''}><Leaf size={20} /></span>
+            <span className={roundedProgress >= 100 ? 'loaded' : ''}><Cat size={20} /></span>
           </div>
         </div>
       )}
@@ -152,15 +153,15 @@ function LoadingScreen() {
       {/* Welcome State */}
       {showWelcome && (
         <div className="welcome-content show">
-          <div className="welcome-emoji">👋</div>
+          <div className="welcome-emoji"><Hand size={48} /></div>
           <h1 className="welcome-title">Chào mừng đến với</h1>
           <h2 className="welcome-name">Nghia's Room</h2>
           <p className="welcome-hint">Click vào các vật thể để khám phá!</p>
           <div className="welcome-icons">
-            <span title="Projects">💻</span>
-            <span title="Skills">⚡</span>
-            <span title="Contact">📬</span>
-            <span title="Play">🎮</span>
+            <span title="Projects"><FolderKanban size={24} /></span>
+            <span title="Skills"><Sparkles size={24} /></span>
+            <span title="Contact"><Mail size={24} /></span>
+            <span title="Play"><Gamepad2 size={24} /></span>
           </div>
           <button className="welcome-enter" onClick={() => {
             playWhoosh()
@@ -172,7 +173,7 @@ function LoadingScreen() {
       )}
       
       <div className="loading-tips">
-        <p>💡 {showWelcome ? 'Nhấn "Vào phòng" hoặc đợi...' : 'Đang tải trải nghiệm 3D...'}</p>
+        <p>{showWelcome ? 'Nhấn "Vào phòng" hoặc đợi...' : 'Đang tải trải nghiệm 3D...'}</p>
       </div>
       
       {/* Footer */}
