@@ -27,9 +27,11 @@ function HUD({ isTouchDevice = false }) {
   const getHoverText = () => {
     switch (hoveredObject) {
       case 'pc':
-        return 'Xem Projects của mình'
+        return 'Khởi động máy tính'
       case 'board':
         return 'Kỹ năng & Công nghệ'
+      case 'planboard':
+        return 'Kế hoạch của mình'
       case 'tv':
         return 'Chơi game thư giãn'
       case 'bed':
@@ -43,7 +45,13 @@ function HUD({ isTouchDevice = false }) {
       case 'recordplayer':
         return isRecordPlaying ? 'Đang phát nhạc...' : 'Nghe nhạc cùng mình'
       case 'clock':
-        return 'Xem giờ hiện tại'
+        return 'Mấy giờ rồi tarr??'
+      case 'books':
+        return 'Mở Tủ Sách'
+      case 'polaroid':
+        return 'Xem ảnh kỷ niệm'
+      case 'lightswitch':
+        return 'Bật/Tắt đèn dây'
       default:
         return null
     }

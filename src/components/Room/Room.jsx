@@ -61,13 +61,9 @@ function Room() {
         <Chair />
       </InteractiveObject>
       
-      <InteractiveObject name="cabinet" panelId="about">
-        <Cabinet />
-      </InteractiveObject>
+      <Cabinet />
       
-      <InteractiveObject name="shelf" panelId="about">
-        <Shelf />
-      </InteractiveObject>
+      <Shelf />
       
       {/* Clock - Show current time */}
       <InteractiveObject name="clock" onClick={toggleClockTime} hoverLift={0.05}>
