@@ -175,7 +175,8 @@ function KanbanOverlay() {
     setDragOverColumn(null)
   }
   
-  // Touch handlers (Mobile)
+  // Touch handlers (Mobile) - Improved for better UX
+  // Note: Using CSS touch-action: none instead of preventDefault to avoid passive listener warning
   const handleTouchStart = (e, task) => {
     setDraggingTask(task)
   }
@@ -192,6 +193,11 @@ function KanbanOverlay() {
       // Chỉ update state khi column thay đổi
       if (dragOverColumn !== columnId) {
         setDragOverColumn(columnId)
+      }
+    } else {
+      // Clear drop target when not over a column
+      if (dragOverColumn) {
+        setDragOverColumn(null)
       }
     }
   }

@@ -1429,6 +1429,47 @@
   .book-page p {
     font-size: 14px;
   }
+  
+  .book-cover-large {
+    width: 80px;
+    height: 105px;
+  }
+  
+  .book-back-btn {
+    padding: 12px 16px;
+    font-size: 13px;
+    /* Larger touch target */
+  }
+  
+  .book-page {
+    padding: 16px;
+  }
+}
+
+/* Touch device improvements for books */
+@media (hover: none) and (pointer: coarse) {
+  .book-card {
+    min-height: 70px;
+    /* Larger touch target */
+  }
+  
+  .book-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .book-card:active {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .book-back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .book-back-btn:active {
+    background: rgba(255, 255, 255, 0.25);
+  }
 }
 
 /* ========================================= */

@@ -103,26 +103,84 @@
 @media (max-width: 768px) {
   .polaroid-lightbox {
     padding: 10px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  
+  .polaroid-lightbox-content {
+    max-width: 95vw;
+    max-height: 85vh;
   }
   
   .polaroid-frame {
     padding: 10px 10px 40px 10px;
+    transform: rotate(0deg);
   }
   
   .polaroid-image {
-    max-width: 95vw;
-    max-height: 75vh;
+    max-width: 90vw;
+    max-height: 70vh;
   }
   
   .polaroid-close {
-    top: -10px;
-    right: -10px;
-    width: 36px;
-    height: 36px;
+    top: -12px;
+    right: -12px;
+    width: 44px;
+    height: 44px;
+    /* Larger touch target */
   }
   
   .polaroid-caption {
     font-size: 12px;
     bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .polaroid-lightbox {
+    padding: 8px;
+    align-items: flex-start;
+    padding-top: max(60px, env(safe-area-inset-top));
+  }
+  
+  .polaroid-frame {
+    padding: 8px 8px 35px 8px;
+  }
+  
+  .polaroid-image {
+    max-width: 92vw;
+    max-height: 65vh;
+  }
+  
+  .polaroid-close {
+    top: -8px;
+    right: -8px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .polaroid-caption {
+    font-size: 11px;
+    bottom: 10px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .polaroid-close {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .polaroid-close:hover {
+    background: #fff;
+    color: #1e293b;
+    transform: none;
+  }
+  
+  .polaroid-close:active {
+    background: #ef4444;
+    color: #fff;
+    transform: scale(0.95);
   }
 }

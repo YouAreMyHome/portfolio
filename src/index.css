@@ -597,7 +597,6 @@ body {
   .hud-corner {
     top: env(safe-area-inset-top, 12px);
     left: 12px;
-    padding-top: 8px;
   }
   
   .hud-title {
@@ -609,10 +608,7 @@ body {
     font-size: 12px;
   }
   
-  .hud-sound-toggle {
-    top: env(safe-area-inset-top, 12px);
-    padding-top: 8px;
-  }
+  /* Remove old broken style - handled properly in HUD.css */
 }
 
 /* Touch-optimized buttons */

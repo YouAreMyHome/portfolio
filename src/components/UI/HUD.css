@@ -83,6 +83,14 @@
   backdrop-filter: blur(10px);
   z-index: 50;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Fix icon centering */
+  padding: 0;
+  line-height: 1;
+}
+
+.hud-sound-toggle svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .hud-sound-toggle:hover {
@@ -200,12 +208,16 @@
   }
   
   .hud-sound-toggle {
+    padding-top: 10px;
     top: 12px;
     right: 12px;
     width: 40px;
     height: 40px;
     font-size: 18px;
     border-radius: 10px;
+    /* Ensure icon centering on mobile */
+    padding: 0;
+    line-height: 1;
   }
 }
 
