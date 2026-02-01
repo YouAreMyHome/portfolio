@@ -3,19 +3,30 @@ import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import { COLORS } from './colors'
 import * as THREE from 'three'
+import TVScreen from './TVScreen'
+import useStore from '../../store/useStore'
 
 function TVSetup(props) {
   const screenRef = useRef()
   const lightRef = useRef()
   const consoleLedRef = useRef()
   
+  // Check if game is active
+  const activePanel = useStore((state) => state.activePanel)
+  const isGameActive = activePanel === 'playground'
+  
   useFrame((state) => {
     const t = state.clock.elapsedTime
     
-    // Animation màu sắc
-    const hue = (t * 0.05) % 1
-    if (screenRef.current) screenRef.current.material.emissive.setHSL(hue, 0.6, 0.2)
-    if (lightRef.current) lightRef.current.color.setHSL(hue, 0.8, 0.5)
+    // Animation màu sắc (chỉ khi không chơi game)
+    if (!isGameActive) {
+      const hue = (t * 0.05) % 1
+      if (lightRef.current) lightRef.current.color.setHSL(hue, 0.8, 0.5)
+    } else {
+      // Màu xanh lá khi chơi game
+      if (lightRef.current) lightRef.current.color.setHex(0x4ade80)
+    }
+    
     if (consoleLedRef.current) consoleLedRef.current.intensity = 0.5 + Math.sin(t * 3) * 0.5
   })
   
@@ -96,33 +107,9 @@ function TVSetup(props) {
             <meshStandardMaterial color="#111" roughness={0.5} />
          </RoundedBox>
 
-         {/* Screen */}
-         <mesh ref={screenRef} position={[0, 0, 0.021]}>
-            <planeGeometry args={[1.15, 0.65]} />
-            <meshStandardMaterial 
-                color="#000" 
-                emissive="#ffffff"
-                emissiveIntensity={0.5}
-                toneMapped={false}
-            />
-         </mesh>
-
-         {/* Nội dung TV */}
-         <group position={[0, 0, 0.022]}>
-             <mesh position={[-0.3, 0.05, 0]}>
-                 <planeGeometry args={[0.4, 0.4]} />
-                 <meshBasicMaterial color="#ef4444" />
-             </mesh>
-             {[0.2, 0.05, -0.1].map((y, i) => (
-                 <mesh key={i} position={[0.3, y, 0]}>
-                     <planeGeometry args={[0.4, 0.1]} />
-                     <meshBasicMaterial color="#64748b" />
-                 </mesh>
-             ))}
-             <mesh position={[0, -0.25, 0]}>
-                 <planeGeometry args={[1, 0.02]} />
-                 <meshBasicMaterial color="#333" />
-             </mesh>
+         {/* Screen - Now uses TVScreen component for game rendering */}
+         <group position={[0, 0, 0.025]}>
+           <TVScreen isActive={isGameActive} />
          </group>
 
       </group>

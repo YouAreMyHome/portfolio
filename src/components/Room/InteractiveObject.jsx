@@ -9,6 +9,7 @@ import useStore from '../../store/useStore'
  * - Hover effect: subtle Y lift (không scale để tránh bị tường che)
  * - Click handler: mở panel tương ứng
  * - Cursor change on hover
+ * - Disabled when another panel is active
  */
 function InteractiveObject({ 
   children, 
@@ -23,6 +24,10 @@ function InteractiveObject({
   const baseY = useRef(0)
   const setHoveredObject = useStore((state) => state.setHoveredObject)
   const setActivePanel = useStore((state) => state.setActivePanel)
+  const activePanel = useStore((state) => state.activePanel)
+  
+  // Vô hiệu hóa tất cả khi có bất kỳ panel nào đang active
+  const isDisabled = activePanel !== null
   
   // Store original Y position
   useEffect(() => {
@@ -31,16 +36,26 @@ function InteractiveObject({
     }
   }, [])
   
+  // Reset hover state khi bị disabled
+  useEffect(() => {
+    if (isDisabled && hovered) {
+      setHovered(false)
+      setHoveredObject(null)
+      document.body.style.cursor = 'auto'
+    }
+  }, [isDisabled, hovered, setHoveredObject])
+  
   // Smooth lift animation (thay vì scale)
   useFrame(() => {
     if (groupRef.current) {
-      const targetY = hovered ? baseY.current + hoverLift : baseY.current
+      const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
       groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.15
     }
   })
   
   const handlePointerOver = (e) => {
     e.stopPropagation()
+    if (isDisabled) return
     setHovered(true)
     setHoveredObject(name)
     document.body.style.cursor = 'pointer'
@@ -48,6 +63,7 @@ function InteractiveObject({
   
   const handlePointerOut = (e) => {
     e.stopPropagation()
+    if (isDisabled) return
     setHovered(false)
     setHoveredObject(null)
     document.body.style.cursor = 'auto'
@@ -55,6 +71,7 @@ function InteractiveObject({
   
   const handleClick = (e) => {
     e.stopPropagation()
+    if (isDisabled) return
     if (onClick) {
       onClick()
     } else if (panelId) {

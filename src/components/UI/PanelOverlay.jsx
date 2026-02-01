@@ -249,6 +249,9 @@ function PanelOverlay() {
   const isNightMode = useStore((state) => state.isNightMode)
   const { playClick } = useSounds()
   
+  // Don't render anything for playground - TVGameOverlay handles it
+  if (activePanel === 'playground') return null
+  
   if (!activePanel && !showEasterEgg) return null
   
   const handleClose = () => {
@@ -275,7 +278,8 @@ function PanelOverlay() {
       case 'skills':
         return <SkillsPanel isNightMode={isNightMode} />
       case 'playground':
-        return <PlaygroundPanel isNightMode={isNightMode} />
+        // Playground is now handled by TVGameOverlay
+        return null
       case 'contact':
         return <ContactPanel isNightMode={isNightMode} />
       case 'about':

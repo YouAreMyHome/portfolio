@@ -5,7 +5,9 @@ import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessi
 import { Analytics } from '@vercel/analytics/react'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
+import CameraController from './components/Room/CameraController'
 import PanelOverlay from './components/UI/PanelOverlay'
+import TVGameOverlay from './components/UI/TVGameOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
 import MusicPlayer from './components/UI/MusicPlayer'
@@ -48,6 +50,82 @@ function SoundSystem() {
   return null
 }
 
+// Scene component - chứa tất cả 3D elements
+function Scene({ isNightMode }) {
+  const controlsRef = useRef()
+  const activePanel = useStore((state) => state.activePanel)
+  
+  // Disable controls when viewing TV
+  const controlsEnabled = activePanel !== 'playground'
+  
+  return (
+    <>
+      {/* Dynamic scene background */}
+      <color attach="background" args={[isNightMode ? '#0f172a' : '#f0f0f0']} />
+      
+      {/* Soft Shadows - làm mềm bóng đổ */}
+      <SoftShadows size={25} samples={16} focus={0.5} />
+      
+      <Suspense fallback={null}>
+        {/* Dynamic Lighting */}
+        <SceneLighting />
+        
+        {/* Room */}
+        <Room />
+        
+        {/* Camera Controller - animate camera for TV view */}
+        <CameraController controlsRef={controlsRef} />
+        
+        {/* OrbitControls - giới hạn góc xoay */}
+        <OrbitControls 
+          ref={controlsRef}
+          enableDamping
+          dampingFactor={0.05}
+          minZoom={40}
+          maxZoom={150}
+          minAzimuthAngle={-Math.PI / 4}
+          maxAzimuthAngle={Math.PI / 4}
+          minPolarAngle={Math.PI / 6}
+          maxPolarAngle={Math.PI / 2.5}
+          enablePan={controlsEnabled}
+          enableRotate={controlsEnabled}
+          enableZoom={controlsEnabled}
+          panSpeed={0.5}
+          target={[0, 0.5, 0]}
+        />
+        
+        {/* Post-processing Effects */}
+        <EffectComposer>
+          {/* Ambient Occlusion - bóng đổ góc khuất */}
+          <N8AO
+            aoRadius={0.5}
+            intensity={isNightMode ? 2 : 1.5}
+            aoSamples={16}
+            denoiseSamples={8}
+            distanceFalloff={0.5}
+            color={isNightMode ? "#000022" : "#000000"}
+          />
+          
+          {/* Bloom - phát sáng cho cửa sổ, màn hình và đèn */}
+          <Bloom 
+            intensity={isNightMode ? 0.5 : 0.35}
+            luminanceThreshold={1.0}
+            luminanceSmoothing={0.9}
+            mipmapBlur
+            radius={0.6}
+          />
+          
+          {/* Vignette - tối góc để tập trung */}
+          <Vignette 
+            offset={0.35}
+            darkness={isNightMode ? 0.5 : 0.3}
+          />
+        </EffectComposer>
+      </Suspense>
+    </>
+  )
+}
+
 function App() {
   const isNightMode = useStore((state) => state.isNightMode)
   
@@ -72,66 +150,14 @@ function App() {
           camera.lookAt(0, 0, 0)
         }}
       >
-        {/* Dynamic scene background */}
-        <color attach="background" args={[isNightMode ? '#0f172a' : '#f0f0f0']} />
-        
-        {/* Soft Shadows - làm mềm bóng đổ */}
-        <SoftShadows size={25} samples={16} focus={0.5} />
-        
-        <Suspense fallback={null}>
-          {/* Dynamic Lighting */}
-          <SceneLighting />
-          
-          {/* Room */}
-          <Room />
-          
-          {/* OrbitControls - giới hạn góc xoay */}
-          <OrbitControls 
-            enableDamping
-            dampingFactor={0.05}
-            minZoom={40}
-            maxZoom={150}
-            minAzimuthAngle={-Math.PI / 4}
-            maxAzimuthAngle={Math.PI / 4}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2.5}
-            enablePan={true}
-            panSpeed={0.5}
-            target={[0, 0.5, 0]}
-          />
-          
-          {/* Post-processing Effects */}
-          <EffectComposer>
-            {/* Ambient Occlusion - bóng đổ góc khuất */}
-            <N8AO
-              aoRadius={0.5}
-              intensity={isNightMode ? 2 : 1.5}
-              aoSamples={16}
-              denoiseSamples={8}
-              distanceFalloff={0.5}
-              color={isNightMode ? "#000022" : "#000000"}
-            />
-            
-            {/* Bloom - phát sáng cho cửa sổ, màn hình và đèn */}
-            <Bloom 
-              intensity={isNightMode ? 0.5 : 0.35}
-              luminanceThreshold={1.0}
-              luminanceSmoothing={0.9}
-              mipmapBlur
-              radius={0.6}
-            />
-            
-            {/* Vignette - tối góc để tập trung */}
-            <Vignette 
-              offset={0.35}
-              darkness={isNightMode ? 0.5 : 0.3}
-            />
-          </EffectComposer>
-        </Suspense>
+        <Scene isNightMode={isNightMode} />
       </Canvas>
       
       {/* HTML Overlay Panels */}
       <PanelOverlay />
+      
+      {/* TV Game Overlay - Retro game console */}
+      <TVGameOverlay />
       
       {/* HUD */}
       <HUD />
