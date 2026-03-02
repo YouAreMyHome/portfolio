@@ -19,16 +19,14 @@ import InteractiveObject from './InteractiveObject'
  */
 
 // Tự động lấy tất cả ảnh từ thư mục gallery (Vite import.meta.glob)
-const galleryModules = import.meta.glob('/public/assets/gallery/*.{jpg,jpeg,png,gif,webp}', { 
+const galleryModules = import.meta.glob('/assets/gallery/*.{jpg,jpeg,png,gif,webp}', {
   eager: true,
   query: '?url',
   import: 'default'
 })
 
 // Convert to array of paths (remove /public prefix for runtime)
-const GALLERY_IMAGES = Object.keys(galleryModules)
-  .sort() // Sắp xếp theo tên file
-  .map(path => path.replace('/public', ''))
+const GALLERY_IMAGES = Object.keys(galleryModules).sort() // Sắp xếp theo tên file
 
 // Fallback colors nếu không có ảnh
 const FALLBACK_COLORS = [

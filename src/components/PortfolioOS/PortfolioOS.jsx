@@ -348,7 +348,7 @@ function ProjectsApp() {
                 key={project.id}
                 className={`project-item ${selectedProject === project.id ? 'selected' : ''}`}
                 onClick={() => setSelectedProject(project.id)}
-                onDoubleClick={() => project.demo && window.open(project.demo, '_blank')}
+                onDoubleClick={() => project.demo && window.open(project.demo, '_blank', 'noopener,noreferrer')}
               >
                 <span className="project-icon">{project.featured ? <Star size={20} /> : <Square size={20} />}</span>
                 <div className="project-info">

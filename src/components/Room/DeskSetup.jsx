@@ -44,6 +44,12 @@ function useMonitorTexture(type) {
     }
   }, [type])
   
+  useEffect(() => {
+    return () => {
+      texture.dispose()
+    }
+  }, [texture])
+
   // Only update cursor blink every 500ms for code editor
   useFrame((state) => {
     if (!canvasRef.current || !textureRef.current) return

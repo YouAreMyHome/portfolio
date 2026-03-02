@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { Volume2, VolumeX, Move, ZoomIn, MousePointer } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Volume2, VolumeX, Move, ZoomIn, MousePointer, Map } from 'lucide-react'
 import useStore from '../../store/useStore'
 import { useSounds, useSoundStore } from '../../utils/useSounds'
 import './HUD.css'
@@ -15,6 +15,7 @@ function HUD({ isTouchDevice = false }) {
   const { isMuted, toggleMute } = useSoundStore()
   const { playHover, playClick } = useSounds()
   const prevHovered = useRef(null)
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false)
   
   // Play hover sound when hovering new object
   useEffect(() => {
@@ -70,10 +71,10 @@ function HUD({ isTouchDevice = false }) {
       
       {/* Corner info */}
       <div className={`hud-corner ${isNightMode ? 'dark' : ''}`}>
-        <span className="hud-title">Nghia's Room</span>
-        <span className="hud-subtitle">
+        <h1 className="hud-title" style={{ margin: 0, fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit' }}>Nghia's Room</h1>
+        <h2 className="hud-subtitle" style={{ margin: 0, fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit' }}>
           {isNightMode ? 'Night mode' : 'Day mode'}
-        </span>
+        </h2>
       </div>
       
       {/* Sound toggle */}
@@ -88,6 +89,20 @@ function HUD({ isTouchDevice = false }) {
         {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
       </button>
       
+      {/* Navigation Menu */}
+      <div className={`hud-navigation ${isNightMode ? 'dark' : ''}`}>
+        <button className="nav-toggle" onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}>
+          <Map size={20} /> <span className="nav-text">Điều hướng</span>
+        </button>
+        <div className={`nav-menu ${isNavMenuOpen ? 'open' : ''}`}>
+          <div className="nav-item" onClick={() => useStore.getState().setActivePanel('projects')}>💻 Projects</div>
+          <div className="nav-item" onClick={() => useStore.getState().setActivePanel('skills')}>🛠 Skills</div>
+          <div className="nav-item" onClick={() => useStore.getState().setActivePanel('about')}>👨‍💻 About</div>
+          <div className="nav-item" onClick={() => useStore.getState().setActivePanel('contact')}>📱 Contact</div>
+          <div className="nav-item" onClick={() => useStore.getState().setActivePanel('blog')}>📚 Books</div>
+        </div>
+      </div>
+
       {/* Instructions - hide on touch devices */}
       {!isTouchDevice && (
         <div className={`hud-instructions ${isNightMode ? 'dark' : ''}`}>
