@@ -29,13 +29,13 @@ function LightSwitch({ position, isOn, onToggle }) {
         </mesh>
         
         {/* Viền */}
-        <mesh position={[0, 0, 0.008]}>
+        <mesh receiveShadow position={[0, 0, 0.008]}>
           <boxGeometry args={[0.065, 0.105, 0.003]} />
           <meshStandardMaterial color="#e0e0e0" roughness={0.4} />
         </mesh>
         
         {/* Switch toggle area */}
-        <mesh position={[0, 0, 0.01]}>
+        <mesh receiveShadow position={[0, 0, 0.01]}>
           <boxGeometry args={[0.04, 0.07, 0.008]} />
           <meshStandardMaterial color="#d0d0d0" roughness={0.5} />
         </mesh>
@@ -53,7 +53,7 @@ function LightSwitch({ position, isOn, onToggle }) {
         </group>
         
         {/* Indicator light nhỏ */}
-        <mesh position={[0, -0.045, 0.012]}>
+        <mesh receiveShadow position={[0, -0.045, 0.012]}>
           <sphereGeometry args={[0.006, 8, 8]} />
           <meshStandardMaterial 
             color={isOn ? '#22c55e' : '#334155'}
@@ -106,12 +106,12 @@ function Polaroid({
       <group position={position} rotation={rotation}>
         <group rotation={[0, 0, tilt]}>
           {/* Frame */}
-          <mesh castShadow>
+          <mesh receiveShadow>
             <boxGeometry args={[frameSize[0], frameSize[1], 0.012]} />
             <meshStandardMaterial color={frameColor} roughness={0.9} />
           </mesh>
           {/* Photo area */}
-          <mesh position={[0, photoOffsetY, 0.007]}>
+          <mesh receiveShadow position={[0, photoOffsetY, 0.007]}>
             <planeGeometry args={size} />
             <meshBasicMaterial map={texture} />
           </mesh>
@@ -160,7 +160,7 @@ function WallDecorations() {
       <group>
         <group position={[-3.85, 2.6, 0]}>
           {/* Wire - dây treo ngang theo Z */}
-          <mesh position={[0, 0, 0]}>
+          <mesh receiveShadow position={[0, 0, 0]}>
             <boxGeometry args={[0.008, 0.008, 3.5]} />
             <meshToonMaterial color="#222" />
           </mesh>
@@ -169,12 +169,12 @@ function WallDecorations() {
           {[-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((z, i) => (
             <group key={i} position={[0, 0, z]}>
               {/* Dây treo xuống */}
-              <mesh position={[0, -0.06, 0]}>
+              <mesh receiveShadow position={[0, -0.06, 0]}>
                 <boxGeometry args={[0.003, 0.12, 0.003]} />
                 <meshToonMaterial color="#222" />
               </mesh>
               {/* Bóng đèn */}
-              <mesh position={[0, -0.14, 0]} castShadow>
+              <mesh receiveShadow position={[0, -0.14, 0]}>
                 <sphereGeometry args={[0.035, 8, 8]} />
                 <meshStandardMaterial 
                   color={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#666'}

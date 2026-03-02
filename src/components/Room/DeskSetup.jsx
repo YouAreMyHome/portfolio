@@ -331,24 +331,24 @@ const Monitor = ({ type, position, rotation, onClick }) => {
       />
 
       {/* Monitor bezel - outer frame */}
-      <RoundedBox args={[0.72, 0.44, 0.025]} radius={0.008} smoothness={4} castShadow>
+      <RoundedBox  args={[0.72, 0.44, 0.025]} radius={0.008} smoothness={4}>
         <meshStandardMaterial color="#0a0a0a" roughness={0.3} metalness={0.8} />
       </RoundedBox>
       
       {/* Inner bezel */}
-      <mesh position={[0, 0, 0.013]}>
+      <mesh  position={[0, 0, 0.013]}>
         <boxGeometry args={[0.69, 0.41, 0.002]} />
         <meshStandardMaterial color="#151515" roughness={0.5} />
       </mesh>
 
       {/* Screen panel with texture */}
-      <mesh position={[0, 0, 0.015]}>
+      <mesh  position={[0, 0, 0.015]}>
         <planeGeometry args={[0.67, 0.39]} />
         <meshBasicMaterial map={screenTexture} toneMapped={false} />
       </mesh>
       
       {/* Screen emissive layer (bloom effect) */}
-      <mesh position={[0, 0, 0.017]}>
+      <mesh  position={[0, 0, 0.017]}>
         <planeGeometry args={[0.67, 0.39]} />
         <meshStandardMaterial 
           transparent
@@ -361,7 +361,7 @@ const Monitor = ({ type, position, rotation, onClick }) => {
       </mesh>
       
       {/* Glass reflection layer */}
-      <mesh position={[0, 0, 0.019]}>
+      <mesh  position={[0, 0, 0.019]}>
         <planeGeometry args={[0.67, 0.39]} />
         <meshPhysicalMaterial 
           transparent
@@ -376,20 +376,20 @@ const Monitor = ({ type, position, rotation, onClick }) => {
       </mesh>
       
       {/* Power LED */}
-      <mesh position={[0.3, -0.19, 0.014]}>
+      <mesh  position={[0.3, -0.19, 0.014]}>
         <circleGeometry args={[0.004, 16]} />
         <meshBasicMaterial color="#4ade80" toneMapped={false} />
       </mesh>
 
       {/* Monitor stand - neck */}
       <group position={[0, -0.27, -0.02]}>
-        <mesh castShadow>
+        <mesh >
           <boxGeometry args={[0.05, 0.12, 0.03]} />
           <meshStandardMaterial color="#0a0a0a" roughness={0.3} metalness={0.7} />
         </mesh>
         
         {/* Stand base */}
-        <mesh position={[0, -0.07, 0.04]} rotation={[-0.1, 0, 0]} castShadow>
+        <mesh  position={[0, -0.07, 0.04]} rotation={[-0.1, 0, 0]}>
           <boxGeometry args={[0.18, 0.008, 0.12]} />
           <meshStandardMaterial color="#0a0a0a" roughness={0.3} metalness={0.7} />
         </mesh>
@@ -421,12 +421,12 @@ function DeskSetup({ onProjectClick }) {
       {/* --- MẶT BÀN & CHÂN (NÂNG CAO) --- */}
       <group position={[0, DESK_HEIGHT, 0]}>
           {/* Mặt bàn */}
-          <RoundedBox args={[2.2, 0.06, 1.1]} radius={0.02} smoothness={4} castShadow receiveShadow>
+          <RoundedBox  args={[2.2, 0.06, 1.1]} radius={0.02} smoothness={4} >
             <meshToonMaterial color={COLORS.desk || '#d4a574'} />
           </RoundedBox>
           
           {/* Desk Mat (Thảm chuột) */}
-          <mesh position={[0, 0.031, 0.2]} receiveShadow>
+          <mesh  position={[0, 0.031, 0.2]} >
              <boxGeometry args={[1.4, 0.01, 0.6]} />
              <meshStandardMaterial color="#27272a" roughness={0.9} />
           </mesh>
@@ -448,11 +448,11 @@ function DeskSetup({ onProjectClick }) {
 
           {/* PC Tower */}
           <group position={[0.85, 0.3, 0.2]}>
-             <RoundedBox args={[0.22, 0.55, 0.55]} radius={0.01} castShadow>
+             <RoundedBox  args={[0.22, 0.55, 0.55]} radius={0.01}>
                  <meshStandardMaterial color="#111" metalness={0.6} roughness={0.2} />
              </RoundedBox>
              {/* Kính cường lực & RGB */}
-             <mesh position={[-0.111, 0, 0]} rotation={[0, -Math.PI/2, 0]}>
+             <mesh  position={[-0.111, 0, 0]} rotation={[0, -Math.PI/2, 0]}>
                  <planeGeometry args={[0.45, 0.45]} />
                  <meshStandardMaterial color="#000" transparent opacity={0.2} />
              </mesh>
@@ -461,18 +461,18 @@ function DeskSetup({ onProjectClick }) {
 
           {/* Keyboard & Mouse */}
           <group position={[0, 0.04, 0.25]}>
-            <RoundedBox args={[0.45, 0.02, 0.15]} radius={0.01} castShadow>
+            <RoundedBox  args={[0.45, 0.02, 0.15]} radius={0.01}>
                 <meshStandardMaterial color="#1f2937" />
             </RoundedBox>
             {/* Keycaps fake */}
-            <mesh position={[0, 0.015, 0]}>
+            <mesh  position={[0, 0.015, 0]}>
                  <planeGeometry args={[0.42, 0.12]} />
                  <meshStandardMaterial color="#374151" />
             </mesh>
           </group>
           
           <group position={[0.4, 0.04, 0.25]}>
-             <RoundedBox args={[0.07, 0.035, 0.11]} radius={0.02} castShadow>
+             <RoundedBox  args={[0.07, 0.035, 0.11]} radius={0.02}>
                  <meshStandardMaterial color="#fff" />
              </RoundedBox>
           </group>
@@ -482,7 +482,7 @@ function DeskSetup({ onProjectClick }) {
       {/* Chân bàn (Dài hơn) */}
       {[[-0.9, -0.4], [-0.9, 0.4], [0.9, -0.4], [0.9, 0.4]].map(([x, z], i) => (
         // Y = LEG_HEIGHT / 2 (để chân chạm đất)
-        <mesh key={i} position={[x, LEG_HEIGHT / 2, z]} castShadow>
+        <mesh  key={i} position={[x, LEG_HEIGHT / 2, z]}>
           <cylinderGeometry args={[0.035, 0.025, LEG_HEIGHT, 16]} />
           <meshStandardMaterial color="#1e293b" />
         </mesh>

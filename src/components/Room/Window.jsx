@@ -13,13 +13,13 @@ function Window() {
   return (
     <group position={[-2, 1.8, -3.90]} rotation={[0, 0, 0]}>
       {/* Window recess / depth in wall */}
-      <mesh position={[0, 0, 0.02]}>
+      <mesh receiveShadow position={[0, 0, 0.02]}>
         <boxGeometry args={[1.4, 1.9, 0.05]} />
         <meshToonMaterial color={isNightMode ? "#0a0a15" : "#1a1a2a"} />
       </mesh>
       
       {/* === SKY BACKGROUND === */}
-      <mesh position={[0, 0.1, 0.06]}>
+      <mesh receiveShadow position={[0, 0.1, 0.06]}>
         <planeGeometry args={[1.2, 1.6]} />
         <meshStandardMaterial 
           color={isNightMode ? "#0f1729" : "#87CEEB"} 
@@ -33,7 +33,7 @@ function Window() {
       {!isNightMode && (
         <>
           {/* Sun glow */}
-          <mesh position={[0.3, 0.5, 0.065]}>
+          <mesh receiveShadow position={[0.3, 0.5, 0.065]}>
             <circleGeometry args={[0.12, 16]} />
             <meshStandardMaterial 
               color="#FFFEF0" 
@@ -44,15 +44,15 @@ function Window() {
           </mesh>
           
           {/* Clouds */}
-          <mesh position={[-0.25, 0.4, 0.07]}>
+          <mesh receiveShadow position={[-0.25, 0.4, 0.07]}>
             <planeGeometry args={[0.3, 0.1]} />
             <meshBasicMaterial color="#ffffff" />
           </mesh>
-          <mesh position={[0.05, 0.6, 0.07]}>
+          <mesh receiveShadow position={[0.05, 0.6, 0.07]}>
             <planeGeometry args={[0.25, 0.08]} />
             <meshBasicMaterial color="#ffffff" />
           </mesh>
-          <mesh position={[-0.12, 0.5, 0.07]}>
+          <mesh receiveShadow position={[-0.12, 0.5, 0.07]}>
             <planeGeometry args={[0.18, 0.07]} />
             <meshBasicMaterial color="#f8f8f8" />
           </mesh>
@@ -60,7 +60,7 @@ function Window() {
           {/* Distant hills/trees */}
           <group position={[0, -0.3, 0.07]}>
             {[[-0.4, 0.2], [-0.18, 0.28], [0.05, 0.22], [0.25, 0.32], [0.45, 0.24]].map(([x, h], i) => (
-              <mesh key={i} position={[x, h/2 - 0.2, 0]}>
+              <mesh receiveShadow key={i} position={[x, h/2 - 0.2, 0]}>
                 <planeGeometry args={[0.22, h]} />
                 <meshBasicMaterial color={i % 2 === 0 ? "#7BC47F" : "#8FD694"} />
               </mesh>
@@ -73,7 +73,7 @@ function Window() {
       {isNightMode && (
         <>
           {/* Moon - glowing */}
-          <mesh position={[-0.25, 0.45, 0.065]}>
+          <mesh receiveShadow position={[-0.25, 0.45, 0.065]}>
             <circleGeometry args={[0.14, 32]} />
             <meshStandardMaterial 
               color="#FFFEF5" 
@@ -84,15 +84,15 @@ function Window() {
           </mesh>
           
           {/* Moon craters (subtle) */}
-          <mesh position={[-0.22, 0.48, 0.066]}>
+          <mesh receiveShadow position={[-0.22, 0.48, 0.066]}>
             <circleGeometry args={[0.025, 16]} />
             <meshBasicMaterial color="#D4D0C5" transparent opacity={0.4} />
           </mesh>
-          <mesh position={[-0.28, 0.42, 0.066]}>
+          <mesh receiveShadow position={[-0.28, 0.42, 0.066]}>
             <circleGeometry args={[0.018, 16]} />
             <meshBasicMaterial color="#D4D0C5" transparent opacity={0.3} />
           </mesh>
-          <mesh position={[-0.2, 0.4, 0.066]}>
+          <mesh receiveShadow position={[-0.2, 0.4, 0.066]}>
             <circleGeometry args={[0.015, 16]} />
             <meshBasicMaterial color="#D4D0C5" transparent opacity={0.35} />
           </mesh>
@@ -112,7 +112,7 @@ function Window() {
             [0.25, 0.4, 0.01],
             [-0.4, 0.1, 0.012],
           ].map(([x, y, size], i) => (
-            <mesh key={i} position={[x, y, 0.067]}>
+            <mesh receiveShadow key={i} position={[x, y, 0.067]}>
               <circleGeometry args={[size, 8]} />
               <meshStandardMaterial 
                 color="#FFFFFF" 
@@ -137,7 +137,7 @@ function Window() {
               [0.42, 0.32, 0.12],
               [0.55, 0.2, 0.1],
             ].map(([x, h, w], i) => (
-              <mesh key={i} position={[x, h/2 - 0.1, 0]}>
+              <mesh receiveShadow key={i} position={[x, h/2 - 0.1, 0]}>
                 <planeGeometry args={[w, h]} />
                 <meshBasicMaterial color="#0a0a15" />
               </mesh>
@@ -151,7 +151,7 @@ function Window() {
               [0.17, 0.08], [0.19, 0.16],
               [0.4, 0.06], [0.44, 0.14], [0.4, 0.2],
             ].map(([x, y], i) => (
-              <mesh key={`light-${i}`} position={[x, y, 0.001]}>
+              <mesh receiveShadow key={`light-${i}`} position={[x, y, 0.001]}>
                 <planeGeometry args={[0.015, 0.02]} />
                 <meshStandardMaterial 
                   color="#FFE4A0" 
@@ -166,54 +166,54 @@ function Window() {
       
       {/* === WINDOW FRAME - DÀY HƠN, CHUNKY PIXEL STYLE === */}
       {/* Top frame */}
-      <mesh position={[0, 0.88, 0.1]} castShadow>
+      <mesh receiveShadow position={[0, 0.88, 0.1]}>
         <boxGeometry args={[1.5, 0.18, 0.12]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       {/* Bottom frame */}
-      <mesh position={[0, -0.88, 0.1]} castShadow>
+      <mesh receiveShadow position={[0, -0.88, 0.1]}>
         <boxGeometry args={[1.5, 0.18, 0.12]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       {/* Left frame */}
-      <mesh position={[-0.66, 0, 0.1]} castShadow>
+      <mesh receiveShadow position={[-0.66, 0, 0.1]}>
         <boxGeometry args={[0.18, 1.58, 0.12]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       {/* Right frame */}
-      <mesh position={[0.66, 0, 0.1]} castShadow>
+      <mesh receiveShadow position={[0.66, 0, 0.1]}>
         <boxGeometry args={[0.18, 1.58, 0.12]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       
       {/* Window cross bars - cũng dày hơn */}
-      <mesh position={[0, 0, 0.13]}>
+      <mesh receiveShadow position={[0, 0, 0.13]}>
         <boxGeometry args={[1.14, 0.06, 0.04]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
-      <mesh position={[0, 0, 0.13]}>
+      <mesh receiveShadow position={[0, 0, 0.13]}>
         <boxGeometry args={[0.06, 1.58, 0.04]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       
       {/* Window sill - dày và nhô ra */}
-      <mesh position={[0, -1.0, 0.2]} castShadow>
+      <mesh receiveShadow position={[0, -1.0, 0.2]}>
         <boxGeometry args={[1.7, 0.1, 0.28]} />
         <meshToonMaterial color={COLORS.white} />
       </mesh>
       
       {/* Tiny plant on sill */}
-      <mesh position={[0.45, -0.85, 0.26]} castShadow>
+      <mesh receiveShadow position={[0.45, -0.85, 0.26]}>
         <cylinderGeometry args={[0.045, 0.035, 0.06, 8]} />
         <meshToonMaterial color="#d4a574" />
       </mesh>
-      <mesh position={[0.45, -0.78, 0.26]} castShadow>
+      <mesh receiveShadow position={[0.45, -0.78, 0.26]}>
         <sphereGeometry args={[0.055, 8, 8]} />
         <meshToonMaterial color={COLORS.plant} />
       </mesh>
       
       {/* Light beam on floor - ánh sáng/trăng chiếu vào */}
-      <mesh 
+      <mesh receiveShadow
         position={[-0.15, -1.78, 1.3]} 
         rotation={[-Math.PI / 2, 0, 0.08]}
       >
