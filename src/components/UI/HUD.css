@@ -240,6 +240,22 @@
     left: 16px;
   }
   
+  .hud-navigation {
+    top: 68px;
+    right: 16px;
+  }
+
+  .nav-toggle {
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 16px;
+  }
+
+  .nav-item {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
   .hud-title {
     font-size: 18px;
   }
@@ -275,6 +291,32 @@
     left: 12px;
   }
   
+  .hud-navigation {
+    top: 64px;
+    right: 12px;
+  }
+
+  .nav-toggle {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 14px;
+    gap: 6px;
+  }
+
+  .nav-text {
+    display: none; /* Hide text on very small screens, keep icon */
+  }
+
+  .nav-menu {
+    gap: 6px;
+  }
+
+  .nav-item {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
   .hud-title {
     font-size: 16px;
     font-weight: 600;
@@ -316,6 +358,10 @@
     
     .hud-sound-toggle {
       top: max(12px, env(safe-area-inset-top));
+    }
+
+    .hud-navigation {
+      top: calc(max(12px, env(safe-area-inset-top)) + 52px);
     }
   }
 }
