@@ -18,6 +18,7 @@ import PolaroidLightbox from './components/UI/PolaroidLightbox'
 import useStore from './store/useStore'
 import { useSounds } from './utils/useSounds'
 import { useMobile, getGraphicsSettings } from './utils/useMobile'
+import * as THREE from 'three'
 
 /**
  * THE DEV'S PIXEL ROOM - Phase 4: Polish
@@ -164,7 +165,7 @@ function App() {
           near: 0.1,
           far: 100
         }}
-        shadows={graphics.shadows ? "soft" : false}
+        shadows={graphics.shadows ? { type: THREE.PCFSoftShadowMap } : false}
         gl={{ 
           antialias: graphics.antialias,
           powerPreference: isMobile ? "low-power" : "high-performance",

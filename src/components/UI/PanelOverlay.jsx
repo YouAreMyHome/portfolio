@@ -107,7 +107,7 @@ function BooksPanel({ isNightMode }) {
   const handleBookClick = (book) => {
     if (book.isRickRoll) {
       // Easter egg - Rick Roll!
-      window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank')
+      window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank', 'noopener,noreferrer')
     } else {
       setSelectedBook(book)
     }

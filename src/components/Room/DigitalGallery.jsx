@@ -19,16 +19,14 @@ import InteractiveObject from './InteractiveObject'
  */
 
 // Tự động lấy tất cả ảnh từ thư mục gallery (Vite import.meta.glob)
-const galleryModules = import.meta.glob('/public/assets/gallery/*.{jpg,jpeg,png,gif,webp}', { 
+const galleryModules = import.meta.glob('/public/assets/gallery/*.{jpg,jpeg,png,gif,webp}', {
   eager: true,
   query: '?url',
   import: 'default'
 })
 
 // Convert to array of paths (remove /public prefix for runtime)
-const GALLERY_IMAGES = Object.keys(galleryModules)
-  .sort() // Sắp xếp theo tên file
-  .map(path => path.replace('/public', ''))
+const GALLERY_IMAGES = Object.keys(galleryModules).map(key => key.replace('/public', '')).sort() // Sắp xếp theo tên file
 
 // Fallback colors nếu không có ảnh
 const FALLBACK_COLORS = [
@@ -124,7 +122,7 @@ function DigitalGallery({
     >
       <group position={position} rotation={rotation}>
         {/* Frame - Khung màu tối */}
-        <mesh ref={frameRef} castShadow>
+        <mesh receiveShadow ref={frameRef}>
           <boxGeometry args={[frameWidth, frameHeight, 0.04]} />
           <meshStandardMaterial 
             color="#1a1a1a" 
@@ -134,7 +132,7 @@ function DigitalGallery({
         </mesh>
         
         {/* LED Strip viền - Glowing border */}
-        <mesh ref={glowRef} position={[0, 0, 0.021]}>
+        <mesh receiveShadow ref={glowRef} position={[0, 0, 0.021]}>
           <planeGeometry args={[frameWidth - 0.02, frameHeight - 0.02]} />
           <meshBasicMaterial 
             color="#00ffff"
@@ -146,13 +144,13 @@ function DigitalGallery({
         </mesh>
         
         {/* Inner bezel - Viền trong */}
-        <mesh position={[0, 0, 0.022]}>
+        <mesh receiveShadow position={[0, 0, 0.022]}>
           <boxGeometry args={[screenWidth + 0.02, screenHeight + 0.02, 0.01]} />
           <meshStandardMaterial color="#0a0a0a" />
         </mesh>
         
         {/* Screen - Màn hình chính */}
-        <mesh 
+        <mesh receiveShadow
           ref={screenRef} 
           position={[0, 0, 0.03]}
           scale={isTransitioning ? [0.98, 0.98, 1] : [1, 1, 1]}
@@ -177,7 +175,7 @@ function DigitalGallery({
         </mesh>
         
         {/* Screen reflection overlay */}
-        <mesh position={[0, 0, 0.032]}>
+        <mesh receiveShadow position={[0, 0, 0.032]}>
           <planeGeometry args={[screenWidth, screenHeight]} />
           <meshBasicMaterial 
             color="#ffffff"
@@ -192,7 +190,7 @@ function DigitalGallery({
         {/* Navigation indicator dots */}
         <group position={[0, -screenHeight/2 - 0.03, 0.033]}>
           {textureArray.map((_, idx) => (
-            <mesh key={idx} position={[(idx - (textureArray.length - 1) / 2) * 0.04, 0, 0]}>
+            <mesh receiveShadow key={idx} position={[(idx - (textureArray.length - 1) / 2) * 0.04, 0, 0]}>
               <circleGeometry args={[0.008, 8]} />
               <meshBasicMaterial 
                 color={idx === currentIndex ? '#00ffff' : '#333333'}

@@ -55,9 +55,9 @@ function SceneLighting() {
         shadow-camera-right={12}
         shadow-camera-top={12}
         shadow-camera-bottom={-12}
-        shadow-bias={-0.0003}
-        shadow-normalBias={0.01}
-        shadow-radius={3}
+        shadow-bias={-0.0005}
+        shadow-normalBias={0.02}
+        shadow-radius={4}
       />
       
       {/* Fill light từ cửa sổ - mạnh hơn ban ngày */}

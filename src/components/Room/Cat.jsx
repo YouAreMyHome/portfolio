@@ -75,14 +75,12 @@ function Cat(props) {
 
   // Hàm render khối hộp pixel nhanh
   const Voxel = ({ position, args, material, rotation = [0, 0, 0] }) => (
-    <RoundedBox 
+    <RoundedBox castShadow receiveShadow
       position={position} 
       args={args} 
       rotation={rotation} 
       radius={0.02} // Bo góc cực nhẹ để bắt sáng đẹp hơn
       smoothness={4} 
-      castShadow 
-      receiveShadow
     >
       <primitive object={material} />
     </RoundedBox>
