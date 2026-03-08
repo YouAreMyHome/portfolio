@@ -2,95 +2,113 @@ import { useProgress } from '@react-three/drei'
 import { useEffect, useState, useRef } from 'react'
 import { Home, Armchair, Monitor, Bed, Leaf, Cat, Hand, FolderKanban, Sparkles, Mail, Gamepad2 } from 'lucide-react'
 import { useSounds } from '../../utils/useSounds'
+import useStore from '../../store/useStore'
 import './LoadingScreen.css'
 
 /**
- * LoadingScreen - Màn hình loading đẹp với welcome message
+ * LoadingScreen — Màn hình loading chính xác
+ *
+ * Logic progress 3 giai đoạn:
+ *  1. 0 → 85%  : fake staged animation trong khi scene đang khởi tạo
+ *  2. 85 → 100%: chỉ xảy ra khi isSceneReady = true (frame đầu tiên render)
+ *  3. Tối thiểu hiển thị 1.5s để tránh flash trên máy nhanh
  */
+
+const MIN_DISPLAY_MS = 1500 // Tối thiểu hiển thị loading
+
 function LoadingScreen() {
   const { progress, active, loaded, total } = useProgress()
+  const isSceneReady = useStore((state) => state.isSceneReady)
   const { playSuccess, playWhoosh } = useSounds()
+
   const [displayProgress, setDisplayProgress] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
   const [hideAll, setHideAll] = useState(false)
-  const [loadingText, setLoadingText] = useState('Khởi tạo...')
+  const [loadingText, setLoadingText] = useState('Khởi tạo phòng...')
+
   const animationRef = useRef(null)
   const startTimeRef = useRef(Date.now())
   const playedSuccessRef = useRef(false)
-  
-  // Tính target progress - nếu không có assets thì dùng fake progress
-  const hasAssets = total > 0
-  const realProgress = hasAssets ? progress : 0
-  
-  // Animate progress smoothly với fake loading nếu không có assets
+
+  // Có assets drei thực (GLTF, texture…) hay không
+  const hasRealAssets = total > 0
+
+  // ── Animate progress ─────────────────────────────────────────────────────
   useEffect(() => {
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current
-      
+      const minPassed = elapsed >= MIN_DISPLAY_MS
+
       setDisplayProgress(prev => {
-        let targetProgress
-        
-        if (hasAssets) {
-          // Có assets thực - dùng progress từ drei
-          targetProgress = Math.min(100, Math.max(0, realProgress))
+        let target
+
+        if (hasRealAssets) {
+          // Có assets thực: theo drei progress, nhưng giữ ≤95% cho đến khi scene sẵn sàng
+          target = (isSceneReady && minPassed) ? 100 : Math.min(95, progress)
         } else {
-          // Không có assets - fake progress trong 2.5 giây
-          targetProgress = Math.min(100, (elapsed / 2500) * 100)
+          // Scene procedural (không có assets): fake staged progress
+          //  0–0.8s  : 0  → 40%  (khởi tạo nhanh)
+          //  0.8–2s  : 40 → 72%  (setup Three.js, compile shaders)
+          //  2–3.5s  : 72 → 85%  (chờ scene render — cap ở đây)
+          //  khi isSceneReady + minPassed → 100%
+          const t = elapsed / 1000 // giây
+          let fakeBase
+          if (t < 0.8) {
+            fakeBase = (t / 0.8) * 40
+          } else if (t < 2) {
+            fakeBase = 40 + ((t - 0.8) / 1.2) * 32
+          } else {
+            fakeBase = 72 + Math.min(13, ((t - 2) / 1.5) * 13)
+          }
+
+          target = (isSceneReady && minPassed) ? 100 : Math.min(85, fakeBase)
         }
-        
-        const diff = targetProgress - prev
-        const step = Math.max(0.3, Math.abs(diff) * 0.1)
-        
-        if (Math.abs(diff) < 0.3) {
-          return targetProgress
-        }
-        
-        return prev + (diff > 0 ? step : -step)
+
+        const diff = target - prev
+        if (Math.abs(diff) < 0.15) return target
+
+        // Mượt khi tiến, nhanh khi nhảy lên 100
+        const speed = target >= 99 ? 0.18 : 0.09
+        return prev + diff * speed
       })
-      
+
       animationRef.current = requestAnimationFrame(animate)
     }
-    
+
     animationRef.current = requestAnimationFrame(animate)
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [realProgress, hasAssets])
-  
-  // Update loading text based on progress
+    return () => cancelAnimationFrame(animationRef.current)
+  }, [isSceneReady, hasRealAssets, progress])
+
+  // ── Loading text theo elapsed time (tự nhiên hơn theo %): ────────────────
   useEffect(() => {
-    if (displayProgress < 15) {
+    if (displayProgress < 20) {
       setLoadingText('Khởi tạo phòng...')
-    } else if (displayProgress < 30) {
+    } else if (displayProgress < 38) {
       setLoadingText('Đang tải nội thất...')
-    } else if (displayProgress < 50) {
+    } else if (displayProgress < 56) {
       setLoadingText('Thiết lập ánh sáng...')
-    } else if (displayProgress < 70) {
+    } else if (displayProgress < 72) {
       setLoadingText('Trang trí phòng...')
-    } else if (displayProgress < 90) {
-      setLoadingText('Hoàn thiện chi tiết...')
+    } else if (displayProgress < 86) {
+      setLoadingText('Biên dịch shader...')
+    } else if (displayProgress < 99) {
+      setLoadingText('Render frame đầu tiên...')
     } else {
-      setLoadingText('Sẵn sàng!')
+      setLoadingText('Sẵn sàng! 🎉')
     }
   }, [displayProgress])
-  
-  // Check if fully loaded
+
+  // ── Chuyển sang welcome screen khi xong ──────────────────────────────────
   const isLoaded = displayProgress >= 99
-  
+
   useEffect(() => {
     if (isLoaded && !showWelcome) {
-      // Play success sound when loaded
       if (!playedSuccessRef.current) {
         playedSuccessRef.current = true
         playSuccess()
       }
-      // Show welcome message after loading
-      const welcomeTimer = setTimeout(() => setShowWelcome(true), 400)
-      // Hide all after welcome animation
-      const hideTimer = setTimeout(() => setHideAll(true), 5000)
+      const welcomeTimer = setTimeout(() => setShowWelcome(true), 350)
+      const hideTimer    = setTimeout(() => setHideAll(true), 5000)
       return () => {
         clearTimeout(welcomeTimer)
         clearTimeout(hideTimer)
@@ -137,6 +155,13 @@ function LoadingScreen() {
               <span className="loading-text">{loadingText}</span>
               <span className="loading-percent">{roundedProgress}%</span>
             </div>
+
+            {/* Asset counter — chỉ hiện khi có assets drei thực */}
+            {hasRealAssets && total > 0 && (
+              <div className="loading-asset-info">
+                <span className="loading-asset-count">{loaded}/{total} assets</span>
+              </div>
+            )}
           </div>
           
           {/* Loading Items Animation */}

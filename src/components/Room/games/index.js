@@ -28,4 +28,5 @@ export {
 // Individual games (for direct access if needed)
 export * from './SnakeGame'
 export * from './PongGame'
+export * from './TetrisGame'
 export * from './DinoGame'

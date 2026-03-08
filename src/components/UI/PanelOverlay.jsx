@@ -3,6 +3,7 @@ import { useSounds } from '../../utils/useSounds'
 import { useState } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
+import emailjs from '@emailjs/browser'
 import { 
   Star, Code, ExternalLink,
   Palette, Server, Wrench,
@@ -12,7 +13,8 @@ import {
   Cat, PartyPopper,
   BookOpen, Book, Sparkles, AlertTriangle
 } from 'lucide-react'
-import { personalInfo, aboutMe, skills, projects, experience, education, books } from '../../data/portfolio'
+import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
+import { books } from '../../data/books'
 import { PortfolioOS } from '../PortfolioOS'
 import './Panels.css'
 
@@ -296,12 +298,115 @@ function PlaygroundPanel({ isNightMode }) {
   )
 }
 
-// Contact Panel - Connected to portfolio.js
+// Contact Panel - EmailJS form + social links
 function ContactPanel({ isNightMode }) {
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'success' | 'error'
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return
+    setStatus('sending')
+    setErrorMsg('')
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        {
+          from_name: form.name,
+          from_email: form.email,
+          message: form.message,
+          to_email: personalInfo.email,
+        },
+        import.meta.env.VITE_EMAILJS_USER_ID
+      )
+      setStatus('success')
+      setForm({ name: '', email: '', message: '' })
+    } catch (err) {
+      console.error('EmailJS error:', err)
+      setStatus('error')
+      setErrorMsg('Gửi thất bại. Vui lòng thử lại sau hoặc liên hệ trực tiếp.')
+    }
+  }
+
   return (
     <div className="panel-content">
       <h2>Contact</h2>
-      <p className="panel-description">Let's connect and build something awesome!</p>
+      <p className="panel-description">Let&apos;s connect and build something awesome!</p>
+
+      {/* Contact form */}
+      <form className="contact-form" onSubmit={handleSubmit} noValidate>
+        <div className="contact-form-group">
+          <label htmlFor="contact-name">Tên của bạn</label>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Nguyen Van A"
+            required
+            disabled={status === 'sending'}
+          />
+        </div>
+
+        <div className="contact-form-group">
+          <label htmlFor="contact-email">Email</label>
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="hello@example.com"
+            required
+            disabled={status === 'sending'}
+          />
+        </div>
+
+        <div className="contact-form-group">
+          <label htmlFor="contact-message">Tin nhắn</label>
+          <textarea
+            id="contact-message"
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            placeholder="Chào Nghĩa, tôi muốn..."
+            rows={4}
+            required
+            disabled={status === 'sending'}
+          />
+        </div>
+
+        {status === 'success' && (
+          <div className="contact-feedback contact-success">
+            ✓ Đã gửi! Mình sẽ phản hồi sớm nhé 🎉
+          </div>
+        )}
+        {status === 'error' && (
+          <div className="contact-feedback contact-error">✗ {errorMsg}</div>
+        )}
+
+        <button
+          type="submit"
+          className="contact-send-btn"
+          disabled={status === 'sending' || !form.name || !form.email || !form.message}
+        >
+          {status === 'sending' ? (
+            <><span className="contact-spinner" aria-hidden="true" /> Đang gửi...</>
+          ) : (
+            <><Mail size={16} /> Gửi tin nhắn</>
+          )}
+        </button>
+      </form>
+
+      <div className="contact-divider">hoặc liên hệ qua</div>
+
       <div className="contact-links">
         <a href={`mailto:${personalInfo.email}`} className="contact-item">
           <span className="contact-icon"><Mail size={20} /></span>

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { X, Sparkles, Coffee, Bug, Rocket, Code, Gamepad2, Heart, CheckCircle, Clock, Target, GripVertical } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { X, Sparkles, Coffee, Bug, Rocket, Code, Gamepad2, Heart, CheckCircle, Clock, Target, GripVertical, RotateCcw } from 'lucide-react'
 import useStore from '../../store/useStore'
 import './KanbanOverlay.css'
 
@@ -7,7 +7,28 @@ import './KanbanOverlay.css'
  * KanbanOverlay - Hiển thị Kanban Board chi tiết
  * Popup overlay khi click vào PlanBoard trong room
  * Hỗ trợ drag & drop cards giữa các columns
+ *
+ * State persistence: tasks được lưu vào localStorage key 'nghia-kanban-tasks'
  */
+
+const KANBAN_STORAGE_KEY = 'nghia-kanban-tasks'
+
+// Load từ localStorage, fallback về INITIAL_TASKS nếu chưa có
+const loadPersistedTasks = (defaults) => {
+  try {
+    const saved = localStorage.getItem(KANBAN_STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // Validate: phải là mảng với đủ id như INITIAL_TASKS
+      if (Array.isArray(parsed) && parsed.length === defaults.length) {
+        return parsed
+      }
+    }
+  } catch {
+    // ignore parse error
+  }
+  return defaults
+}
 
 // Initial tasks data
 const INITIAL_TASKS = [
@@ -134,9 +155,24 @@ function KanbanOverlay() {
   const showKanbanBoard = useStore((state) => state.showKanbanBoard)
   const closeKanbanBoard = useStore((state) => state.closeKanbanBoard)
   
-  const [tasks, setTasks] = useState(INITIAL_TASKS)
+  const [tasks, setTasks] = useState(() => loadPersistedTasks(INITIAL_TASKS))
   const [draggingTask, setDraggingTask] = useState(null)
   const [dragOverColumn, setDragOverColumn] = useState(null)
+
+  // Persist tasks to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(KANBAN_STORAGE_KEY, JSON.stringify(tasks))
+    } catch {
+      // ignore write error (e.g. private browsing quota)
+    }
+  }, [tasks])
+
+  // Reset board về trạng thái mặc định
+  const handleReset = useCallback(() => {
+    setTasks(INITIAL_TASKS)
+    localStorage.removeItem(KANBAN_STORAGE_KEY)
+  }, [])
   
   // Drag handlers (Desktop)
   const handleDragStart = (e, task) => {
@@ -232,9 +268,14 @@ function KanbanOverlay() {
             <h2>My Skills Board</h2>
             <span className="kanban-subtitle">Drag cards to organize</span>
           </div>
-          <button className="kanban-close" onClick={closeKanbanBoard}>
-            <X size={24} />
-          </button>
+          <div className="kanban-header-actions">
+            <button className="kanban-reset" onClick={handleReset} title="Reset board về mặc định">
+              <RotateCcw size={16} />
+            </button>
+            <button className="kanban-close" onClick={closeKanbanBoard}>
+              <X size={24} />
+            </button>
+          </div>
         </div>
         
         {/* Board */}

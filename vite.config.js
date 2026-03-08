@@ -15,23 +15,54 @@ export default defineConfig({
     }
   ],
   base: '/', // Sử dụng domain riêng letrongnghia.me
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    }
+  },
   optimizeDeps: {
-    include: ['lucide-react'],
+    include: ['lucide-react', 'zustand', 'buffer'],
+    exclude: ['@react-three/postprocessing'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      },
+      supported: {
+        bigint: true
+      }
+    }
   },
   build: {
+    target: 'ES2020',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    reportCompressedSize: false,
     chunkSizeWarningLimit: 700, // Three.js core is ~650KB, cannot be split further
     rollupOptions: {
       output: {
         manualChunks: {
-          // Core React
+          // Vendor chunks
           'vendor-react': ['react', 'react-dom'],
-          // Three.js ecosystem
           'vendor-three': ['three'],
           'vendor-r3f': ['@react-three/fiber', '@react-three/drei'],
-          // Animation
           'vendor-animation': ['gsap', 'framer-motion'],
-          // State management
           'vendor-state': ['zustand'],
+        },
+        // Add asset size limits
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|gif|svg|webp|ico/.test(ext)) {
+            return `assets/img/[name]-[hash][extname]`;
+          } else if (/woff|woff2|eot|ttf|otf/.test(ext)) {
+            return `assets/fonts/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
         },
       },
     },

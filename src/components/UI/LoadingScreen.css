@@ -206,6 +206,35 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* Asset counter */
+.loading-asset-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  gap: 8px;
+}
+
+.loading-asset-count {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.loading-asset-name {
+  font-size: 10px;
+  color: rgba(74, 222, 128, 0.45);
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+  direction: rtl;
+  text-align: left;
+}
+
 /* Loading Items */
 .loading-items {
   display: flex;

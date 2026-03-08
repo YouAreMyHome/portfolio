@@ -86,6 +86,7 @@ function Polaroid({
   rotation = [0, 0, 0], 
   tilt = 0, 
   imagePath,
+  allImages,          // full gallery array — for lightbox navigation
   size = [0.14, 0.14],        // Kích thước ảnh [width, height]
   frameSize = [0.18, 0.22],   // Kích thước frame [width, height]
   frameColor = "#f5f5f0"      // Màu frame
@@ -94,7 +95,9 @@ function Polaroid({
   const texture = useTexture(imagePath)
   
   const handleClick = () => {
-    openPolaroid(imagePath)
+    const gallery = allImages ?? [imagePath]
+    const idx     = gallery.indexOf(imagePath)
+    openPolaroid(gallery, idx < 0 ? 0 : idx)
   }
   
   // Tính offset Y cho ảnh trong frame (polaroid style có phần trắng dưới)
@@ -121,6 +124,13 @@ function Polaroid({
   )
 }
 
+// Tất cả ảnh polaroid trong phòng — lightbox có thể di chuyển giữa các ảnh
+const ALL_POLAROIDS = [
+  '/assets/img/polaroid1.jpg',
+  '/assets/img/polaroid2.jpg',
+  '/assets/img/frame1.jpg',
+]
+
 function WallDecorations() {
   const stringLightsOn = useStore((state) => state.stringLightsOn)
   const toggleStringLights = useStore((state) => state.toggleStringLights)
@@ -138,6 +148,7 @@ function WallDecorations() {
         rotation={[0, 0, 0]}
         tilt={0}
         imagePath="/assets/img/frame1.jpg"
+        allImages={ALL_POLAROIDS}
         size={[0.2, 0.25]}
         frameSize={[0.25, 0.3]}
         frameColor="#4A3520"
@@ -213,6 +224,7 @@ function WallDecorations() {
         rotation={[0, Math.PI / 2, 0]}
         tilt={0.08}
         imagePath="/assets/img/polaroid1.jpg"
+        allImages={ALL_POLAROIDS}
       />
       
       {/* Polaroid 2 - Ảnh từ /assets/img/polaroid2.jpg */}
@@ -221,6 +233,7 @@ function WallDecorations() {
         rotation={[0, Math.PI / 2, 0]}
         tilt={-0.1}
         imagePath="/assets/img/polaroid2.jpg"
+        allImages={ALL_POLAROIDS}
       />
     </group>
   )

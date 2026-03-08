@@ -1,23 +1,27 @@
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { OrbitControls, SoftShadows } from '@react-three/drei'
-import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { Analytics } from '@vercel/analytics/react'
 import { Hand, RotateCw } from 'lucide-react'
+import { ErrorBoundary, WebGLErrorBoundary } from './components/UI/ErrorBoundary'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
 import CameraController from './components/Room/CameraController'
-import PanelOverlay from './components/UI/PanelOverlay'
-import TVGameOverlay from './components/UI/TVGameOverlay'
-import KanbanOverlay from './components/UI/KanbanOverlay'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
-import MusicPlayer from './components/UI/MusicPlayer'
 import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
-import PolaroidLightbox from './components/UI/PolaroidLightbox'
+import TransitionOverlay from './components/UI/TransitionOverlay'
 import useStore from './store/useStore'
 import { useSounds } from './utils/useSounds'
 import { useMobile, getGraphicsSettings } from './utils/useMobile'
+
+// Lazy load UI overlay components
+const PanelOverlay = lazy(() => import('./components/UI/PanelOverlay'))
+const TVGameOverlay = lazy(() => import('./components/UI/TVGameOverlay'))
+const KanbanOverlay = lazy(() => import('./components/UI/KanbanOverlay'))
+const MusicPlayer = lazy(() => import('./components/UI/MusicPlayer'))
+const PolaroidLightbox = lazy(() => import('./components/UI/PolaroidLightbox'))
 
 /**
  * THE DEV'S PIXEL ROOM - Phase 4: Polish
@@ -58,6 +62,13 @@ function SoundSystem() {
 function Scene({ isNightMode, graphics = {} }) {
   const controlsRef = useRef()
   const activePanel = useStore((state) => state.activePanel)
+  const isSceneReady = useStore((state) => state.isSceneReady)
+  const setSceneReady = useStore((state) => state.setSceneReady)
+
+  // Bắt tín hiệu frame đầu tiên render xong
+  useFrame(() => {
+    if (!isSceneReady) setSceneReady()
+  })
   
   // Disable controls when viewing TV
   const controlsEnabled = activePanel !== 'playground'
@@ -113,16 +124,6 @@ function Scene({ isNightMode, graphics = {} }) {
         {/* Post-processing Effects - conditional for mobile */}
         {postProcessing && (
           <EffectComposer>
-            {/* Ambient Occlusion - bóng đổ góc khuất */}
-            <N8AO
-              aoRadius={0.5}
-              intensity={isNightMode ? 2 : 1.5}
-              aoSamples={aoSamples}
-              denoiseSamples={8}
-              distanceFalloff={0.5}
-              color={isNightMode ? "#000022" : "#000000"}
-            />
-            
             {/* Bloom - phát sáng cho cửa sổ, màn hình và đèn */}
             <Bloom 
               intensity={isNightMode ? 0.5 : bloomIntensity}
@@ -144,7 +145,7 @@ function Scene({ isNightMode, graphics = {} }) {
   )
 }
 
-function App() {
+function AppContent() {
   const isNightMode = useStore((state) => state.isNightMode)
   const { isMobile, isTablet, isTouchDevice } = useMobile()
   const graphics = getGraphicsSettings(isMobile, isTablet)
@@ -156,6 +157,7 @@ function App() {
     }}>
       <BackgroundController />
       <SoundSystem />
+      <WebGLErrorBoundary>
       <Canvas
         orthographic
         camera={{ 
@@ -179,6 +181,7 @@ function App() {
       >
         <Scene isNightMode={isNightMode} graphics={graphics} />
       </Canvas>
+      </WebGLErrorBoundary>
       
       {/* HTML Overlay Panels */}
       <PanelOverlay />
@@ -198,6 +201,9 @@ function App() {
       {/* Clock Time Display */}
       <ClockTimeDisplay />
       
+      {/* Scene Transition Overlay — chạy khi toggle day/night */}
+      <TransitionOverlay />
+
       {/* Loading Screen */}
       <LoadingScreen />
       
@@ -235,6 +241,14 @@ function MobileTouchHint() {
         <span>Vuốt để xoay</span>
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <ErrorBoundary resetable>
+      <AppContent />
+    </ErrorBoundary>
   )
 }
 

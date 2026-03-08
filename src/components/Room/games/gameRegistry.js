@@ -36,6 +36,19 @@ import {
   drawDinoGameOver,
 } from './DinoGame'
 
+import {
+  createTetrisState,
+  updateTetris,
+  getTetrisSpeed,
+  moveTetris,
+  rotateTetris,
+  hardDropTetris,
+  drawTetrisMenu,
+  drawTetrisGame,
+  drawTetrisPaused,
+  drawTetrisGameOver,
+} from './TetrisGame'
+
 import { STORAGE_KEYS } from './constants'
 
 /**
@@ -151,6 +164,40 @@ export const GAME_REGISTRY = {
     },
     
     updateInterval: 16, // ~60fps
+  },
+
+  tetris: {
+    id: 'tetris',
+    name: '🧩 TETRIS',
+    desc: 'Clear lines to score!',
+    storageKey: STORAGE_KEYS.TETRIS_HIGH_SCORE,
+    scoreType: 'highScore',
+
+    createState: createTetrisState,
+    update: updateTetris,
+    getSpeed: getTetrisSpeed,
+    move: moveTetris,
+    rotate: rotateTetris,
+    hardDrop: hardDropTetris,
+
+    draw: {
+      menu: drawTetrisMenu,
+      game: drawTetrisGame,
+      paused: drawTetrisPaused,
+      gameover: drawTetrisGameOver,
+    },
+
+    controls: {
+      left:     ['ArrowLeft'],
+      right:    ['ArrowRight'],
+      rotate:   ['ArrowUp', 'z', 'Z'],
+      softDrop: ['ArrowDown'],
+      hardDrop: [' '],
+      pause:    ['p', 'P'],
+      start:    [' ', 'Enter'],
+    },
+
+    updateInterval: null, // use getSpeed()
   },
 }
 

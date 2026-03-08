@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { track } from '@vercel/analytics'
 
 /**
  * Zustand Store - Phase 3: Interaction & Logic
@@ -10,17 +12,26 @@ import { create } from 'zustand'
  * - Bed/Phone → Contact
  * - Window → Theme Toggle
  * - Cat → Easter Egg
+ *
+ * Persisted (localStorage):
+ * - isNightMode    : ghi nhớ chế độ sáng/tối sau reload
+ * - stringLightsOn : ghi nhớ trạng thái đèn dây
  */
 
-const useStore = create((set, get) => ({
+const useStore = create(
+  persist(
+    (set, get) => ({
   // UI State
   activePanel: null, // 'projects', 'skills', 'playground', 'contact', 'about'
   isLoading: false,
-  
-  // Camera State  
-  cameraTarget: [0, 1.5, 0],
+  isSceneReady: false, // true khi frame 3D đầu tiên đã render xong
   cameraZoom: 80,
   isZoomed: false,
+
+  // Scene transition (che overlay khi Three.js recompile shader)
+  // 'idle' | 'covering' | 'revealing'
+  transitionPhase: 'idle',
+  transitionTarget: 'night', // 'night' | 'day' — hướng chuyển đổi
   
   // Theme
   isNightMode: false,
@@ -45,8 +56,9 @@ const useStore = create((set, get) => ({
   // Kanban Board overlay
   showKanbanBoard: false,
   
-  // Polaroid lightbox
-  polaroidImage: null, // null hoặc URL ảnh đang xem
+  // Polaroid lightbox (gallery)
+  polaroidImages: [],   // mảng tất cả ảnh trong gallery
+  polaroidIndex: 0,     // index ảnh đang xem
   
   // Sound callback (set by App component)
   onSoundTrigger: null,
@@ -83,19 +95,28 @@ const useStore = create((set, get) => ({
   
   closeKanbanBoard: () => set({ showKanbanBoard: false }),
   
-  // Polaroid lightbox
-  openPolaroid: (imageUrl) => {
+  // Polaroid gallery
+  openPolaroid: (images, startIndex = 0) => {
     const { onSoundTrigger } = get()
     if (onSoundTrigger) onSoundTrigger('click')
-    set({ polaroidImage: imageUrl })
+    // Accept single string or array
+    const arr = Array.isArray(images) ? images : [images]
+    track('polaroid_open', { count: arr.length })
+    set({ polaroidImages: arr, polaroidIndex: Math.max(0, Math.min(startIndex, arr.length - 1)) })
   },
-  
-  closePolaroid: () => set({ polaroidImage: null }),
+  closePolaroid: () => set({ polaroidImages: [], polaroidIndex: 0 }),
+  prevPolaroid: () => set((state) => ({
+    polaroidIndex: (state.polaroidIndex - 1 + state.polaroidImages.length) % state.polaroidImages.length,
+  })),
+  nextPolaroid: () => set((state) => ({
+    polaroidIndex: (state.polaroidIndex + 1) % state.polaroidImages.length,
+  })),
   
   // Actions
   setActivePanel: (panel) => {
     const { onSoundTrigger } = get()
     if (panel && onSoundTrigger) onSoundTrigger('panelOpen')
+    if (panel) track('panel_open', { panel })
     set({ 
       activePanel: panel,
       isZoomed: panel !== null 
@@ -112,17 +133,49 @@ const useStore = create((set, get) => ({
   },
   
   setLoading: (loading) => set({ isLoading: loading }),
+
+  setSceneReady: () => set({ isSceneReady: true }),
   
   setCameraTarget: (target) => set({ cameraTarget: target }),
   setCameraZoom: (zoom) => set({ cameraZoom: zoom }),
   
-  // Theme toggle (Window interaction)
+  // Theme toggle — dùng overlay che khuất khi Three.js recompile shader
   toggleNightMode: () => {
-    const { isNightMode, onSoundTrigger } = get()
+    const { isNightMode, onSoundTrigger, transitionPhase } = get()
+    if (transitionPhase !== 'idle') return  // debounce — chờ transition xong
     if (onSoundTrigger) {
       onSoundTrigger(isNightMode ? 'dayMode' : 'nightMode')
     }
-    set({ isNightMode: !isNightMode })
+    const nextMode = !isNightMode
+    track('theme_toggle', { theme: nextMode ? 'night' : 'day' })
+
+    // Phase 1 — 'covering': overlay fade-in (CSS 260ms)
+    // Dùng setTimeout cố định > CSS duration để đảm bảo overlay đã visible
+    // ở mọi frame rate (60fps / 120fps / 30fps đều an toàn)
+    set({ transitionPhase: 'covering', transitionTarget: nextMode ? 'night' : 'day' })
+
+    setTimeout(() => {
+      // Phase 2 — flip mode khi overlay đang hoàn toàn che khuất scene
+      // Three.js bắt đầu recompile shaders tại đây
+      set({ isNightMode: nextMode })
+
+      // Phase 3 — đợi Three.js render xong frame mới (rAF-aligned)
+      // Mỗi rAF = 1 render cycle thực tế, tự động scale theo frame rate thiết bị
+      let frames = 0
+      const waitForRender = () => {
+        frames++
+        if (frames < 8) {
+          // 8 frames: ~133ms @60fps | ~267ms @30fps | ~67ms @120fps
+          requestAnimationFrame(waitForRender)
+        } else {
+          // Scene mới đã render đủ frame — bắt đầu fade-out
+          set({ transitionPhase: 'revealing' })
+          // Phase 4 — 'idle' sau khi CSS fade-out hoàn tất (360ms)
+          setTimeout(() => set({ transitionPhase: 'idle' }), 360)
+        }
+      }
+      requestAnimationFrame(waitForRender)
+    }, 280) // 280ms > 260ms CSS fade-in → overlay chắc chắn opaque
   },
   
   setHoveredObject: (obj) => set({ hoveredObject: obj }),
@@ -138,6 +191,7 @@ const useStore = create((set, get) => ({
     set({ catClicks: clicks })
     if (clicks >= 5) {
       if (onSoundTrigger) onSoundTrigger('easterEgg')
+      track('easter_egg_found')
       set({ showEasterEgg: true })
       // Reset after 3 seconds
       setTimeout(() => set({ showEasterEgg: false, catClicks: 0 }), 3000)
@@ -150,8 +204,19 @@ const useStore = create((set, get) => ({
   toggleRecordPlayer: () => {
     const { onSoundTrigger, showMusicPlayer } = get()
     if (onSoundTrigger) onSoundTrigger('click')
+    if (!showMusicPlayer) track('music_player_open')
     set({ showMusicPlayer: !showMusicPlayer })
   },
-}))
+    }),
+    {
+      name: 'nghia-room-prefs',   // localStorage key
+      // Chỉ persist những field cần ghi nhớ, bỏ qua transient state
+      partialize: (state) => ({
+        isNightMode: state.isNightMode,
+        stringLightsOn: state.stringLightsOn,
+      }),
+    }
+  )
+)
 
 export default useStore

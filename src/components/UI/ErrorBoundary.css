@@ -1,0 +1,287 @@
+/* ============================================
+   Error Boundary — Retro BSOD Pixel Art Style
+   ============================================ */
+
+.error-screen {
+  position: fixed;
+  inset: 0;
+  background: #000080; /* Classic BSOD blue */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  font-family: 'VT323', monospace;
+  color: #ffffff;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+/* Scanline overlay */
+.error-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* CRT flicker */
+.error-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.error-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+  width: 100%;
+  text-align: left;
+}
+
+/* ===== Sad Face ===== */
+.error-sad-face {
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(3rem, 10vw, 5rem);
+  margin-bottom: 2rem;
+  display: block;
+  animation: faceFloat 3s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes faceFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ===== Title ===== */
+.error-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(0.7rem, 2.5vw, 1.1rem);
+  margin-bottom: 2rem;
+  line-height: 1.8;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Divider ===== */
+.error-divider {
+  width: 100%;
+  height: 2px;
+  background: #ffffff;
+  margin: 1.5rem 0;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* ===== Body text ===== */
+.error-body {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.error-body p {
+  margin-bottom: 0.6rem;
+}
+
+/* ===== Code block (error detail) ===== */
+.error-code-block {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1rem 1.2rem;
+  margin: 1.5rem 0;
+  border-radius: 2px;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  line-height: 1.6;
+  word-break: break-word;
+  max-height: 140px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.4) transparent;
+}
+
+.error-code-block::-webkit-scrollbar {
+  width: 4px;
+}
+.error-code-block::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.error-code-label {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.55rem;
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.error-code-text {
+  color: #ff6b6b;
+}
+
+/* ===== Progress bar (fake countdown) ===== */
+.error-progress-wrapper {
+  margin: 2rem 0 1rem;
+}
+
+.error-progress-label {
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  margin-bottom: 0.5rem;
+  opacity: 0.85;
+}
+
+.error-progress-bar {
+  width: 100%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+.error-progress-fill {
+  height: 100%;
+  background: #ffffff;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* ===== Action Buttons ===== */
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.error-btn {
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(0.45rem, 1.5vw, 0.6rem);
+  padding: 0.8rem 1.4rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.error-btn-primary {
+  background: #ffffff;
+  color: #000080;
+  box-shadow: 
+    inset -2px -2px 0 #808080,
+    inset 2px 2px 0 #e0e0e0;
+}
+
+.error-btn-primary:hover {
+  background: #e0e0ff;
+  transform: translate(1px, 1px);
+  box-shadow: 
+    inset -1px -1px 0 #808080,
+    inset 1px 1px 0 #e0e0e0;
+}
+
+.error-btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.error-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+}
+
+/* ===== Error Code (bottom right) ===== */
+.error-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 2;
+  text-align: right;
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  opacity: 0.5;
+  font-family: 'VT323', monospace;
+  line-height: 1.5;
+}
+
+/* ===== Pixel cursor blink ===== */
+.error-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.2em;
+  background: #ffffff;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ===== WebGL Fallback variant ===== */
+.error-screen.webgl-error {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+.error-screen.webgl-error .error-progress-fill {
+  background: var(--pixel-primary, #4ade80);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
+}
+
+.error-screen.webgl-error .error-btn-primary {
+  background: var(--pixel-primary, #4ade80);
+  color: #0f0f1a;
+  box-shadow: 
+    inset -2px -2px 0 #2d7a47,
+    inset 2px 2px 0 #86efac;
+}
+
+.error-screen.webgl-error .error-btn-primary:hover {
+  background: #86efac;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 480px) {
+  .error-content {
+    padding: 0.5rem;
+  }
+
+  .error-actions {
+    flex-direction: column;
+  }
+
+  .error-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .error-footer {
+    position: static;
+    text-align: center;
+    margin-top: 2rem;
+  }
+}

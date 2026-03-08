@@ -139,4 +139,5 @@ export const STORAGE_KEYS = {
   SNAKE_HIGH_SCORE: 'snakeHighScore',
   PONG_WINS: 'pongWins',
   DINO_HIGH_SCORE: 'dinoHighScore',
+  TETRIS_HIGH_SCORE: 'tetrisHighScore',
 }

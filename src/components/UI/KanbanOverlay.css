@@ -53,6 +53,14 @@
   justify-content: space-between;
   padding: 20px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 12px;
+}
+
+.kanban-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .kanban-title {
@@ -78,7 +86,8 @@
   font-style: italic;
 }
 
-.kanban-close {
+.kanban-close,
+.kanban-reset {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -90,6 +99,18 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.kanban-reset {
+  background: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+}
+
+.kanban-reset:hover {
+  background: rgba(99, 102, 241, 0.5);
+  transform: rotate(-30deg) scale(1.05);
+  color: #fff;
 }
 
 .kanban-close:hover {

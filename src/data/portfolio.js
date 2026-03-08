@@ -1,7 +1,7 @@
-export const personalInfo = {
+﻿export const personalInfo = {
   name: "Le Trong Nghia",
   title: "IT Student at HUFLIT",
-  tagline: "Future Software Developer passionate about web development",
+  tagline: "Full-stack Developer • Three.js • React • Node.js",
   email: "ltn66441@gmail.com",
   github: "https://github.com/YouAreMyHome",
   linkedin: "https://www.linkedin.com/in/youaremyhome/",
@@ -118,8 +118,8 @@ export const projects = [
   {
     id: 4,
     title: "3D Portfolio Room",
-    description: "Interactive 3D portfolio website built with Three.js and React Three Fiber",
-    fullDescription: "An immersive 3D room experience showcasing personal portfolio with interactive elements, day/night mode, and pixel art aesthetics.",
+    description: "Website portfolio tương tác 3D isometric xây dựng với React Three Fiber, Zustand và các mini-game retro arcade.",
+    fullDescription: "Portfolio cá nhân dạng phòng 3D isometric đầy đủ tính năng: day/night mode, 4 mini-games (Snake, Pong, Dino, Tetris), Music Player, Kanban Board, Gallery Polaroid và Contact Form với EmailJS.",
     image: "/assets/img/project4.png",
     tags: ["React", "Three.js", "React Three Fiber", "Zustand"],
     features: [
@@ -133,9 +133,9 @@ export const projects = [
     role: "Solo Developer",
     team: "1 thành viên",
     duration: "Đang phát triển",
-    github: "https://github.com/Waito3007/portfolio",
-    demo: "https://nghia-room.vercel.app",
-    featured: false,
+    github: "https://github.com/YouAreMyHome/portfolio-1",
+    demo: "https://letrongnghia.me",
+    featured: true,
   },
 ]
 
@@ -202,72 +202,7 @@ export const education = [
   },
 ]
 
-export const books = [
-  {
-    id: 1,
-    title: "Clean Code",
-    color: "#e74c3c",
-    content: [
-      "Tại sao lập trình viên thích dark mode? Vì bugs sợ ánh sáng! 🐛",
-      "CSS là viết tắt của: Can't Stop Suffering 😭",
-      "Có 10 loại người trên thế giới: người hiểu binary và người không.",
-    ],
-    type: "jokes",
-  },
-  {
-    id: 2,
-    title: "Design Patterns",
-    color: "#3498db",
-    content: [
-      "'It works on my machine' - Famous last words 💀",
-      "Senior dev: 'Đây là code legacy' \nJunior dev: 'Sao anh viết tuần trước mà?' 🤡",
-      "Deadline ngày mai → Code chạy được → Không hiểu tại sao → Không động vào nữa",
-    ],
-    type: "memes",
-  },
-  {
-    id: 3,
-    title: "The Pragmatic Programmer",
-    color: "#2ecc71",
-    content: [
-      "Đọc code của mình 6 tháng trước giống như đọc code người lạ viết 👽",
-      "99 bugs trên wall, bắt 1 con xuống... 127 bugs trên wall 🐛",
-      "Copy từ StackOverflow không phải là cheating, đó là 'code reuse' 😎",
-    ],
-    type: "wisdom",
-  },
-  {
-    id: 4,
-    title: "JavaScript: The Good Parts",
-    color: "#9b59b6",
-    content: [
-      "Họp 2 tiếng để quyết định dùng tabs hay spaces 📊",
-      "Fix 1 bug, thêm 3 features (không ai yêu cầu) 🎁",
-      "'Chỉ cần 5 phút' = Ít nhất 3 tiếng ⏰",
-    ],
-    type: "life",
-  },
-  {
-    id: 5,
-    title: "You Don't Know JS",
-    color: "#f39c12",
-    content: [
-      "Error: Success! (Wait what? 🤔)",
-      "Cannot read property 'undefined' of undefined - Tôi undefined, bạn undefined 🎭",
-      "Segmentation fault (core dumped) - Dịch: Chúc may mắn lần sau 🍀",
-    ],
-    type: "errors",
-  },
-  {
-    id: 6,
-    title: "Advanced Algorithms",
-    color: "#1abc9c",
-    content: [
-      "Bạn có chắc muốn mở cuốn sách này không? 👀",
-      "Có thể có điều bất ngờ đang chờ đợi...",
-      "CẢNH BÁO: Không thể hoàn tác! 🚨",
-    ],
-    type: "mystery",
-    isRickRoll: true,
-  },
-]
+
+// books đã được tách sang src/data/books.js
+// Re-export để backward compatibility với các import cũ
+export { books } from './books'

@@ -6,16 +6,203 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 20px;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.25s ease-out;
   cursor: pointer;
+  user-select: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Counter badge ───────────────────────────────────────────────── */
+.polaroid-counter {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: default;
+  z-index: 10;
+  letter-spacing: 0.05em;
+}
+
+/* ── Nav arrows ──────────────────────────────────────────────────── */
+.polaroid-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+.polaroid-nav:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.polaroid-nav:active {
+  transform: translateY(-50%) scale(0.92);
+}
+.polaroid-nav-prev { left: 20px; }
+.polaroid-nav-next { right: 20px; }
+
+/* ── Close button ────────────────────────────────────────────────── */
+.polaroid-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.polaroid-close:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* ── Polaroid frame / slide animations ──────────────────────────── */
+.polaroid-lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: scale(0.94) translateX(40px) rotate(0.5deg); }
+  to   { opacity: 1; transform: scale(1)    translateX(0)     rotate(-0.5deg); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: scale(0.94) translateX(-40px) rotate(-0.5deg); }
+  to   { opacity: 1; transform: scale(1)    translateX(0)      rotate(-0.5deg); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85) rotate(-3deg); }
+  to   { opacity: 1; transform: scale(1)    rotate(-0.5deg); }
+}
+
+.polaroid-slide-in    { animation: scaleIn     0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.polaroid-slide-left  { animation: slideInLeft  0.28s cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
+.polaroid-slide-right { animation: slideInRight 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
+
+/* Polaroid frame */
+.polaroid-frame {
+  background: #fff;
+  padding: 15px 15px 52px 15px;
+  border-radius: 4px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: rotate(-0.5deg);
+}
+
+.polaroid-image {
+  display: block;
+  max-width: 70vw;
+  max-height: 65vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+.polaroid-caption {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  font-style: italic;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 12px;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .polaroid-lightbox {
+    padding: 10px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .polaroid-lightbox-content {
+    max-width: 95vw;
+    max-height: 85vh;
+  }
+  .polaroid-frame {
+    padding: 10px 10px 42px 10px;
+    transform: rotate(0deg);
+  }
+  .polaroid-image {
+    max-width: 88vw;
+    max-height: 68vh;
+  }
+  .polaroid-close {
+    top: max(14px, env(safe-area-inset-top));
+    right: 14px;
+    width: 44px;
+    height: 44px;
+  }
+  .polaroid-nav {
+    width: 40px;
+    height: 40px;
+  }
+  .polaroid-nav-prev { left: 8px; }
+  .polaroid-nav-next { right: 8px; }
+  .polaroid-caption { font-size: 11px; }
+  /* On small screens hide nav — swipe is the gesture */
+  .polaroid-counter {
+    top: max(16px, env(safe-area-inset-top));
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .polaroid-image {
+    max-width: 92vw;
+    max-height: 62vh;
+  }
+  .polaroid-nav { display: none; } /* swipe only */
 }
 
 @keyframes fadeIn {
