@@ -3,6 +3,7 @@ import { COLORS } from './colors'
 import InteractiveObject from './InteractiveObject'
 import DigitalGallery from './DigitalGallery'
 import useStore from '../../store/useStore'
+import { IMAGES } from '../../data/images'
 
 /**
  * WallDecorations - Tranh, poster và decorations trên 2 tường hiển thị
@@ -126,9 +127,9 @@ function Polaroid({
 
 // Tất cả ảnh polaroid trong phòng — lightbox có thể di chuyển giữa các ảnh
 const ALL_POLAROIDS = [
-  '/assets/img/polaroid1.jpg',
-  '/assets/img/polaroid2.jpg',
-  '/assets/img/frame1.jpg',
+  IMAGES.polaroid1,
+  IMAGES.polaroid2,
+  IMAGES.frame1,
 ]
 
 function WallDecorations() {
@@ -147,7 +148,7 @@ function WallDecorations() {
         position={[-3.5, 2.2, -3.88]}
         rotation={[0, 0, 0]}
         tilt={0}
-        imagePath="/assets/img/frame1.jpg"
+        imagePath={IMAGES.frame1}
         allImages={ALL_POLAROIDS}
         size={[0.2, 0.25]}
         frameSize={[0.25, 0.3]}
@@ -223,7 +224,7 @@ function WallDecorations() {
         position={[-3.88, 2.2, -1.8]}
         rotation={[0, Math.PI / 2, 0]}
         tilt={0.08}
-        imagePath="/assets/img/polaroid1.jpg"
+        imagePath={IMAGES.polaroid1}
         allImages={ALL_POLAROIDS}
       />
       
@@ -232,7 +233,7 @@ function WallDecorations() {
         position={[-3.88, 2.0, -1.5]}
         rotation={[0, Math.PI / 2, 0]}
         tilt={-0.1}
-        imagePath="/assets/img/polaroid2.jpg"
+        imagePath={IMAGES.polaroid2}
         allImages={ALL_POLAROIDS}
       />
     </group>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import emailjs from '@emailjs/browser'
+import { IMAGES } from '../../data/images'
 import { 
   Star, Code, ExternalLink,
   Palette, Server, Wrench,
@@ -192,7 +193,7 @@ function AboutPanel({ isNightMode }) {
       <h2>About Me</h2>
       <div className="about-header">
         <img 
-          src="/assets/img/avatar.jpg" 
+          src={IMAGES.avatar}
           alt={personalInfo.name}
           className="about-avatar clickable"
           onClick={handleAvatarClick}
@@ -233,7 +234,7 @@ function AboutPanel({ isNightMode }) {
           <div key={edu.id} className="education-item">
             <div className="edu-header">
               <img 
-                src="/assets/img/huflit-logo.png" 
+                src={IMAGES.huflitLogo}
                 alt="HUFLIT Logo" 
                 className="edu-logo"
               />
@@ -258,8 +259,7 @@ function AboutPanel({ isNightMode }) {
           <div className="avatar-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="avatar-modal-close" onClick={closeAvatarModal}>×</button>
             <img 
-              src="/assets/img/avatar.jpg" 
-              alt={personalInfo.name}
+              src={IMAGES.avatar}alt={personalInfo.name}
               className="avatar-modal-image"
             />
           </div>

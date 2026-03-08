@@ -1,4 +1,6 @@
-﻿export const personalInfo = {
+﻿import { IMAGES } from './images'
+
+export const personalInfo = {
   name: "Le Trong Nghia",
   title: "IT Student at HUFLIT",
   tagline: "Full-stack Developer • Three.js • React • Node.js",
@@ -54,7 +56,7 @@ export const projects = [
     title: "SHN Gear - E-commerce Platform",
     description: "Nền tảng thương mại điện tử hiện đại cho thiết bị gaming với tính năng quản lý đơn hàng và thanh toán tích hợp.",
     fullDescription: "SHN Gear là một nền tảng thương mại điện tử toàn diện được thiết kế đặc biệt cho cộng đồng gaming. Hệ thống được xây dựng với kiến trúc hiện đại, đảm bảo hiệu suất cao và khả năng mở rộng.",
-    image: "/assets/img/project1.png",
+    image: IMAGES.project1,
     tags: ["React", "Node.js", "MongoDB", "Stripe API", "Tailwind CSS"],
     features: [
       "Hệ thống xác thực người dùng an toàn với JWT",
@@ -76,7 +78,7 @@ export const projects = [
     title: "Hotel Booking Management System",
     description: "Hệ thống quản lý đặt phòng khách sạn với Node.js, React và MongoDB, hỗ trợ đầy đủ chức năng cho khách hàng và quản trị viên.",
     fullDescription: "Hệ thống quản lý đặt phòng khách sạn toàn diện được phát triển bởi đội ngũ sinh viên HUFLIT. Dự án tích hợp đầy đủ các tính năng từ quản lý khách sạn, đặt phòng đến xử lý thanh toán.",
-    image: "/assets/img/project2.png",
+    image: IMAGES.project2,
     tags: ["Node.js", "React", "MongoDB", "Ant Design", "JWT"],
     features: [
       "Hệ thống xác thực và phân quyền theo vai trò",
@@ -98,7 +100,7 @@ export const projects = [
     title: "Personal Portfolio Website",
     description: "Website portfolio cá nhân hiện đại với thiết kế responsive và hiệu ứng animation mượt mà.",
     fullDescription: "Website portfolio cá nhân được xây dựng với React, tích hợp các hiệu ứng animation mượt mà và tối ưu hóa hiệu suất. Website giới thiệu bản thân, các dự án đã thực hiện và kỹ năng lập trình.",
-    image: "/assets/img/project3.png",
+    image: IMAGES.project3,
     tags: ["React", "Tailwind CSS", "Framer Motion", "Vercel"],
     features: [
       "Thiết kế responsive hoàn toàn",
@@ -120,7 +122,7 @@ export const projects = [
     title: "3D Portfolio Room",
     description: "Website portfolio tương tác 3D isometric xây dựng với React Three Fiber, Zustand và các mini-game retro arcade.",
     fullDescription: "Portfolio cá nhân dạng phòng 3D isometric đầy đủ tính năng: day/night mode, 4 mini-games (Snake, Pong, Dino, Tetris), Music Player, Kanban Board, Gallery Polaroid và Contact Form với EmailJS.",
-    image: "/assets/img/project4.png",
+    image: IMAGES.project4,
     tags: ["React", "Three.js", "React Three Fiber", "Zustand"],
     features: [
       "Interactive 3D room environment",

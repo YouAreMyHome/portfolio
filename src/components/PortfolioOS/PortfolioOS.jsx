@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { IMAGES } from '../../data/images'
 import { 
   Monitor, FolderOpen, Terminal, FileText, Trash2,
   Palette, Server, Wrench, Star, Square, FolderSearch, Info,
@@ -382,7 +383,7 @@ function AboutApp() {
       <div className="about-content">
         <div className="about-header">
           <img 
-            src="/assets/img/avatar.jpg" 
+            src={IMAGES.avatar}
             alt={personalInfo.name} 
             className="about-avatar clickable" 
             onClick={() => setShowAvatarModal(true)}
@@ -425,7 +426,7 @@ function AboutApp() {
           <div className="avatar-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="avatar-modal-close" onClick={() => setShowAvatarModal(false)}>×</button>
             <img 
-              src="/assets/img/avatar.jpg" 
+              src={IMAGES.avatar}
               alt={personalInfo.name}
               className="avatar-modal-image"
             />

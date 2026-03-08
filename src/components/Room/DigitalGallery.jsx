@@ -18,17 +18,10 @@ import InteractiveObject from './InteractiveObject'
  * Hỗ trợ: jpg, jpeg, png, gif, webp
  */
 
-// Tự động lấy tất cả ảnh từ thư mục gallery (Vite import.meta.glob)
-const galleryModules = import.meta.glob('/public/assets/gallery/*.{jpg,jpeg,png,gif,webp}', { 
-  eager: true,
-  query: '?url',
-  import: 'default'
-})
+import { IMAGES } from '../../data/images'
 
-// Convert to array of paths (remove /public prefix for runtime)
-const GALLERY_IMAGES = Object.keys(galleryModules)
-  .sort() // Sắp xếp theo tên file
-  .map(path => path.replace('/public', ''))
+// Ảnh gallery lấy từ Cloudinary (cấu hình trong src/data/images.js)
+const GALLERY_IMAGES = IMAGES.gallery
 
 // Fallback colors nếu không có ảnh
 const FALLBACK_COLORS = [
