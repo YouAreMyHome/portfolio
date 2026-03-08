@@ -86,8 +86,10 @@ function Room() {
       </InteractiveObject>
       
       {/* Decorations */}
-      <Plant position={[-3.3, 0, 3.2]} />
-      <Plant position={[2.5, 0, -3.2]} />
+      {/* Bush plant – góc trái, gần giường */}
+      <Plant position={[-3.3, 0, 3.2]} variant="bush" />
+      {/* Tropical plant – góc phải, gần TV */}
+      <Plant position={[2.5, 0, -3.2]} variant="tropical" />
       <WallDecorations />
       <FloorDetails />
       
