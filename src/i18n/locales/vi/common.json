@@ -1,0 +1,125 @@
+{
+  "hud": {
+    "title": "Nghia's Room",
+    "night": "Night mode",
+    "day": "Day mode",
+    "sound": {
+      "on": "Bật âm thanh",
+      "off": "Tắt âm thanh"
+    },
+    "instructions": {
+      "drag": "Kéo để xoay",
+      "scroll": "Cuộn để zoom",
+      "click": "Nhấn vào vật thể"
+    },
+    "hover": {
+      "pc": "Khởi động máy tính",
+      "board": "Kỹ năng & Công nghệ",
+      "planboard": "Kế hoạch của mình",
+      "tv": "Chơi game thư giãn",
+      "bed": "Liên hệ với mình",
+      "chair": "Tìm hiểu về mình",
+      "window_day": "Chuyển sang chế độ tối",
+      "window_night": "Chuyển sang chế độ sáng",
+      "cat": "Meo meo~",
+      "record_playing": "Đang phát nhạc...",
+      "record_idle": "Nghe nhạc cùng mình",
+      "clock": "Mấy giờ rồi tarr??",
+      "books": "Mở Tủ Sách",
+      "polaroid": "Xem ảnh kỷ niệm",
+      "lightswitch": "Bật/Tắt đèn dây"
+    }
+  },
+  "loading": {
+    "title": "Nghia's Room",
+    "subtitle": "Interactive 3D Portfolio",
+    "stages": {
+      "s0": "Khởi tạo phòng...",
+      "s20": "Đang tải nội thất...",
+      "s38": "Thiết lập ánh sáng...",
+      "s56": "Trang trí phòng...",
+      "s72": "Biên dịch shader...",
+      "s86": "Render frame đầu tiên...",
+      "s100": "Sẵn sàng! 🎉"
+    }
+  },
+  "welcome": {
+    "greeting": "Chào mừng đến với",
+    "name": "Nghia's Room",
+    "hint": "Click vào các vật thể để khám phá!",
+    "enter": "Vào phòng →"
+  },
+  "panel": {
+    "projects": "Projects",
+    "skills": "Skills",
+    "books": "Tủ Sách",
+    "about": "About Me",
+    "contact": "Contact",
+    "playground": "Playground",
+    "featured": "Featured",
+    "experience": "Kinh nghiệm",
+    "education": "Học vấn",
+    "skills_frontend": "Frontend",
+    "skills_backend": "Backend",
+    "skills_tools": "Công cụ",
+    "books_desc": "Bộ sưu tập sách lập trình của tôi 📚",
+    "books_back": "← Quay lại kệ sách",
+    "books_page": "Trang {{n}}",
+    "books_chapters": "{{n}} chapters",
+    "contact_desc": "Hãy kết nối và cùng tạo ra thứ gì đó tuyệt vời!",
+    "contact_name": "Tên của bạn",
+    "contact_email": "Email",
+    "contact_message": "Tin nhắn",
+    "contact_placeholder": "Chào Nghĩa, tôi muốn...",
+    "contact_send": "Gửi tin nhắn",
+    "contact_sending": "Đang gửi...",
+    "contact_success": "✓ Đã gửi! Mình sẽ phản hồi sớm nhé 🎉",
+    "contact_error": "Gửi thất bại. Vui lòng thử lại sau hoặc liên hệ trực tiếp.",
+    "contact_or": "hoặc liên hệ qua",
+    "playground_desc": "Fun experiments và mini-games",
+    "code": "Code",
+    "demo": "Demo"
+  },
+  "music": {
+    "open": "Mở Music Player",
+    "minimize": "Thu nhỏ Player",
+    "queue": "Queue",
+    "tracks": "{{n}} tracks",
+    "no_track": "No track",
+    "unknown": "Unknown"
+  },
+  "kanban": {
+    "title": "Bảng Kỹ Năng",
+    "subtitle": "Kéo thẻ để sắp xếp",
+    "empty": "Thả thẻ vào đây",
+    "reset": "Reset board về mặc định",
+    "col_todo": "CẦN LÀM",
+    "col_progress": "ĐANG LÀM",
+    "col_done": "HOÀN THÀNH"
+  },
+  "clock": {
+    "days": ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]
+  },
+  "polaroid": {
+    "close": "Đóng",
+    "prev": "Ảnh trước",
+    "next": "Ảnh tiếp",
+    "caption_multi": "📸 {{n}} / {{total}} · vuốt hoặc ← → để xem",
+    "caption_single": "📸 Click để đóng"
+  },
+  "tv": {
+    "exit": "✕ Thoát",
+    "action": "Hành động",
+    "pause": "Dừng",
+    "exit_label": "Thoát",
+    "exit_esc": "Thoát"
+  },
+  "transition": {
+    "night": "Night Mode",
+    "day": "Day Mode"
+  },
+  "app": {
+    "touch_interact": "Chạm để tương tác",
+    "swipe_rotate": "Vuốt để xoay"
+  }
+}

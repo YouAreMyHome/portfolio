@@ -1,0 +1,125 @@
+{
+  "hud": {
+    "title": "Nghia's Room",
+    "night": "Night mode",
+    "day": "Day mode",
+    "sound": {
+      "on": "Enable sound",
+      "off": "Mute sound"
+    },
+    "instructions": {
+      "drag": "Drag to rotate",
+      "scroll": "Scroll to zoom",
+      "click": "Click on objects"
+    },
+    "hover": {
+      "pc": "Boot up computer",
+      "board": "Skills & Technology",
+      "planboard": "My plans",
+      "tv": "Play some games",
+      "bed": "Contact me",
+      "chair": "About me",
+      "window_day": "Switch to dark mode",
+      "window_night": "Switch to light mode",
+      "cat": "Meow~",
+      "record_playing": "Now playing...",
+      "record_idle": "Listen to music",
+      "clock": "What time is it?",
+      "books": "Open Bookshelf",
+      "polaroid": "View memories",
+      "lightswitch": "Toggle fairy lights"
+    }
+  },
+  "loading": {
+    "title": "Nghia's Room",
+    "subtitle": "Interactive 3D Portfolio",
+    "stages": {
+      "s0": "Initializing room...",
+      "s20": "Loading furniture...",
+      "s38": "Setting up lights...",
+      "s56": "Decorating space...",
+      "s72": "Compiling shaders...",
+      "s86": "Rendering first frame...",
+      "s100": "Ready! 🎉"
+    }
+  },
+  "welcome": {
+    "greeting": "Welcome to",
+    "name": "Nghia's Room",
+    "hint": "Click on objects to explore!",
+    "enter": "Enter room →"
+  },
+  "panel": {
+    "projects": "Projects",
+    "skills": "Skills",
+    "books": "Bookshelf",
+    "about": "About Me",
+    "contact": "Contact",
+    "playground": "Playground",
+    "featured": "Featured",
+    "experience": "Experience",
+    "education": "Education",
+    "skills_frontend": "Frontend",
+    "skills_backend": "Backend",
+    "skills_tools": "Tools",
+    "books_desc": "My programming book collection 📚",
+    "books_back": "← Back to shelf",
+    "books_page": "Page {{n}}",
+    "books_chapters": "{{n}} chapters",
+    "contact_desc": "Let's connect and build something awesome!",
+    "contact_name": "Your name",
+    "contact_email": "Email",
+    "contact_message": "Message",
+    "contact_placeholder": "Hello Nghia, I'd like to...",
+    "contact_send": "Send message",
+    "contact_sending": "Sending...",
+    "contact_success": "✓ Sent! I'll get back to you soon 🎉",
+    "contact_error": "Failed to send. Please try again or contact directly.",
+    "contact_or": "or reach me via",
+    "playground_desc": "Fun experiments and mini-games",
+    "code": "Code",
+    "demo": "Demo"
+  },
+  "music": {
+    "open": "Open Music Player",
+    "minimize": "Minimize player",
+    "queue": "Queue",
+    "tracks": "{{n}} tracks",
+    "no_track": "No track",
+    "unknown": "Unknown"
+  },
+  "kanban": {
+    "title": "My Skills Board",
+    "subtitle": "Drag cards to organize",
+    "empty": "Drop tasks here",
+    "reset": "Reset board to default",
+    "col_todo": "TODO",
+    "col_progress": "IN PROGRESS",
+    "col_done": "COMPLETED"
+  },
+  "clock": {
+    "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  },
+  "polaroid": {
+    "close": "Close",
+    "prev": "Previous photo",
+    "next": "Next photo",
+    "caption_multi": "📸 {{n}} / {{total}} · swipe or ← → to view",
+    "caption_single": "📸 Click to close"
+  },
+  "tv": {
+    "exit": "✕ Exit",
+    "action": "Action",
+    "pause": "Pause",
+    "exit_label": "Exit",
+    "exit_esc": "Exit"
+  },
+  "transition": {
+    "night": "Night Mode",
+    "day": "Day Mode"
+  },
+  "app": {
+    "touch_interact": "Touch to interact",
+    "swipe_rotate": "Swipe to rotate"
+  }
+}

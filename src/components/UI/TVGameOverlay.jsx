@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import useStore from '../../store/useStore'
 import './TVGame.css'
 
@@ -84,6 +85,7 @@ function TVGameOverlay() {
   const [showTouch, setShowTouch] = useState(false)
 
   const isVisible = activePanel === 'playground'
+  const { t } = useTranslation()
 
   useEffect(() => { setShowTouch(isTouchDevice()) }, [])
 
@@ -117,16 +119,16 @@ function TVGameOverlay() {
               <span className="key">↑↓←→</span> / <span className="key">WASD</span>
             </div>
             <div className="control-hint">
-              <span className="key">SPACE</span> Action
+              <span className="key">SPACE</span> {t('tv.action')}
             </div>
             <div className="control-hint">
-              <span className="key">P</span> Pause
+              <span className="key">P</span> {t('tv.pause')}
             </div>
             <div className="control-hint">
-              <span className="key">ESC</span> Exit
+              <span className="key">ESC</span> {t('tv.exit_esc')}
             </div>
           </div>
-          <button className="tv-exit-btn" onClick={closePanel}>✕ Exit</button>
+          <button className="tv-exit-btn" onClick={closePanel}>{t('tv.exit')}</button>
         </div>
       )}
 
@@ -134,7 +136,7 @@ function TVGameOverlay() {
       {showTouch && (
         <div className="mobile-game-ui">
           {/* Exit */}
-          <button className="touch-exit-btn" onClick={closePanel} aria-label="Thoát">✕</button>
+          <button className="touch-exit-btn" onClick={closePanel} aria-label={t('tv.exit_label')}>✕</button>
 
           {/* D-pad (bottom-left) */}
           <div className="dpad-wrapper" onContextMenu={(e) => e.preventDefault()}>

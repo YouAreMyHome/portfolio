@@ -4,6 +4,37 @@
  * Classic endless runner - jump over obstacles!
  */
 
+const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+const DINO_TEXTS = {
+  en: {
+    pressJump: 'Press SPACE or ↑ to Jump',
+    avoid: 'Avoid the obstacles!',
+    highScore: 'High Score:',
+    pressStart: 'Press SPACE to Start',
+    paused: '⏸️ PAUSED',
+    resume: 'Press SPACE to Resume',
+    gameOver: '💀 GAME OVER',
+    score: 'Score:',
+    newHigh: '🎉 NEW HIGH SCORE!',
+    retry: 'Press SPACE to Retry',
+    exit: 'Press ESC to Exit',
+  },
+  vi: {
+    pressJump: 'SPACE hoặc ↑ để nhảy',
+    avoid: 'Tránh chướng ngại vật!',
+    highScore: 'Kỷ lục:',
+    pressStart: 'Nhấn SPACE để bắt đầu',
+    paused: '⏸️ TẠM DỪNG',
+    resume: 'SPACE để tiếp tục',
+    gameOver: '💀 GAME OVER',
+    score: 'Điểm:',
+    newHigh: '🎉 KỶ LỤC MỚI!',
+    retry: 'SPACE để thử lại',
+    exit: 'ESC để thoát',
+  },
+}
+const dtx = (key) => { const l = getLang(); return (DINO_TEXTS[l] || DINO_TEXTS.vi)[key] || key }
+
 const CANVAS_WIDTH = 460
 const CANVAS_HEIGHT = 260
 
@@ -290,19 +321,19 @@ export function drawDinoMenu(ctx, highScore = 0) {
   // Instructions
   ctx.font = '16px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Press SPACE or ↑ to Jump', CANVAS_WIDTH / 2, 140)
-  ctx.fillText('Avoid the obstacles!', CANVAS_WIDTH / 2, 165)
+  ctx.fillText(dtx('pressJump'), CANVAS_WIDTH / 2, 140)
+  ctx.fillText(dtx('avoid'), CANVAS_WIDTH / 2, 165)
   
   // High score
   if (highScore > 0) {
     ctx.font = '14px "Courier New", monospace'
     ctx.fillStyle = COLORS.score
-    ctx.fillText(`High Score: ${highScore}`, CANVAS_WIDTH / 2, 230)
+    ctx.fillText(`${dtx('highScore')} ${highScore}`, CANVAS_WIDTH / 2, 230)
   }
   
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.text
-  ctx.fillText('Press SPACE to Start', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 20)
+  ctx.fillText(dtx('pressStart'), CANVAS_WIDTH / 2, CANVAS_HEIGHT - 20)
 }
 
 /**
@@ -489,11 +520,11 @@ export function drawDinoPaused(ctx, state) {
   ctx.font = 'bold 28px "Courier New", monospace'
   ctx.fillStyle = COLORS.dino
   ctx.textAlign = 'center'
-  ctx.fillText('⏸️ PAUSED', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
+  ctx.fillText(dtx('paused'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
   
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Press SPACE to Resume', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20)
+  ctx.fillText(dtx('resume'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20)
 }
 
 /**
@@ -512,26 +543,26 @@ export function drawDinoGameOver(ctx, state, highScore) {
   ctx.textAlign = 'center'
   ctx.shadowColor = '#ef4444'
   ctx.shadowBlur = 10
-  ctx.fillText('💀 GAME OVER', CANVAS_WIDTH / 2, 80)
+  ctx.fillText(dtx('gameOver'), CANVAS_WIDTH / 2, 80)
   ctx.shadowBlur = 0
   
   // Score
   ctx.font = 'bold 24px "Courier New", monospace'
   ctx.fillStyle = COLORS.score
-  ctx.fillText(`Score: ${state.score}`, CANVAS_WIDTH / 2, 130)
+  ctx.fillText(`${dtx('score')} ${state.score}`, CANVAS_WIDTH / 2, 130)
   
   // New high score?
   if (state.score > highScore && state.score > 0) {
     ctx.font = '18px "Courier New", monospace'
     ctx.fillStyle = COLORS.score
-    ctx.fillText('🎉 NEW HIGH SCORE!', CANVAS_WIDTH / 2, 160)
+    ctx.fillText(dtx('newHigh'), CANVAS_WIDTH / 2, 160)
   }
   
   // Instructions
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Press SPACE to Retry', CANVAS_WIDTH / 2, 210)
-  ctx.fillText('Press ESC to Exit', CANVAS_WIDTH / 2, 235)
+  ctx.fillText(dtx('retry'), CANVAS_WIDTH / 2, 210)
+  ctx.fillText(dtx('exit'), CANVAS_WIDTH / 2, 235)
 }
 
 export const DINO_CONSTANTS = {

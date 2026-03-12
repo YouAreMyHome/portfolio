@@ -4,6 +4,43 @@
  * Two paddles, one ball, first to score wins!
  */
 
+const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+const PONG_TEXTS = {
+  en: {
+    subtitle: 'Classic Arcade Game',
+    pressSpace: 'Press SPACE to Start',
+    controls: '↑ ↓ or W S to move paddle',
+    firstTo: (n) => `First to ${n} wins!`,
+    wins: 'Wins:',
+    you: 'YOU',
+    cpu: 'CPU',
+    paused: 'PAUSED',
+    resume: 'Press SPACE to Resume',
+    youWin: '🎉 YOU WIN!',
+    gameOver: '💀 GAME OVER',
+    playAgain: 'Press SPACE to Play Again',
+  },
+  vi: {
+    subtitle: 'Game Arcade Cổ Điển',
+    pressSpace: 'Nhấn SPACE để bắt đầu',
+    controls: '↑ ↓ hoặc W S để di chuyển vợt',
+    firstTo: (n) => `Ghi trước ${n} điểm thắng!`,
+    wins: 'Số lần thắng:',
+    you: 'BẠN',
+    cpu: 'MÁY',
+    paused: 'TẠM DỪNG',
+    resume: 'SPACE để tiếp tục',
+    youWin: '🎉 BẠN THẮNG!',
+    gameOver: '💀 GAME OVER',
+    playAgain: 'SPACE để chơi lại',
+  },
+}
+const ptx = (key, ...args) => {
+  const l = getLang()
+  const t = (PONG_TEXTS[l] || PONG_TEXTS.vi)[key]
+  return typeof t === 'function' ? t(...args) : (t || key)
+}
+
 const CANVAS_WIDTH = 460
 const CANVAS_HEIGHT = 260
 
@@ -184,22 +221,22 @@ export function drawPongMenu(ctx, highScore = 0) {
   // Subtitle
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Classic Arcade Game', CANVAS_WIDTH / 2, 100)
+  ctx.fillText(ptx('subtitle'), CANVAS_WIDTH / 2, 100)
   
   // Instructions
   ctx.font = '16px "Courier New", monospace'
   ctx.fillStyle = COLORS.text
-  ctx.fillText('Press SPACE to Start', CANVAS_WIDTH / 2, 150)
+  ctx.fillText(ptx('pressSpace'), CANVAS_WIDTH / 2, 150)
   
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('↑ ↓ or W S to move paddle', CANVAS_WIDTH / 2, 180)
-  ctx.fillText(`First to ${WINNING_SCORE} wins!`, CANVAS_WIDTH / 2, 205)
+  ctx.fillText(ptx('controls'), CANVAS_WIDTH / 2, 180)
+  ctx.fillText(ptx('firstTo', WINNING_SCORE), CANVAS_WIDTH / 2, 205)
   
   // Win count
   if (highScore > 0) {
     ctx.fillStyle = COLORS.score
-    ctx.fillText(`Wins: ${highScore}`, CANVAS_WIDTH / 2, 240)
+    ctx.fillText(`${ptx('wins')} ${highScore}`, CANVAS_WIDTH / 2, 240)
   }
 }
 
@@ -253,9 +290,9 @@ export function drawPongGame(ctx, state) {
   ctx.font = '12px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
   ctx.textAlign = 'left'
-  ctx.fillText('YOU', 15, CANVAS_HEIGHT - 10)
+  ctx.fillText(ptx('you'), 15, CANVAS_HEIGHT - 10)
   ctx.textAlign = 'right'
-  ctx.fillText('CPU', CANVAS_WIDTH - 15, CANVAS_HEIGHT - 10)
+  ctx.fillText(ptx('cpu'), CANVAS_WIDTH - 15, CANVAS_HEIGHT - 10)
 }
 
 /**
@@ -272,11 +309,11 @@ export function drawPongPaused(ctx, state) {
   ctx.font = 'bold 28px "Courier New", monospace'
   ctx.fillStyle = COLORS.ball
   ctx.textAlign = 'center'
-  ctx.fillText('PAUSED', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
+  ctx.fillText(ptx('paused'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
   
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Press SPACE to Resume', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20)
+  ctx.fillText(ptx('resume'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20)
 }
 
 /**
@@ -296,7 +333,7 @@ export function drawPongGameOver(ctx, state) {
   ctx.textAlign = 'center'
   ctx.shadowColor = ctx.fillStyle
   ctx.shadowBlur = 10
-  ctx.fillText(isWinner ? '🎉 YOU WIN!' : '💀 GAME OVER', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30)
+  ctx.fillText(isWinner ? ptx('youWin') : ptx('gameOver'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30)
   ctx.shadowBlur = 0
   
   // Final score
@@ -307,7 +344,7 @@ export function drawPongGameOver(ctx, state) {
   // Instructions
   ctx.font = '14px "Courier New", monospace'
   ctx.fillStyle = COLORS.textDim
-  ctx.fillText('Press SPACE to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 45)
+  ctx.fillText(ptx('playAgain'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 45)
 }
 
 export const PONG_CONSTANTS = {

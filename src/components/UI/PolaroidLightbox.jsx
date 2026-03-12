@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import useStore from '../../store/useStore'
 import './PolaroidLightbox.css'
 
@@ -12,6 +13,8 @@ function PolaroidLightbox() {
   const closePolaroid  = useStore((s) => s.closePolaroid)
   const prevPolaroid   = useStore((s) => s.prevPolaroid)
   const nextPolaroid   = useStore((s) => s.nextPolaroid)
+
+  const { t } = useTranslation()
 
   // Trigger re-mount animation on index change
   const [animKey, setAnimKey] = useState(0)
@@ -70,7 +73,7 @@ function PolaroidLightbox() {
       <button
         className="polaroid-close"
         onClick={(e) => { e.stopPropagation(); closePolaroid() }}
-        aria-label="Đóng"
+        aria-label={t('polaroid.close')}
       >
         <X size={22} />
       </button>
@@ -80,7 +83,7 @@ function PolaroidLightbox() {
         <button
           className="polaroid-nav polaroid-nav-prev"
           onClick={(e) => { e.stopPropagation(); goPrev() }}
-          aria-label="Ảnh trước"
+          aria-label={t('polaroid.prev')}
         >
           <ChevronLeft size={28} />
         </button>
@@ -93,11 +96,11 @@ function PolaroidLightbox() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="polaroid-frame">
-          <img src={src} alt={`Ảnh ${polaroidIndex + 1}`} className="polaroid-image" />
+          <img src={src} alt={`Photo ${polaroidIndex + 1}`} className="polaroid-image" />
           <div className="polaroid-caption">
             {total > 1
-              ? `📸 ${polaroidIndex + 1} / ${total} · vuốt hoặc ← → để xem`
-              : '📸 Click để đóng'}
+              ? t('polaroid.caption_multi', { n: polaroidIndex + 1, total })
+              : t('polaroid.caption_single')}
           </div>
         </div>
       </div>
@@ -107,7 +110,7 @@ function PolaroidLightbox() {
         <button
           className="polaroid-nav polaroid-nav-next"
           onClick={(e) => { e.stopPropagation(); goNext() }}
-          aria-label="Ảnh tiếp"
+          aria-label={t('polaroid.next')}
         >
           <ChevronRight size={28} />
         </button>

@@ -1,6 +1,7 @@
 import { useProgress } from '@react-three/drei'
 import { useEffect, useState, useRef } from 'react'
 import { Home, Armchair, Monitor, Bed, Leaf, Cat, Hand, FolderKanban, Sparkles, Mail, Gamepad2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useSounds } from '../../utils/useSounds'
 import useStore from '../../store/useStore'
 import './LoadingScreen.css'
@@ -21,10 +22,11 @@ function LoadingScreen() {
   const isSceneReady = useStore((state) => state.isSceneReady)
   const { playSuccess, playWhoosh } = useSounds()
 
+  const { t } = useTranslation()
   const [displayProgress, setDisplayProgress] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
   const [hideAll, setHideAll] = useState(false)
-  const [loadingText, setLoadingText] = useState('Khởi tạo phòng...')
+  const [loadingStageKey, setLoadingStageKey] = useState('s0')
 
   const animationRef = useRef(null)
   const startTimeRef = useRef(Date.now())
@@ -82,19 +84,19 @@ function LoadingScreen() {
   // ── Loading text theo elapsed time (tự nhiên hơn theo %): ────────────────
   useEffect(() => {
     if (displayProgress < 20) {
-      setLoadingText('Khởi tạo phòng...')
+      setLoadingStageKey('s0')
     } else if (displayProgress < 38) {
-      setLoadingText('Đang tải nội thất...')
+      setLoadingStageKey('s20')
     } else if (displayProgress < 56) {
-      setLoadingText('Thiết lập ánh sáng...')
+      setLoadingStageKey('s38')
     } else if (displayProgress < 72) {
-      setLoadingText('Trang trí phòng...')
+      setLoadingStageKey('s56')
     } else if (displayProgress < 86) {
-      setLoadingText('Biên dịch shader...')
+      setLoadingStageKey('s72')
     } else if (displayProgress < 99) {
-      setLoadingText('Render frame đầu tiên...')
+      setLoadingStageKey('s86')
     } else {
-      setLoadingText('Sẵn sàng! 🎉')
+      setLoadingStageKey('s100')
     }
   }, [displayProgress])
 
@@ -138,8 +140,8 @@ function LoadingScreen() {
             <div className="loading-icon-glow"></div>
           </div>
           
-          <h1 className="loading-title">Nghia's Room</h1>
-          <p className="loading-subtitle">Interactive 3D Portfolio</p>
+          <h1 className="loading-title">{t('loading.title')}</h1>
+          <p className="loading-subtitle">{t('loading.subtitle')}</p>
           
           {/* Progress Section */}
           <div className="loading-progress">
@@ -152,7 +154,7 @@ function LoadingScreen() {
             </div>
             
             <div className="loading-info">
-              <span className="loading-text">{loadingText}</span>
+              <span className="loading-text">{t(`loading.stages.${loadingStageKey}`)}</span>
               <span className="loading-percent">{roundedProgress}%</span>
             </div>
 
@@ -179,9 +181,9 @@ function LoadingScreen() {
       {showWelcome && (
         <div className="welcome-content show">
           <div className="welcome-emoji"><Hand size={48} /></div>
-          <h1 className="welcome-title">Chào mừng đến với</h1>
-          <h2 className="welcome-name">Nghia's Room</h2>
-          <p className="welcome-hint">Click vào các vật thể để khám phá!</p>
+          <h1 className="welcome-title">{t('welcome.greeting')}</h1>
+          <h2 className="welcome-name">{t('welcome.name')}</h2>
+          <p className="welcome-hint">{t('welcome.hint')}</p>
           <div className="welcome-icons">
             <span title="Projects"><FolderKanban size={24} /></span>
             <span title="Skills"><Sparkles size={24} /></span>
@@ -192,7 +194,7 @@ function LoadingScreen() {
             playWhoosh()
             setHideAll(true)
           }}>
-            Vào phòng →
+            {t('welcome.enter')}
           </button>
         </div>
       )}

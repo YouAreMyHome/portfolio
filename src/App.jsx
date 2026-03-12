@@ -4,6 +4,7 @@ import { OrbitControls, SoftShadows } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { Analytics } from '@vercel/analytics/react'
 import { Hand, RotateCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ErrorBoundary, WebGLErrorBoundary } from './components/UI/ErrorBoundary'
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
@@ -224,6 +225,7 @@ function AppContent() {
  */
 function MobileTouchHint() {
   const [show, setShow] = useState(true)
+  const { t } = useTranslation()
   
   useEffect(() => {
     const timer = setTimeout(() => setShow(false), 4000)
@@ -236,9 +238,9 @@ function MobileTouchHint() {
     <div className="mobile-touch-hint">
       <div className="touch-hint-content">
         <span className="touch-icon"><Hand size={20} /></span>
-        <span>Chạm để tương tác</span>
+        <span>{t('app.touch_interact')}</span>
         <span className="touch-icon rotate"><RotateCw size={20} /></span>
-        <span>Vuốt để xoay</span>
+        <span>{t('app.swipe_rotate')}</span>
       </div>
     </div>
   )

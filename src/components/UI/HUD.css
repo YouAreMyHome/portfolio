@@ -63,10 +63,72 @@
 }
 
 /* Dark mode for sound toggle */
-.hud-sound-toggle {
+.hud-top-right {
   position: fixed;
   top: 24px;
   right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+}
+
+/* Language toggle */
+.hud-lang-toggle {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.05em;
+}
+
+.hud-lang-toggle span.active {
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.hud-lang-sep {
+  opacity: 0.4;
+}
+
+.hud-lang-toggle:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hud-lang-toggle:active {
+  transform: scale(0.95);
+}
+
+.hud-top-right.dark-mode .hud-lang-toggle {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hud-top-right.dark-mode .hud-lang-toggle span.active {
+  color: #f1f5f9;
+}
+
+.hud-top-right.dark-mode .hud-lang-toggle:hover {
+  background: rgba(15, 23, 42, 1);
+}
+
+.hud-sound-toggle {
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -81,7 +143,6 @@
   transition: all 0.2s ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  z-index: 50;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   /* Fix icon centering */
   padding: 0;
@@ -104,14 +165,14 @@
 }
 
 /* Dark mode adjustments */
-.hud-sound-toggle.dark-mode {
+.hud-top-right.dark-mode .hud-sound-toggle {
   background: rgba(15, 23, 42, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   color: #f1f5f9;
 }
 
-.hud-sound-toggle.dark-mode:hover {
+.hud-top-right.dark-mode .hud-sound-toggle:hover {
   background: rgba(15, 23, 42, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
@@ -173,12 +234,22 @@
     max-width: 90vw;
   }
   
-  .hud-sound-toggle {
+  .hud-top-right {
     top: 16px;
     right: 16px;
+    gap: 6px;
+  }
+
+  .hud-sound-toggle {
     width: 40px;
     height: 40px;
     font-size: 18px;
+  }
+
+  .hud-lang-toggle {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 }
 
@@ -207,17 +278,26 @@
     text-align: center;
   }
   
-  .hud-sound-toggle {
-    padding-top: 10px;
+  .hud-top-right {
     top: 12px;
     right: 12px;
-    width: 40px;
-    height: 40px;
+    gap: 5px;
+  }
+
+  .hud-sound-toggle {
+    width: 38px;
+    height: 38px;
     font-size: 18px;
     border-radius: 10px;
-    /* Ensure icon centering on mobile */
     padding: 0;
     line-height: 1;
+  }
+
+  .hud-lang-toggle {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 11px;
+    border-radius: 10px;
   }
 }
 
@@ -228,7 +308,7 @@
       top: max(12px, env(safe-area-inset-top));
     }
     
-    .hud-sound-toggle {
+    .hud-top-right {
       top: max(12px, env(safe-area-inset-top));
     }
   }

@@ -8,6 +8,35 @@
 
 import { CANVAS_WIDTH, CANVAS_HEIGHT, GAME_COLORS } from './constants'
 
+const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+const TETRIS_TEXTS = {
+  en: {
+    score: 'SCORE',
+    next: 'NEXT',
+    hints: ['← → MOVE', '↑  ROTATE', '↓  SOFT DROP', 'SPC HARD DROP', 'P   PAUSE'],
+    menuHints: [['← →', 'Move'], ['↑', 'Rotate'], ['↓', 'Soft Drop'], ['SPACE', 'Hard Drop'], ['P', 'Pause']],
+    pressStart: 'PRESS SPACE TO START',
+    paused: 'PAUSED',
+    resumeHint: 'P or SPACE to resume',
+    gameOver: 'GAME OVER',
+    newHigh: '✨ NEW HIGH SCORE! ✨',
+    restartHint: 'SPACE to restart  |  ESC to exit',
+  },
+  vi: {
+    score: 'ĐIỂM',
+    next: 'TIẾP',
+    hints: ['← → DI CHUYỂN', '↑  XOAY', '↓  RƠI CHẬM', 'SPC RƠI NHANH', 'P   DỮNG'],
+    menuHints: [['← →', 'Di chuyển'], ['↑', 'Xoay'], ['↓', 'Rơi chậm'], ['SPACE', 'Rơi nhanh'], ['P', 'Dừng']],
+    pressStart: 'NHẤN SPACE ĐỂ BẮT ĐẦU',
+    paused: 'TẠM DỪNG',
+    resumeHint: 'P hoặc SPACE để tiếp tục',
+    gameOver: 'GAME OVER',
+    newHigh: '✨ KỶ LỤC MỚI! ✨',
+    restartHint: 'SPACE để chơi lại  |  ESC để thoát',
+  },
+}
+const ttx = (key) => { const l = getLang(); return (TETRIS_TEXTS[l] || TETRIS_TEXTS.vi)[key] }
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const COLS = 10
@@ -307,7 +336,7 @@ function drawSidePanel(ctx, state, highScore) {
   ctx.font = '10px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textDim
   ctx.textAlign = 'left'
-  ctx.fillText('SCORE', x, BOARD_Y + 10)
+  ctx.fillText(ttx('score'), x, BOARD_Y + 10)
 
   ctx.font = 'bold 15px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textHighlight
@@ -329,7 +358,7 @@ function drawSidePanel(ctx, state, highScore) {
   const ny = BOARD_Y + 82
   ctx.font = '10px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textDim
-  ctx.fillText('NEXT', x, ny - 4)
+  ctx.fillText(ttx('next'), x, ny - 4)
 
   const matrix = state.next.matrix
   const offsetX = x + Math.floor((4 - matrix[0].length) / 2) * MINI
@@ -357,7 +386,7 @@ function drawSidePanel(ctx, state, highScore) {
   const hy = CANVAS_HEIGHT - 68
   ctx.font = '9px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textDim
-  const hints = ['← → MOVE', '↑  ROTATE', '↓  SOFT DROP', 'SPC HARD DROP', 'P   PAUSE']
+  const hints = ttx('hints')
   hints.forEach((line, i) => ctx.fillText(line, x, hy + i * 12))
 }
 
@@ -408,14 +437,8 @@ export function drawTetrisMenu(ctx, highScore) {
   // Controls
   ctx.textAlign = 'left'
   ctx.font = '10px "Courier New", monospace'
-  const hints = [
-    ['← →', 'Move'],
-    ['↑', 'Rotate'],
-    ['↓', 'Soft Drop'],
-    ['SPACE', 'Hard Drop'],
-    ['P', 'Pause'],
-  ]
-  hints.forEach(([key, desc], i) => {
+  const menuHints = ttx('menuHints')
+  menuHints.forEach(([key, desc], i) => {
     const hy = 92 + i * 16
     ctx.fillStyle = GAME_COLORS.textHighlight
     ctx.fillText(key.padEnd(7), PANEL_X + 2, hy)
@@ -426,7 +449,7 @@ export function drawTetrisMenu(ctx, highScore) {
   ctx.textAlign = 'center'
   ctx.font = '11px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.text
-  ctx.fillText('PRESS SPACE TO START', midX, CANVAS_HEIGHT - 16)
+  ctx.fillText(ttx('pressStart'), midX, CANVAS_HEIGHT - 16)
 }
 
 export function drawTetrisGame(ctx, state, highScore) {
@@ -446,11 +469,11 @@ export function drawTetrisPaused(ctx, state, highScore) {
   ctx.textAlign = 'center'
   ctx.shadowColor = GAME_COLORS.text
   ctx.shadowBlur = 10
-  ctx.fillText('PAUSED', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
+  ctx.fillText(ttx('paused'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10)
   ctx.shadowBlur = 0
   ctx.font = '12px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textDim
-  ctx.fillText('P or SPACE to resume', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 12)
+  ctx.fillText(ttx('resumeHint'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 12)
 }
 
 export function drawTetrisGameOver(ctx, state, highScore) {
@@ -462,7 +485,7 @@ export function drawTetrisGameOver(ctx, state, highScore) {
   ctx.fillStyle = GAME_COLORS.textError
   ctx.shadowColor = GAME_COLORS.textError
   ctx.shadowBlur = 12
-  ctx.fillText('GAME OVER', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 24)
+  ctx.fillText(ttx('gameOver'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 24)
   ctx.shadowBlur = 0
   ctx.font = 'bold 16px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textHighlight
@@ -472,10 +495,10 @@ export function drawTetrisGameOver(ctx, state, highScore) {
     ctx.fillStyle = GAME_COLORS.text
     ctx.shadowColor = GAME_COLORS.text
     ctx.shadowBlur = 6
-    ctx.fillText('✨ NEW HIGH SCORE! ✨', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 22)
+    ctx.fillText(ttx('newHigh'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 22)
     ctx.shadowBlur = 0
   }
   ctx.font = '11px "Courier New", monospace'
   ctx.fillStyle = GAME_COLORS.textDim
-  ctx.fillText('SPACE to restart  |  ESC to exit', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 44)
+  ctx.fillText(ttx('restartHint'), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 44)
 }

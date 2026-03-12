@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, Sparkles, Coffee, Bug, Rocket, Code, Gamepad2, Heart, CheckCircle, Clock, Target, GripVertical, RotateCcw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import useStore from '../../store/useStore'
 import './KanbanOverlay.css'
 
@@ -110,6 +111,8 @@ function TaskCard({ task, columnColor, onDragStart, onDragEnd, onTouchStart, onT
 function KanbanColumn({ column, tasks, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, dragOverColumn, draggingTask, columnRef }) {
   const Icon = column.icon
   const isDropTarget = dragOverColumn === column.id && draggingTask?.columnId !== column.id
+  const { t } = useTranslation()
+  const titleKey = column.id === 'todo' ? 'kanban.col_todo' : column.id === 'inProgress' ? 'kanban.col_progress' : 'kanban.col_done'
   
   return (
     <div className="kanban-column" ref={columnRef} data-column-id={column.id}>
@@ -118,7 +121,7 @@ function KanbanColumn({ column, tasks, onDragStart, onDragEnd, onDragOver, onDro
         style={{ backgroundColor: column.color }}
       >
         <Icon size={18} />
-        <span>{column.title}</span>
+        <span>{t(titleKey)}</span>
         <span className="kanban-count">{tasks.length}</span>
       </div>
       <div 
@@ -143,7 +146,7 @@ function KanbanColumn({ column, tasks, onDragStart, onDragEnd, onDragOver, onDro
         ))}
         {tasks.length === 0 && (
           <div className="kanban-empty">
-            Drop tasks here
+            {t('kanban.empty')}
           </div>
         )}
       </div>
@@ -154,6 +157,7 @@ function KanbanColumn({ column, tasks, onDragStart, onDragEnd, onDragOver, onDro
 function KanbanOverlay() {
   const showKanbanBoard = useStore((state) => state.showKanbanBoard)
   const closeKanbanBoard = useStore((state) => state.closeKanbanBoard)
+  const { t } = useTranslation()
   
   const [tasks, setTasks] = useState(() => loadPersistedTasks(INITIAL_TASKS))
   const [draggingTask, setDraggingTask] = useState(null)
@@ -265,11 +269,11 @@ function KanbanOverlay() {
         <div className="kanban-header">
           <div className="kanban-title">
             <span className="kanban-emoji">📋</span>
-            <h2>My Skills Board</h2>
-            <span className="kanban-subtitle">Drag cards to organize</span>
+            <h2>{t('kanban.title')}</h2>
+            <span className="kanban-subtitle">{t('kanban.subtitle')}</span>
           </div>
           <div className="kanban-header-actions">
-            <button className="kanban-reset" onClick={handleReset} title="Reset board về mặc định">
+            <button className="kanban-reset" onClick={handleReset} title={t('kanban.reset')}>
               <RotateCcw size={16} />
             </button>
             <button className="kanban-close" onClick={closeKanbanBoard}>

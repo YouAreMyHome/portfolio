@@ -4,6 +4,7 @@ import { useState } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import emailjs from '@emailjs/browser'
+import { useTranslation } from 'react-i18next'
 import { IMAGES } from '../../data/images'
 import { 
   Star, Code, ExternalLink,
@@ -32,17 +33,21 @@ import './Panels.css'
 
 // Projects Panel - Connected to portfolio.js
 function ProjectsPanel({ isNightMode }) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
+  const lf = (vi, en) => lang === 'en' && en ? en : vi
+
   return (
     <div className="panel-content">
-      <h2>Projects</h2>
+      <h2>{t('panel.projects')}</h2>
       <div className="projects-grid">
         {projects.map((project) => (
           <div key={project.id} className={`project-card ${project.featured ? 'featured' : ''}`}>
             <div className="project-header">
               <h3>{project.title}</h3>
-              {project.featured && <span className="featured-badge"><Star size={14} /> Featured</span>}
+              {project.featured && <span className="featured-badge"><Star size={14} /> {t('panel.featured')}</span>}
             </div>
-            <p>{project.description}</p>
+            <p>{lf(project.description, project.descriptionEn)}</p>
             <div className="tech-tags">
               {project.tags.map((tag) => (
                 <span key={tag}>{tag}</span>
@@ -51,12 +56,12 @@ function ProjectsPanel({ isNightMode }) {
             <div className="project-links">
               {project.github && (
                 <a href={project.github} target="_blank" rel="noopener noreferrer">
-                  <Code size={14} /> Code
+                  <Code size={14} /> {t('panel.code')}
                 </a>
               )}
               {project.demo && (
                 <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink size={14} /> Demo
+                  <ExternalLink size={14} /> {t('panel.demo')}
                 </a>
               )}
             </div>
@@ -69,15 +74,16 @@ function ProjectsPanel({ isNightMode }) {
 
 // Skills Panel - Connected to portfolio.js
 function SkillsPanel({ isNightMode }) {
+  const { t } = useTranslation()
   const skillCategories = [
-    { key: 'frontend', label: 'Frontend', icon: <Palette size={18} /> },
-    { key: 'backend', label: 'Backend', icon: <Server size={18} /> },
-    { key: 'tools', label: 'Tools', icon: <Wrench size={18} /> },
+    { key: 'frontend', label: t('panel.skills_frontend'), icon: <Palette size={18} /> },
+    { key: 'backend', label: t('panel.skills_backend'), icon: <Server size={18} /> },
+    { key: 'tools', label: t('panel.skills_tools'), icon: <Wrench size={18} /> },
   ]
   
   return (
     <div className="panel-content">
-      <h2>Skills</h2>
+      <h2>{t('panel.skills')}</h2>
       <div className="skills-grid">
         {skillCategories.map(({ key, label, icon }) => (
           <div key={key} className="skill-group">
@@ -106,6 +112,8 @@ function SkillsPanel({ isNightMode }) {
 // Books Panel - Hiển thị sách với jokes và memes
 function BooksPanel({ isNightMode }) {
   const [selectedBook, setSelectedBook] = useState(null)
+  const { t, i18n } = useTranslation()
+  const lf = (vi, en) => i18n.language === 'en' && en ? en : vi
   
   const handleBookClick = (book) => {
     if (book.isRickRoll) {
@@ -122,10 +130,11 @@ function BooksPanel({ isNightMode }) {
   
   // Hiển thị nội dung sách đã chọn
   if (selectedBook) {
+    const bookContent = lf(selectedBook.content, selectedBook.contentEn)
     return (
       <div className="panel-content">
         <button className="book-back-btn" onClick={handleBack}>
-          ← Quay lại kệ sách
+          {t('panel.books_back')}
         </button>
         <div className="book-content-view">
           <div className="book-cover-large" style={{ background: selectedBook.color }}>
@@ -133,9 +142,9 @@ function BooksPanel({ isNightMode }) {
           </div>
           <h2>{selectedBook.title}</h2>
           <div className="book-pages">
-            {selectedBook.content.map((text, index) => (
+            {bookContent.map((text, index) => (
               <div key={index} className="book-page">
-                <span className="page-number">Trang {index + 1}</span>
+                <span className="page-number">{t('panel.books_page', { n: index + 1 })}</span>
                 <p>{text}</p>
               </div>
             ))}
@@ -148,8 +157,8 @@ function BooksPanel({ isNightMode }) {
   // Hiển thị danh sách sách - trông như kệ sách thật
   return (
     <div className="panel-content">
-      <h2><BookOpen size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Tủ Sách</h2>
-      <p className="panel-description">Bộ sưu tập sách lập trình của tôi 📚</p>
+      <h2><BookOpen size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> {t('panel.books')}</h2>
+      <p className="panel-description">{t('panel.books_desc')}</p>
       
       <div className="books-grid">
         {books.map((book) => (
@@ -164,7 +173,7 @@ function BooksPanel({ isNightMode }) {
             <div className="book-info">
               <h3>{book.title}</h3>
               <span className="book-type">
-                <Sparkles size={14} /> {book.content.length} chapters
+                <Sparkles size={14} /> {t('panel.books_chapters', { n: book.content.length })}
               </span>
             </div>
           </div>
@@ -178,6 +187,9 @@ function BooksPanel({ isNightMode }) {
 function AboutPanel({ isNightMode }) {
   const [showAvatarModal, setShowAvatarModal] = useState(false)
   const { playClick } = useSounds()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
+  const lf = (vi, en) => lang === 'en' && en ? en : vi
 
   const handleAvatarClick = () => {
     playClick()
@@ -190,7 +202,7 @@ function AboutPanel({ isNightMode }) {
 
   return (
     <div className="panel-content">
-      <h2>About Me</h2>
+      <h2>{t('panel.about')}</h2>
       <div className="about-header">
         <img 
           src={IMAGES.avatar}
@@ -200,35 +212,35 @@ function AboutPanel({ isNightMode }) {
         />
         <div className="about-info">
           <h3>{personalInfo.name}</h3>
-          <p className="about-title">{personalInfo.title}</p>
-          <p className="about-tagline">{personalInfo.tagline}</p>
+          <p className="about-title">{lf(personalInfo.title, personalInfo.titleEn)}</p>
+          <p className="about-tagline">{lf(personalInfo.tagline, personalInfo.taglineEn)}</p>
         </div>
       </div>
-      <p className="about-intro">{aboutMe.intro}</p>
-      <p className="about-description">{aboutMe.description}</p>
+      <p className="about-intro">{lf(aboutMe.intro, aboutMe.introEn)}</p>
+      <p className="about-description">{lf(aboutMe.description, aboutMe.descriptionEn)}</p>
       <div className="about-highlights">
-        {aboutMe.highlights.map((highlight, i) => (
+        {(lf(aboutMe.highlights, aboutMe.highlightsEn) || aboutMe.highlights).map((highlight, i) => (
           <div key={i} className="highlight-item">{highlight}</div>
         ))}
       </div>
       
       {/* Experience */}
-      <h3 className="section-title"><Briefcase size={18} /> Experience</h3>
+      <h3 className="section-title"><Briefcase size={18} /> {t('panel.experience')}</h3>
       <div className="experience-list">
         {experience.map((exp) => (
           <div key={exp.id} className="experience-item">
             <div className="exp-header">
-              <span className="exp-position">{exp.position}</span>
-              <span className="exp-duration">{exp.duration}</span>
+              <span className="exp-position">{lf(exp.position, exp.positionEn)}</span>
+              <span className="exp-duration">{lf(exp.duration, exp.durationEn)}</span>
             </div>
             <span className="exp-company">{exp.company}</span>
-            <p className="exp-description">{exp.description}</p>
+            <p className="exp-description">{lf(exp.description, exp.descriptionEn)}</p>
           </div>
         ))}
       </div>
       
       {/* Education */}
-      <h3 className="section-title"><GraduationCap size={18} /> Education</h3>
+      <h3 className="section-title"><GraduationCap size={18} /> {t('panel.education')}</h3>
       <div className="education-list">
         {education.map((edu) => (
           <div key={edu.id} className="education-item">
@@ -239,15 +251,15 @@ function AboutPanel({ isNightMode }) {
                 className="edu-logo"
               />
               <div className="edu-info">
-                <span className="edu-school">{edu.school}</span>
-                <span className="edu-degree">{edu.degree}</span>
+                <span className="edu-school">{lf(edu.school, edu.schoolEn)}</span>
+                <span className="edu-degree">{lf(edu.degree, edu.degreeEn)}</span>
                 <span className="edu-duration">{edu.duration}</span>
               </div>
             </div>
-            <p className="edu-description">{edu.description}</p>
+            <p className="edu-description">{lf(edu.description, edu.descriptionEn)}</p>
             <div className="edu-details">
               {edu.gpa && <span className="edu-gpa">GPA: {edu.gpa}</span>}
-              {edu.status && <span className="edu-status">{edu.status}</span>}
+              {edu.status && <span className="edu-status">{lf(edu.status, edu.statusEn)}</span>}
             </div>
           </div>
         ))}
@@ -272,6 +284,7 @@ function AboutPanel({ isNightMode }) {
 
 // Playground Panel
 function PlaygroundPanel({ isNightMode }) {
+  const { t } = useTranslation()
   const games = [
     { icon: <Dice5 size={24} />, name: 'Dice Roller', desc: 'Roll virtual dice' },
     { icon: <Music size={24} />, name: 'Music Visualizer', desc: 'Audio reactive visuals' },
@@ -281,8 +294,8 @@ function PlaygroundPanel({ isNightMode }) {
   
   return (
     <div className="panel-content">
-      <h2>Playground</h2>
-      <p className="panel-description">Fun experiments and mini-games</p>
+      <h2>{t('panel.playground')}</h2>
+      <p className="panel-description">{t('panel.playground_desc')}</p>
       <div className="playground-grid">
         {games.map((game) => (
           <div key={game.name} className="playground-item">
@@ -303,6 +316,7 @@ function ContactPanel({ isNightMode }) {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('')
+  const { t } = useTranslation()
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -330,19 +344,19 @@ function ContactPanel({ isNightMode }) {
     } catch (err) {
       console.error('EmailJS error:', err)
       setStatus('error')
-      setErrorMsg('Gửi thất bại. Vui lòng thử lại sau hoặc liên hệ trực tiếp.')
+      setErrorMsg(t('panel.contact_error'))
     }
   }
 
   return (
     <div className="panel-content">
-      <h2>Contact</h2>
-      <p className="panel-description">Let&apos;s connect and build something awesome!</p>
+      <h2>{t('panel.contact')}</h2>
+      <p className="panel-description">{t('panel.contact_desc')}</p>
 
       {/* Contact form */}
       <form className="contact-form" onSubmit={handleSubmit} noValidate>
         <div className="contact-form-group">
-          <label htmlFor="contact-name">Tên của bạn</label>
+          <label htmlFor="contact-name">{t('panel.contact_name')}</label>
           <input
             id="contact-name"
             type="text"
@@ -356,7 +370,7 @@ function ContactPanel({ isNightMode }) {
         </div>
 
         <div className="contact-form-group">
-          <label htmlFor="contact-email">Email</label>
+          <label htmlFor="contact-email">{t('panel.contact_email')}</label>
           <input
             id="contact-email"
             type="email"
@@ -370,13 +384,13 @@ function ContactPanel({ isNightMode }) {
         </div>
 
         <div className="contact-form-group">
-          <label htmlFor="contact-message">Tin nhắn</label>
+          <label htmlFor="contact-message">{t('panel.contact_message')}</label>
           <textarea
             id="contact-message"
             name="message"
             value={form.message}
             onChange={handleChange}
-            placeholder="Chào Nghĩa, tôi muốn..."
+            placeholder={t('panel.contact_placeholder')}
             rows={4}
             required
             disabled={status === 'sending'}
@@ -385,7 +399,7 @@ function ContactPanel({ isNightMode }) {
 
         {status === 'success' && (
           <div className="contact-feedback contact-success">
-            ✓ Đã gửi! Mình sẽ phản hồi sớm nhé 🎉
+            {t('panel.contact_success')}
           </div>
         )}
         {status === 'error' && (
@@ -398,14 +412,14 @@ function ContactPanel({ isNightMode }) {
           disabled={status === 'sending' || !form.name || !form.email || !form.message}
         >
           {status === 'sending' ? (
-            <><span className="contact-spinner" aria-hidden="true" /> Đang gửi...</>
+            <><span className="contact-spinner" aria-hidden="true" /> {t('panel.contact_sending')}</>
           ) : (
-            <><Mail size={16} /> Gửi tin nhắn</>
+            <><Mail size={16} /> {t('panel.contact_send')}</>
           )}
         </button>
       </form>
 
-      <div className="contact-divider">hoặc liên hệ qua</div>
+      <div className="contact-divider">{t('panel.contact_or')}</div>
 
       <div className="contact-links">
         <a href={`mailto:${personalInfo.email}`} className="contact-item">

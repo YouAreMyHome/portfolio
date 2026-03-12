@@ -12,6 +12,35 @@ import {
   drawUtils,
 } from './constants'
 
+const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+const SNAKE_TEXTS = {
+  en: {
+    pressSpace: 'Press SPACE to Start',
+    controls: '↑ ↓ ← → or WASD to move',
+    highScore: 'High Score:',
+    paused: '⏸️ PAUSED',
+    resume: 'Press SPACE to Resume',
+    gameOver: '💀 GAME OVER',
+    score: 'Score:',
+    newHigh: '🎉 NEW HIGH SCORE!',
+    retry: 'Press SPACE to Retry',
+    exit: 'Press ESC to Exit',
+  },
+  vi: {
+    pressSpace: 'Nhấn SPACE để bắt đầu',
+    controls: '↑ ↓ ← → hoặc WASD để di chuyển',
+    highScore: 'Kỷ lục:',
+    paused: '⏸️ TẠM DỪNG',
+    resume: 'SPACE để tiếp tục',
+    gameOver: '💀 GAME OVER',
+    score: 'Điểm:',
+    newHigh: '🎉 KỶ LỤC MỚI!',
+    retry: 'SPACE để chơi lại',
+    exit: 'ESC để thoát',
+  },
+}
+const stx = (key) => { const l = getLang(); return (SNAKE_TEXTS[l] || SNAKE_TEXTS.vi)[key] || key }
+
 // Snake constants
 const CELL_SIZE = 13
 const GRID_WIDTH = Math.floor(CANVAS_WIDTH / CELL_SIZE)
@@ -143,19 +172,19 @@ export function drawSnakeMenu(ctx, highScore = 0) {
   })
   
   // Instructions
-  drawUtils.drawCenteredText(ctx, 'Press SPACE to Start', 140, {
+  drawUtils.drawCenteredText(ctx, stx('pressSpace'), 140, {
     font: FONTS.body,
     color: GAME_COLORS.textDim,
   })
   
-  drawUtils.drawCenteredText(ctx, '↑ ↓ ← → or WASD to move', 170, {
+  drawUtils.drawCenteredText(ctx, stx('controls'), 170, {
     font: FONTS.body,
     color: GAME_COLORS.textDim,
   })
   
   // High score
   if (highScore > 0) {
-    drawUtils.drawCenteredText(ctx, `High Score: ${highScore}`, 220, {
+    drawUtils.drawCenteredText(ctx, `${stx('highScore')} ${highScore}`, 220, {
       font: FONTS.small,
       color: GAME_COLORS.text,
     })
@@ -226,12 +255,12 @@ export function drawSnakePaused(ctx, state, highScore = 0) {
   drawSnakeGame(ctx, state, highScore)
   drawUtils.drawOverlay(ctx)
   
-  drawUtils.drawCenteredText(ctx, '⏸️ PAUSED', CANVAS_HEIGHT / 2 - 10, {
+  drawUtils.drawCenteredText(ctx, stx('paused'), CANVAS_HEIGHT / 2 - 10, {
     font: 'bold 28px "Courier New", monospace',
     color: GAME_COLORS.snake,
   })
   
-  drawUtils.drawCenteredText(ctx, 'Press SPACE to Resume', CANVAS_HEIGHT / 2 + 20, {
+  drawUtils.drawCenteredText(ctx, stx('resume'), CANVAS_HEIGHT / 2 + 20, {
     font: FONTS.small,
     color: GAME_COLORS.textDim,
   })
@@ -244,7 +273,7 @@ export function drawSnakeGameOver(ctx, state, highScore = 0) {
   drawUtils.clearCanvas(ctx)
   
   // Game Over title
-  drawUtils.drawCenteredText(ctx, '💀 GAME OVER', 80, {
+  drawUtils.drawCenteredText(ctx, stx('gameOver'), 80, {
     font: 'bold 28px "Courier New", monospace',
     color: GAME_COLORS.textError,
     glow: true,
@@ -252,26 +281,26 @@ export function drawSnakeGameOver(ctx, state, highScore = 0) {
   })
   
   // Score
-  drawUtils.drawCenteredText(ctx, `Score: ${state.score}`, 130, {
+  drawUtils.drawCenteredText(ctx, `${stx('score')} ${state.score}`, 130, {
     font: FONTS.heading,
     color: GAME_COLORS.text,
   })
   
   // New high score?
   if (state.score >= highScore && state.score > 0) {
-    drawUtils.drawCenteredText(ctx, '🎉 NEW HIGH SCORE!', 160, {
+    drawUtils.drawCenteredText(ctx, stx('newHigh'), 160, {
       font: FONTS.body,
       color: GAME_COLORS.textHighlight,
     })
   }
   
   // Instructions
-  drawUtils.drawCenteredText(ctx, 'Press SPACE to Retry', 210, {
+  drawUtils.drawCenteredText(ctx, stx('retry'), 210, {
     font: FONTS.small,
     color: GAME_COLORS.textDim,
   })
   
-  drawUtils.drawCenteredText(ctx, 'Press ESC to Exit', 235, {
+  drawUtils.drawCenteredText(ctx, stx('exit'), 235, {
     font: FONTS.small,
     color: GAME_COLORS.textDim,
   })

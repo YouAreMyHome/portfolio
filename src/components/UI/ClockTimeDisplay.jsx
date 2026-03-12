@@ -1,21 +1,16 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import useStore from '../../store/useStore'
 import './ClockTime.css'
 
-/**
- * ClockTimeDisplay - Hiển thị thời gian hiện tại khi click vào đồng hồ
- */
 function ClockTimeDisplay() {
   const showClockTime = useStore((state) => state.showClockTime)
   const [time, setTime] = useState(new Date())
+  const { t, i18n } = useTranslation()
   
   useEffect(() => {
     if (!showClockTime) return
-    
-    const interval = setInterval(() => {
-      setTime(new Date())
-    }, 1000)
-    
+    const interval = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(interval)
   }, [showClockTime])
   
@@ -25,11 +20,12 @@ function ClockTimeDisplay() {
   const minutes = time.getMinutes().toString().padStart(2, '0')
   const seconds = time.getSeconds().toString().padStart(2, '0')
   
-  const day = time.getDate()
-  const month = time.getMonth() + 1
-  const year = time.getFullYear()
-  const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
-  const dayName = dayNames[time.getDay()]
+  const days = t('clock.days', { returnObjects: true })
+  const dayName = Array.isArray(days) ? days[time.getDay()] : time.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', { weekday: 'long' })
+  
+  const dateStr = i18n.language === 'vi'
+    ? `${dayName}, ${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()}`
+    : time.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   
   return (
     <div className="clock-time-overlay">
@@ -40,9 +36,7 @@ function ClockTimeDisplay() {
           <span className="clock-minutes">{minutes}</span>
           <span className="clock-seconds">{seconds}</span>
         </div>
-        <div className="clock-date">
-          {dayName}, {day}/{month}/{year}
-        </div>
+        <div className="clock-date">{dateStr}</div>
       </div>
     </div>
   )

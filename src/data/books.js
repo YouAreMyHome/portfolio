@@ -23,6 +23,11 @@ export const books = [
       "CSS là viết tắt của: Can't Stop Suffering 😭",
       "Có 10 loại người trên thế giới: người hiểu binary và người không.",
     ],
+    contentEn: [
+      "Why do programmers prefer dark mode? Because bugs are afraid of the light! 🐛",
+      "CSS stands for: Can't Stop Suffering 😭",
+      "There are 10 types of people in the world: those who understand binary and those who don't.",
+    ],
     type: "jokes",
   },
   {
@@ -33,6 +38,11 @@ export const books = [
       "'It works on my machine' - Famous last words 💀",
       "Senior dev: 'Đây là code legacy' \nJunior dev: 'Sao anh viết tuần trước mà?' 🤡",
       "Deadline ngày mai → Code chạy được → Không hiểu tại sao → Không động vào nữa",
+    ],
+    contentEn: [
+      "'It works on my machine' - Famous last words 💀",
+      "Senior dev: 'This is legacy code' \nJunior dev: 'But you wrote it last week?' 🤡",
+      "Deadline tomorrow → Code works → No idea why → Never touch it again",
     ],
     type: "memes",
   },
@@ -45,6 +55,11 @@ export const books = [
       "99 bugs trên wall, bắt 1 con xuống... 127 bugs trên wall 🐛",
       "Copy từ StackOverflow không phải là cheating, đó là 'code reuse' 😎",
     ],
+    contentEn: [
+      "Reading your own code from 6 months ago feels like reading a stranger's code 👽",
+      "99 bugs on the wall, take one down... 127 bugs on the wall 🐛",
+      "Copying from StackOverflow is not cheating, it's 'code reuse' 😎",
+    ],
     type: "wisdom",
   },
   {
@@ -55,6 +70,11 @@ export const books = [
       "Họp 2 tiếng để quyết định dùng tabs hay spaces 📊",
       "Fix 1 bug, thêm 3 features (không ai yêu cầu) 🎁",
       "'Chỉ cần 5 phút' = Ít nhất 3 tiếng ⏰",
+    ],
+    contentEn: [
+      "2-hour meeting to decide tabs vs spaces 📊",
+      "Fix 1 bug, add 3 features (nobody asked for) 🎁",
+      "'Just 5 minutes' = At least 3 hours ⏰",
     ],
     type: "life",
   },
@@ -67,6 +87,11 @@ export const books = [
       "Cannot read property 'undefined' of undefined - Tôi undefined, bạn undefined 🎭",
       "Segmentation fault (core dumped) - Dịch: Chúc may mắn lần sau 🍀",
     ],
+    contentEn: [
+      "Error: Success! (Wait what? 🤔)",
+      "Cannot read property 'undefined' of undefined - I'm undefined, you're undefined 🎭",
+      "Segmentation fault (core dumped) - Translation: Better luck next time 🍀",
+    ],
     type: "errors",
   },
   {
@@ -77,6 +102,11 @@ export const books = [
       "Bạn có chắc muốn mở cuốn sách này không? 👀",
       "Có thể có điều bất ngờ đang chờ đợi...",
       "CẢNH BÁO: Không thể hoàn tác! 🚨",
+    ],
+    contentEn: [
+      "Are you sure you want to open this book? 👀",
+      "Something unexpected might be waiting...",
+      "WARNING: Cannot be undone! 🚨",
     ],
     type: "mystery",
     isRickRoll: true,

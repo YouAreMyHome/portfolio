@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Music } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import useStore from '../../store/useStore'
 import { playlist } from '../../data/playlist'
 import './MusicPlayer.css'
@@ -31,6 +32,7 @@ function MusicPlayer() {
   const audioRef = useRef(null)
   
   const track = playlist[currentTrack]
+  const { t } = useTranslation()
   
   // Sync with store
   useEffect(() => {
@@ -193,7 +195,7 @@ function MusicPlayer() {
         <button 
           className={`sp-mini-btn ${isPlaying ? 'playing' : ''}`}
           onClick={() => setIsMinimized(false)}
-          title="Mở Music Player"
+          title={t('music.open')}
         >
           <Music size={20} />
           {isPlaying && (
@@ -341,7 +343,7 @@ function MusicPlayer() {
               <button 
                 className="sp-btn sp-btn-action"
                 onClick={() => setIsMinimized(true)}
-                title="Thu nhỏ Player"
+                title={t('music.minimize')}
               >
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M7 10l5 5 5-5z"/>
@@ -373,8 +375,8 @@ function MusicPlayer() {
         {showPlaylist && (
           <div className="sp-playlist">
             <div className="sp-playlist-header">
-              <span>Queue</span>
-              <span className="sp-playlist-count">{playlist.length} tracks</span>
+              <span>{t('music.queue')}</span>
+              <span className="sp-playlist-count">{t('music.tracks', { n: playlist.length })}</span>
             </div>
             <div className="sp-playlist-list">
               {playlist.map((item, index) => (

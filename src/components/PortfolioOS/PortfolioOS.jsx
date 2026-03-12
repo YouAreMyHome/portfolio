@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { IMAGES } from '../../data/images'
 import { 
   Monitor, FolderOpen, Terminal, FileText, Trash2,
@@ -327,6 +328,8 @@ function SkillsApp() {
 // ========== PROJECTS APP ==========
 function ProjectsApp() {
   const [selectedProject, setSelectedProject] = useState(null)
+  const { i18n } = useTranslation()
+  const lf = (vi, en) => i18n.language === 'en' && en ? en : vi
   
   return (
     <>
@@ -354,7 +357,7 @@ function ProjectsApp() {
                 <span className="project-icon">{project.featured ? <Star size={20} /> : <Square size={20} />}</span>
                 <div className="project-info">
                   <h4>{project.title}</h4>
-                  <p>{project.description}</p>
+                  <p>{lf(project.description, project.descriptionEn)}</p>
                   <div className="project-tags">
                     {project.tags.slice(0, 4).map(tag => (
                       <span key={tag} className="project-tag">{tag}</span>
@@ -368,7 +371,7 @@ function ProjectsApp() {
       </div>
       <div className="window-statusbar">
         <span className="statusbar-item">{projects.length} projects</span>
-        <span className="statusbar-item">{selectedProject ? 'Double-click to open demo' : 'Select a project'}</span>
+        <span className="statusbar-item">{selectedProject ? lf('Double-click để mở demo', 'Double-click to open demo') : lf('Chọn một dự án', 'Select a project')}</span>
       </div>
     </>
   )
@@ -377,6 +380,8 @@ function ProjectsApp() {
 // ========== ABOUT APP ==========
 function AboutApp() {
   const [showAvatarModal, setShowAvatarModal] = useState(false)
+  const { i18n } = useTranslation()
+  const lf = (vi, en) => i18n.language === 'en' && en ? en : vi
   
   return (
     <div className="window-content">
@@ -391,32 +396,32 @@ function AboutApp() {
           />
           <div className="about-name">
             <h2>{personalInfo.name}</h2>
-            <p>{personalInfo.title}</p>
-            <p style={{ color: '#000080' }}>{personalInfo.tagline}</p>
+            <p>{lf(personalInfo.title, personalInfo.titleEn)}</p>
+            <p style={{ color: '#000080' }}>{lf(personalInfo.tagline, personalInfo.taglineEn)}</p>
           </div>
         </div>
         
         <div className="about-section">
-          <h3><User size={16} /> About</h3>
-          <p>{aboutMe.intro}</p>
-          <p>{aboutMe.description}</p>
+          <h3><User size={16} /> {lf('Giới thiệu', 'About')}</h3>
+          <p>{lf(aboutMe.intro, aboutMe.introEn)}</p>
+          <p>{lf(aboutMe.description, aboutMe.descriptionEn)}</p>
         </div>
         
         <div className="about-section">
-          <h3><Sparkles size={16} /> Highlights</h3>
+          <h3><Sparkles size={16} /> {lf('Điểm nổi bật', 'Highlights')}</h3>
           <ul className="about-list">
-            {aboutMe.highlights.map((h, i) => (
+            {(lf(aboutMe.highlights, aboutMe.highlightsEn) || aboutMe.highlights).map((h, i) => (
               <li key={i}>{h}</li>
             ))}
           </ul>
         </div>
         
         <div className="about-section">
-          <h3><Mail size={16} /> Contact</h3>
+          <h3><Mail size={16} /> {lf('Liên hệ', 'Contact')}</h3>
           <p><Mail size={14} /> Email: <a href={`mailto:${personalInfo.email}`}>{personalInfo.email}</a></p>
           <p><Github size={14} /> GitHub: <a href={personalInfo.github} target="_blank" rel="noopener noreferrer">{personalInfo.github}</a></p>
           <p><Linkedin size={14} /> LinkedIn: <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
-          <p><MapPin size={14} /> Location: {personalInfo.location}</p>
+          <p><MapPin size={14} /> {lf('Vị trí', 'Location')}: {lf(personalInfo.location, personalInfo.locationEn)}</p>
         </div>
       </div>
       
@@ -439,6 +444,8 @@ function AboutApp() {
 
 // ========== RECYCLE BIN APP ==========
 function RecycleApp() {
+  const { i18n } = useTranslation()
+  const lf = (vi, en) => i18n.language === 'en' && en ? en : vi
   return (
     <>
       <div className="window-menubar">
@@ -450,15 +457,15 @@ function RecycleApp() {
       <div className="window-content">
         <div className="recycle-content">
           <p style={{ padding: '10px', color: '#666', fontSize: 12 }}>
-            These projects didn't make it... but we learned from them!
+            {lf('Những dự án không may mắn... nhưng đã cho mình nhiều bài học!', "These projects didn't make it... but we learned from them!")}
           </p>
           {RECYCLED_PROJECTS.map(item => (
             <div key={item.id} className="recycle-item">
               <span className="recycle-icon"><FileText size={20} /></span>
               <div className="recycle-info">
                 <div className="filename">{item.name}</div>
-                <div className="reason">{item.reason}</div>
-                <div className="date">Deleted: {item.date}</div>
+                <div className="reason">{lf(item.reason, item.reasonEn)}</div>
+                <div className="date">{lf('Xóa:', 'Deleted:')} {item.date}</div>
               </div>
             </div>
           ))}
@@ -466,7 +473,7 @@ function RecycleApp() {
       </div>
       <div className="window-statusbar">
         <span className="statusbar-item">{RECYCLED_PROJECTS.length} items</span>
-        <span className="statusbar-item">At least we tried!</span>
+        <span className="statusbar-item">{lf('Ít nhất mình đã thử!', 'At least we tried!')}</span>
       </div>
     </>
   )
