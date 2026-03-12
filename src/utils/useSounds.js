@@ -216,6 +216,83 @@ const soundGenerators = {
     })
   },
   
+  // Character - bubble pop
+  charPop: (ctx, volume) => {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(200, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.08)
+    gain.gain.setValueAtTime(volume * 0.25, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.08)
+  },
+
+  // Character - happy ding
+  charHappy: (ctx, volume) => {
+    ;[880, 1100].forEach((freq) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(freq, ctx.currentTime)
+      gain.gain.setValueAtTime(volume * 0.18, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.15)
+    })
+  },
+
+  // Character - angry buzz
+  charAngry: (ctx, volume) => {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'square'
+    osc.frequency.setValueAtTime(120, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.2)
+    gain.gain.setValueAtTime(volume * 0.20, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.2)
+  },
+
+  // Character - shy hmm
+  charShy: (ctx, volume) => {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(300, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.2)
+    gain.gain.setValueAtTime(volume * 0.12, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.2)
+  },
+
+  // Character - tired sigh
+  charTired: (ctx, volume) => {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(250, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3)
+    gain.gain.setValueAtTime(volume * 0.15, ctx.currentTime)
+    gain.gain.linearRampToValueAtTime(volume * 0.08, ctx.currentTime + 0.15)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.3)
+  },
+
   // Whoosh - for transitions
   whoosh: (ctx, volume) => {
     const bufferSize = ctx.sampleRate * 0.2

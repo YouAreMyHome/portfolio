@@ -121,5 +121,15 @@
   "app": {
     "touch_interact": "Touch to interact",
     "swipe_rotate": "Swipe to rotate"
+  },
+  "pixelPerson": {
+    "m0": "Hey! I'm Nghia, the owner\nof this room!",
+    "m1": "I'm a dev. I love building\nthings beautiful & meaningful.",
+    "m2": "Hobbies: music, late-night\ncoding, and black coffee",
+    "m3": "Working on frontend.\nReact & Three.js – so fun!",
+    "m4": "There's someone I like...\nbut I'll keep it to myself",
+    "m5": "I'm tired... can you\nstop clicking?",
+    "m6": "Oh my!!!\nSo many clicks!!!",
+    "m7": "Sorry... I'm calm now.\nNot mad at you at all"
   }
 }

@@ -121,5 +121,15 @@
   "app": {
     "touch_interact": "Chạm để tương tác",
     "swipe_rotate": "Vuốt để xoay"
+  },
+  "pixelPerson": {
+    "m0": "Hey! Mình là Nghia, chủ nhân\ncăn phòng này!",
+    "m1": "Mình là dev. Thích xây\nthứ gì đó đẹp & có ý nghĩa.",
+    "m2": "Sở thích: nghe nhạc,\ncode đêm, và cà phê đen",
+    "m3": "Đang làm frontend.\nReact, Three.js – thú vị lắm!",
+    "m4": "Có người mình thích...\nnhưng để bụng thôi",
+    "m5": "Mệt rồi... bạn có thể\nnghỉ click không?",
+    "m6": "Trời ơi!!!\nClick nhiều vậy!!!",
+    "m7": "Xin lỗi... bình tĩnh rồi.\nKhông giận bạn đâu"
   }
 }

@@ -20,6 +20,7 @@ import PlanBoard from './PlanBoard'
 import WallDecorations from './WallDecorations'
 import FloorDetails from './FloorDetails'
 import RecordPlayer from './RecordPlayer'
+import PixelPerson from './PixelPerson'
 
 /**
  * Room Component - Phase 3: Interaction & Logic
@@ -102,6 +103,12 @@ function Room() {
       <InteractiveObject name="cat" onClick={clickCat} hoverLift={0.12}>
         <Cat position={[0.3, 0.05, 0.5]} scale={0.8} />
       </InteractiveObject>
+
+      {/* Pixel Person - Owner avatar standing in room */}
+      <PixelPerson 
+  position={[1.6, 0, 1.2]} 
+  rotation={[0, 0.185, 0]} 
+/>
       
       {/* Contact Shadows - soft ground shadows */}
       <ContactShadows
