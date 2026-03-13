@@ -94,7 +94,7 @@ export const projects = [
     duration: "4 tháng",
     durationEn: "4 months",
     github: "https://github.com/Waito3007/SHNGear.git",
-    demo: "https://shn-gear.vercel.app",
+    demo: "https://github.com/Waito3007/SHNGear.git",
     featured: true,
   },
   {
@@ -128,7 +128,7 @@ export const projects = [
     duration: "3 tháng",
     durationEn: "3 months",
     github: "https://github.com/Waito3007/WEB-DAT-PHONG.git",
-    demo: "https://web-dat-phong.vercel.app",
+    demo: "https://github.com/Waito3007/WEB-DAT-PHONG.git",
     featured: true,
   },
   {
