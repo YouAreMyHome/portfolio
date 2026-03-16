@@ -78,7 +78,9 @@ function Scene({ isNightMode, graphics = {} }) {
   const {
     softShadows = true,
     postProcessing = true,
-    aoSamples = 16,
+    shadowSamples = 16,
+    shadowSize = 25,
+    composerMultisampling = 4,
     bloomIntensity = 0.35
   } = graphics
   
@@ -88,14 +90,14 @@ function Scene({ isNightMode, graphics = {} }) {
       <color attach="background" args={[isNightMode ? '#0f172a' : '#f0f0f0']} />
       
       {/* Soft Shadows - conditional for mobile */}
-      {softShadows && <SoftShadows size={25} samples={16} focus={0.5} />}
+      {softShadows && <SoftShadows size={shadowSize} samples={shadowSamples} focus={0.5} />}
       
       <Suspense fallback={null}>
         {/* Dynamic Lighting */}
         <SceneLighting />
         
         {/* Room */}
-        <Room />
+        <Room graphics={graphics} />
         
         {/* Camera Controller - animate camera for TV view */}
         <CameraController controlsRef={controlsRef} />
@@ -124,7 +126,7 @@ function Scene({ isNightMode, graphics = {} }) {
         
         {/* Post-processing Effects - conditional for mobile */}
         {postProcessing && (
-          <EffectComposer>
+          <EffectComposer multisampling={composerMultisampling}>
             {/* Bloom - phát sáng cho cửa sổ, màn hình và đèn */}
             <Bloom 
               intensity={isNightMode ? 0.5 : bloomIntensity}

@@ -11,7 +11,7 @@ import {
   Palette, Server, Wrench,
   Briefcase, GraduationCap,
   Dice5, Music, Droplets, Timer,
-  Mail, Github, Linkedin, MapPin,
+  Mail, Github, Linkedin, MapPin, Phone,
   Cat, PartyPopper,
   BookOpen, Book, Sparkles, AlertTriangle
 } from 'lucide-react'
@@ -425,6 +425,10 @@ function ContactPanel({ isNightMode }) {
         <a href={`mailto:${personalInfo.email}`} className="contact-item">
           <span className="contact-icon"><Mail size={20} /></span>
           <span>{personalInfo.email}</span>
+        </a>
+        <a href={`tel:${personalInfo.phone}`} className="contact-item">
+          <span className="contact-icon"><Phone size={20} /></span>
+          <span>{personalInfo.phone}</span>
         </a>
         <a href={personalInfo.github} target="_blank" rel="noopener noreferrer" className="contact-item">
           <span className="contact-icon"><Github size={20} /></span>

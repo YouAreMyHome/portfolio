@@ -7,6 +7,7 @@ export const personalInfo = {
   tagline: "Full-stack Developer • Three.js • React • Node.js",
   taglineEn: "Full-stack Developer • Three.js • React • Node.js",
   email: "ltn66441@gmail.com",
+  phone: "(+84) 0778706084",
   github: "https://github.com/YouAreMyHome",
   linkedin: "https://www.linkedin.com/in/youaremyhome/",
   website: "https://letrongnghia.me",

@@ -34,12 +34,20 @@ import PixelPerson from './PixelPerson'
  * - Cat → Easter Egg
  */
 
-function Room() {
+function Room({ graphics = {} }) {
   const roomRef = useRef()
   const toggleNightMode = useStore((state) => state.toggleNightMode)
   const clickCat = useStore((state) => state.clickCat)
   const toggleRecordPlayer = useStore((state) => state.toggleRecordPlayer)
   const toggleClockTime = useStore((state) => state.toggleClockTime)
+
+  const {
+    contactShadows = true,
+    contactShadowFramesMain = 120,
+    contactShadowFramesRug = 80,
+    contactShadowResolutionMain = 512,
+    contactShadowResolutionRug = 256
+  } = graphics
 
   return (
     <group ref={roomRef}>
@@ -110,29 +118,33 @@ function Room() {
   rotation={[0, 0.185, 0]} 
 />
       
-      {/* Contact Shadows - soft ground shadows */}
-      <ContactShadows
-        position={[0, 0.002, 0]}
-        opacity={0.55}
-        scale={20}
-        blur={2}
-        far={1.8}
-        resolution={512}
-        color="#000000"
-        frames={Infinity}
-      />
-      
-      {/* Additional contact shadow on top of main rug */}
-      <ContactShadows
-        position={[0, 0.048, 0]}
-        opacity={0.35}
-        scale={4}
-        blur={1.5}
-        far={0.8}
-        resolution={256}
-        color="#1a1a1a"
-        frames={Infinity}
-      />
+      {/* Contact shadows cập nhật hữu hạn để giảm GPU load. */}
+      {contactShadows && (
+        <>
+          <ContactShadows
+            position={[0, 0.002, 0]}
+            opacity={0.55}
+            scale={20}
+            blur={2}
+            far={1.8}
+            resolution={contactShadowResolutionMain}
+            color="#000000"
+            frames={contactShadowFramesMain}
+          />
+
+          {/* Additional contact shadow on top of main rug */}
+          <ContactShadows
+            position={[0, 0.048, 0]}
+            opacity={0.35}
+            scale={4}
+            blur={1.5}
+            far={0.8}
+            resolution={contactShadowResolutionRug}
+            color="#1a1a1a"
+            frames={contactShadowFramesRug}
+          />
+        </>
+      )}
     </group>
   )
 }

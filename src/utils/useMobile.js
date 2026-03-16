@@ -61,19 +61,71 @@ export function useMobile() {
  * Full quality for all devices
  */
 export function getGraphicsSettings(isMobile, isTablet) {
-  // Full quality for all devices - same as desktop
-  const fullQuality = {
+  const dpr = window.devicePixelRatio || 1
+
+  // Mobile ưu tiên FPS ổn định, giảm các hiệu ứng nặng GPU.
+  if (isMobile) {
+    return {
+      shadows: false,
+      postProcessing: false,
+      pixelRatio: Math.min(dpr, 1.15),
+      antialias: false,
+      aoSamples: 4,
+      bloomIntensity: 0.22,
+      softShadows: false,
+      shadowSamples: 4,
+      shadowSize: 16,
+      contactShadows: false,
+      contactShadowFramesMain: 1,
+      contactShadowFramesRug: 1,
+      contactShadowResolutionMain: 256,
+      contactShadowResolutionRug: 128,
+      composerMultisampling: 0,
+      zoom: 55
+    }
+  }
+
+  // Tablet giữ phần lớn trải nghiệm visual nhưng giới hạn chi phí render.
+  if (isTablet) {
+    return {
+      shadows: true,
+      postProcessing: true,
+      pixelRatio: Math.min(dpr, 1.5),
+      antialias: true,
+      aoSamples: 8,
+      bloomIntensity: 0.28,
+      softShadows: false,
+      shadowSamples: 8,
+      shadowSize: 20,
+      contactShadows: true,
+      contactShadowFramesMain: 60,
+      contactShadowFramesRug: 40,
+      contactShadowResolutionMain: 384,
+      contactShadowResolutionRug: 192,
+      composerMultisampling: 2,
+      zoom: 65
+    }
+  }
+
+  // Desktop giữ chất lượng cao.
+  return {
     shadows: true,
     postProcessing: true,
-    pixelRatio: Math.min(window.devicePixelRatio, 2),
+    pixelRatio: Math.min(dpr, 2),
     antialias: true,
     aoSamples: 16,
     bloomIntensity: 0.35,
     softShadows: true,
-    zoom: isMobile ? 55 : isTablet ? 65 : 80  // Only adjust zoom for screen size
+    shadowSamples: 16,
+    shadowSize: 25,
+    contactShadows: true,
+    contactShadowFramesMain: 120,
+    contactShadowFramesRug: 80,
+    contactShadowResolutionMain: 512,
+    contactShadowResolutionRug: 256,
+    composerMultisampling: 4,
+    zoom: 80
   }
-  
-  return fullQuality
 }
 
 export default useMobile
