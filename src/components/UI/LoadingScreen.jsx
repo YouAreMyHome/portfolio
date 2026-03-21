@@ -1,25 +1,30 @@
-import { useProgress } from '@react-three/drei'
 import { useEffect, useState, useRef } from 'react'
 import { Terminal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { track } from '@vercel/analytics'
 import { useSounds } from '../../utils/useSounds'
 import useStore from '../../store/useStore'
+import { mark, measure } from '../../utils/loadingMetrics'
 import './LoadingScreen.css'
 
 /**
  * LoadingScreen — Màn hình loading chính xác
  *
- * Logic progress 3 giai đoạn:
- *  1. 0 → 85%  : fake staged animation trong khi scene đang khởi tạo
- *  2. 85 → 100%: chỉ xảy ra khi isSceneReady = true (frame đầu tiên render)
- *  3. Tối thiểu hiển thị 1.5s để tránh flash trên máy nhanh
+ * Logic progress:
+ *  1. Theo dõi assets critical đã settle (loaded hoặc failed)
+ *  2. Chờ frame scene đầu tiên render xong
+ *  3. Chỉ complete khi qua min display time để tránh flash
  */
 
-const MIN_DISPLAY_MS = 1500 // Tối thiểu hiển thị loading
-
 function LoadingScreen() {
-  const { progress, loaded, total } = useProgress()
   const isSceneReady = useStore((state) => state.isSceneReady)
+  const isCriticalAssetsReady = useStore((state) => state.isCriticalAssetsReady)
+  const criticalAssetsTotal = useStore((state) => state.criticalAssetsTotal)
+  const criticalAssetsLoaded = useStore((state) => state.criticalAssetsLoaded)
+  const criticalAssetsFailed = useStore((state) => state.criticalAssetsFailed)
+  const loadingStartedAt = useStore((state) => state.loadingStartedAt)
+  const loadingMinDisplayMs = useStore((state) => state.loadingMinDisplayMs)
+  const setLoadingMetrics = useStore((state) => state.setLoadingMetrics)
   const { playSuccess } = useSounds()
 
   const { t } = useTranslation()
@@ -31,39 +36,28 @@ function LoadingScreen() {
   const startTimeRef = useRef(Date.now())
   const playedSuccessRef = useRef(false)
 
-  // Có assets drei thực (GLTF, texture…) hay không
-  const hasRealAssets = total > 0
+  useEffect(() => {
+    if (loadingStartedAt > 0) {
+      startTimeRef.current = loadingStartedAt
+    }
+  }, [loadingStartedAt])
 
   // ── Animate progress ─────────────────────────────────────────────────────
   useEffect(() => {
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current
-      const minPassed = elapsed >= MIN_DISPLAY_MS
+      const minPassed = elapsed >= loadingMinDisplayMs
+      const settledAssets = criticalAssetsLoaded + criticalAssetsFailed
+      const totalSteps = Math.max(1, criticalAssetsTotal + 2)
+      const completedSteps =
+        settledAssets +
+        (isSceneReady ? 1 : 0) +
+        (minPassed ? 1 : 0)
+      const stepProgress = (Math.min(totalSteps, completedSteps) / totalSteps) * 100
 
       setDisplayProgress(prev => {
-        let target
-
-        if (hasRealAssets) {
-          // Có assets thực: theo drei progress, nhưng giữ ≤95% cho đến khi scene sẵn sàng
-          target = (isSceneReady && minPassed) ? 100 : Math.min(95, progress)
-        } else {
-          // Scene procedural (không có assets): fake staged progress
-          //  0–0.8s  : 0  → 40%  (khởi tạo nhanh)
-          //  0.8–2s  : 40 → 72%  (setup Three.js, compile shaders)
-          //  2–3.5s  : 72 → 85%  (chờ scene render — cap ở đây)
-          //  khi isSceneReady + minPassed → 100%
-          const t = elapsed / 1000 // giây
-          let fakeBase
-          if (t < 0.8) {
-            fakeBase = (t / 0.8) * 40
-          } else if (t < 2) {
-            fakeBase = 40 + ((t - 0.8) / 1.2) * 32
-          } else {
-            fakeBase = 72 + Math.min(13, ((t - 2) / 1.5) * 13)
-          }
-
-          target = (isSceneReady && minPassed) ? 100 : Math.min(85, fakeBase)
-        }
+        const isReadyToComplete = isSceneReady && isCriticalAssetsReady && minPassed
+        const target = isReadyToComplete ? 100 : Math.min(99, stepProgress)
 
         const diff = target - prev
         if (Math.abs(diff) < 0.15) return target
@@ -78,26 +72,41 @@ function LoadingScreen() {
 
     animationRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(animationRef.current)
-  }, [isSceneReady, hasRealAssets, progress])
+  }, [
+    isSceneReady,
+    isCriticalAssetsReady,
+    criticalAssetsTotal,
+    criticalAssetsLoaded,
+    criticalAssetsFailed,
+    loadingMinDisplayMs,
+  ])
 
   // ── Loading text theo elapsed time (tự nhiên hơn theo %): ────────────────
   useEffect(() => {
-    if (displayProgress < 20) {
+    const settledAssets = criticalAssetsLoaded + criticalAssetsFailed
+    const settledRatio = criticalAssetsTotal > 0 ? settledAssets / criticalAssetsTotal : 0
+
+    if (criticalAssetsFailed > 0 && settledRatio >= 1) {
+      setLoadingStageKey('sFallback')
+      return
+    }
+
+    if (settledRatio < 0.15) {
       setLoadingStageKey('s0')
-    } else if (displayProgress < 38) {
+    } else if (settledRatio < 0.35) {
       setLoadingStageKey('s20')
-    } else if (displayProgress < 56) {
+    } else if (settledRatio < 0.55) {
       setLoadingStageKey('s38')
-    } else if (displayProgress < 72) {
+    } else if (settledRatio < 0.75) {
       setLoadingStageKey('s56')
-    } else if (displayProgress < 86) {
+    } else if (settledRatio < 1) {
       setLoadingStageKey('s72')
-    } else if (displayProgress < 99) {
+    } else if (!isSceneReady || !isCriticalAssetsReady) {
       setLoadingStageKey('s86')
     } else {
       setLoadingStageKey('s100')
     }
-  }, [displayProgress])
+  }, [criticalAssetsLoaded, criticalAssetsFailed, criticalAssetsTotal, isSceneReady, isCriticalAssetsReady])
 
   // ── Kết thúc loading khi xong ────────────────────────────────────────────
   const isLoaded = displayProgress >= 99
@@ -106,6 +115,29 @@ function LoadingScreen() {
     if (isLoaded) {
       if (!playedSuccessRef.current) {
         playedSuccessRef.current = true
+        mark('loading:ui-hidden')
+
+        const totalMs = measure('loading:total', 'loading:start', 'loading:ui-hidden')
+        const preloadMs = measure('loading:preload', 'loading:preload-start', 'loading:preload-done')
+        const waitFrameMs = measure('loading:wait-first-frame', 'loading:preload-done', 'loading:first-frame')
+
+        setLoadingMetrics((prev) => ({
+          ...(prev || {}),
+          totalMs,
+          preloadMs,
+          waitFrameMs,
+          failedAssets: criticalAssetsFailed,
+          totalAssets: criticalAssetsTotal,
+        }))
+
+        track('loading_completed', {
+          total_ms: totalMs,
+          preload_ms: preloadMs,
+          wait_first_frame_ms: waitFrameMs,
+          critical_failed: criticalAssetsFailed,
+          critical_total: criticalAssetsTotal,
+        })
+
         playSuccess()
       }
       const hideTimer = setTimeout(() => setHideAll(true), 450)
@@ -113,11 +145,30 @@ function LoadingScreen() {
         clearTimeout(hideTimer)
       }
     }
-  }, [isLoaded, playSuccess])
+  }, [
+    isLoaded,
+    playSuccess,
+    setLoadingMetrics,
+    criticalAssetsFailed,
+    criticalAssetsTotal,
+  ])
   
   if (hideAll) return null
   
   const roundedProgress = Math.round(displayProgress)
+  const settledAssets = criticalAssetsLoaded + criticalAssetsFailed
+  const hasFailures = criticalAssetsFailed > 0
+  const elapsed = Date.now() - startTimeRef.current
+  const minPassed = elapsed >= loadingMinDisplayMs
+  const totalSteps = Math.max(1, criticalAssetsTotal + 2)
+  const actualCompletedSteps = Math.min(
+    totalSteps,
+    settledAssets + (isSceneReady ? 1 : 0) + (minPassed ? 1 : 0)
+  )
+  const visibleCompletedSteps = Math.min(
+    actualCompletedSteps,
+    Math.max(0, Math.round((roundedProgress / 100) * totalSteps))
+  )
   
   return (
     <div className="loading-screen">
@@ -146,7 +197,7 @@ function LoadingScreen() {
             <div className="loading-progress-track">
               <div
                 className="loading-progress-fill"
-                style={{ width: `${roundedProgress}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, displayProgress))}%` }}
               >
                 <div className="loading-progress-scan"></div>
               </div>
@@ -155,10 +206,10 @@ function LoadingScreen() {
           </div>
 
           <div className="loading-meta">
-            <span>{hasRealAssets ? `${loaded}/${total}_ASSETS` : 'SECTOR_01_MAP'}</span>
+            <span>{`${visibleCompletedSteps}/${totalSteps}_PIPELINE_STEPS`}</span>
             <div>
               <span className="loading-live-dot">●</span>
-              <span>STATUS: ONLINE</span>
+              <span>{hasFailures ? `STATUS: FALLBACK_${criticalAssetsFailed}` : 'STATUS: ONLINE'}</span>
             </div>
           </div>
         </div>

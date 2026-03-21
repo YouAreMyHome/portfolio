@@ -16,6 +16,9 @@ import TransitionOverlay from './components/UI/TransitionOverlay'
 import useStore from './store/useStore'
 import { useSounds } from './utils/useSounds'
 import { useMobile, getGraphicsSettings } from './utils/useMobile'
+import { IMAGES } from './data/images'
+import { preloadImages } from './utils/preloadImages'
+import { clearLoadingMarks, mark, measure } from './utils/loadingMetrics'
 
 // Lazy load UI overlay components
 const PanelOverlay = lazy(() => import('./components/UI/PanelOverlay'))
@@ -68,7 +71,10 @@ function Scene({ isNightMode, graphics = {} }) {
 
   // Bắt tín hiệu frame đầu tiên render xong
   useFrame(() => {
-    if (!isSceneReady) setSceneReady()
+    if (!isSceneReady) {
+      mark('loading:first-frame')
+      setSceneReady()
+    }
   })
   
   // Disable controls when viewing TV
@@ -150,8 +156,99 @@ function Scene({ isNightMode, graphics = {} }) {
 
 function AppContent() {
   const isNightMode = useStore((state) => state.isNightMode)
+  const isSceneReady = useStore((state) => state.isSceneReady)
+  const isCriticalAssetsReady = useStore((state) => state.isCriticalAssetsReady)
+  const startLoadingSession = useStore((state) => state.startLoadingSession)
+  const setCriticalAssetsTotal = useStore((state) => state.setCriticalAssetsTotal)
+  const markCriticalAssetLoaded = useStore((state) => state.markCriticalAssetLoaded)
+  const markCriticalAssetFailed = useStore((state) => state.markCriticalAssetFailed)
+  const setCriticalAssetsReady = useStore((state) => state.setCriticalAssetsReady)
+  const setLoadingMetrics = useStore((state) => state.setLoadingMetrics)
   const { isMobile, isTablet, isTouchDevice } = useMobile()
   const graphics = getGraphicsSettings(isMobile, isTablet)
+
+  useEffect(() => {
+    const connectionType = navigator.connection?.effectiveType || '4g'
+    const saveData = navigator.connection?.saveData
+    const minDisplayMs = (saveData || connectionType === '2g' || connectionType === 'slow-2g') ? 1800 : 1200
+
+    const criticalAssets = [
+      ...IMAGES.gallery,
+      IMAGES.polaroid1,
+      IMAGES.polaroid2,
+      IMAGES.frame1,
+    ]
+
+    const uniqueAssets = [...new Set(criticalAssets.filter(Boolean))]
+
+    clearLoadingMarks()
+    mark('loading:start')
+    mark('loading:preload-start')
+
+    startLoadingSession({ total: uniqueAssets.length, minDisplayMs })
+    setCriticalAssetsTotal(uniqueAssets.length)
+
+    let cancelled = false
+
+    const runPreload = async () => {
+      await preloadImages(uniqueAssets, {
+        timeoutMs: isMobile ? 4000 : 3000,
+        retries: 2,
+        onAssetSettled: (result) => {
+          if (cancelled) return
+          if (result.ok) {
+            markCriticalAssetLoaded()
+          } else {
+            markCriticalAssetFailed()
+          }
+        },
+      })
+
+      if (!cancelled) {
+        mark('loading:preload-done')
+        // Failed assets vẫn được phép vào app vì component có fallback material.
+        setCriticalAssetsReady(true)
+      }
+    }
+
+    runPreload()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    isMobile,
+    startLoadingSession,
+    setCriticalAssetsTotal,
+    markCriticalAssetLoaded,
+    markCriticalAssetFailed,
+    setCriticalAssetsReady,
+    setLoadingMetrics,
+  ])
+
+  useEffect(() => {
+    if (!isSceneReady || !isCriticalAssetsReady) return
+
+    const preloadMs = measure('loading:preload', 'loading:preload-start', 'loading:preload-done')
+    const waitFrameMs = measure('loading:wait-first-frame', 'loading:preload-done', 'loading:first-frame')
+
+    setLoadingMetrics((prev) => ({
+      ...(prev || {}),
+      preloadMs,
+      waitFrameMs,
+    }))
+  }, [isSceneReady, isCriticalAssetsReady, setLoadingMetrics])
+
+  useEffect(() => {
+    if (!isSceneReady || !isCriticalAssetsReady) return
+
+    // Warm up lazy chunks để giảm dead-click khi mở panel lần đầu.
+    import('./components/UI/PanelOverlay')
+    import('./components/UI/TVGameOverlay')
+    import('./components/UI/KanbanOverlay')
+    import('./components/UI/MusicPlayer')
+    import('./components/UI/PolaroidLightbox')
+  }, [isSceneReady, isCriticalAssetsReady])
   
   return (
     <div className="w-full h-full" style={{ 
@@ -186,20 +283,24 @@ function AppContent() {
       </Canvas>
       </WebGLErrorBoundary>
       
-      {/* HTML Overlay Panels */}
-      <PanelOverlay />
-      
-      {/* TV Game Overlay - Retro game console */}
-      <TVGameOverlay />
-      
-      {/* Kanban Board Overlay */}
-      <KanbanOverlay />
+      <Suspense fallback={<OverlayFallback />}>
+        {/* HTML Overlay Panels */}
+        <PanelOverlay />
+        
+        {/* TV Game Overlay - Retro game console */}
+        <TVGameOverlay />
+        
+        {/* Kanban Board Overlay */}
+        <KanbanOverlay />
+      </Suspense>
       
       {/* HUD */}
       <HUD isTouchDevice={isTouchDevice} />
       
-      {/* Music Player - Spotify style, background playback */}
-      <MusicPlayer />
+      <Suspense fallback={<OverlayFallback />}>
+        {/* Music Player - Spotify style, background playback */}
+        <MusicPlayer />
+      </Suspense>
       
       {/* Clock Time Display */}
       <ClockTimeDisplay />
@@ -210,14 +311,36 @@ function AppContent() {
       {/* Loading Screen */}
       <LoadingScreen />
       
-      {/* Polaroid Lightbox */}
-      <PolaroidLightbox />
+      <Suspense fallback={<OverlayFallback />}>
+        {/* Polaroid Lightbox */}
+        <PolaroidLightbox />
+      </Suspense>
       
       {/* Mobile touch hint */}
       {isTouchDevice && <MobileTouchHint />}
       
       {/* Vercel Analytics */}
       <Analytics />
+    </div>
+  )
+}
+
+function OverlayFallback() {
+  return (
+    <div style={{
+      position: 'fixed',
+      right: 12,
+      bottom: 12,
+      zIndex: 80,
+      fontSize: 12,
+      color: '#94a3b8',
+      background: 'rgba(2, 6, 23, 0.65)',
+      border: '1px solid rgba(148, 163, 184, 0.3)',
+      padding: '6px 10px',
+      borderRadius: 8,
+      pointerEvents: 'none',
+    }}>
+      Loading UI...
     </div>
   )
 }

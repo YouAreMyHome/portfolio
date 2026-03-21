@@ -1,4 +1,5 @@
-import { useTexture } from '@react-three/drei'
+import { useEffect, useState } from 'react'
+import * as THREE from 'three'
 import { COLORS } from './colors'
 import InteractiveObject from './InteractiveObject'
 import DigitalGallery from './DigitalGallery'
@@ -78,6 +79,44 @@ function LightSwitch({ position, isOn, onToggle }) {
   )
 }
 
+function useSafeTexture(url) {
+  const [texture, setTexture] = useState(null)
+
+  useEffect(() => {
+    if (!url) {
+      setTexture(null)
+      return
+    }
+
+    let active = true
+    const loader = new THREE.TextureLoader()
+
+    loader.load(
+      url,
+      (loadedTexture) => {
+        loadedTexture.colorSpace = THREE.SRGBColorSpace
+        loadedTexture.minFilter = THREE.LinearFilter
+        loadedTexture.magFilter = THREE.LinearFilter
+        if (active) {
+          setTexture(loadedTexture)
+        } else {
+          loadedTexture.dispose()
+        }
+      },
+      undefined,
+      () => {
+        if (active) setTexture(null)
+      }
+    )
+
+    return () => {
+      active = false
+    }
+  }, [url])
+
+  return texture
+}
+
 /**
  * Polaroid - Ảnh polaroid/frame treo tường
  * Click để phóng to xem ảnh
@@ -93,7 +132,7 @@ function Polaroid({
   frameColor = "#f5f5f0"      // Màu frame
 }) {
   const openPolaroid = useStore((state) => state.openPolaroid)
-  const texture = useTexture(imagePath)
+  const texture = useSafeTexture(imagePath)
   
   const handleClick = () => {
     const gallery = allImages ?? [imagePath]
@@ -117,7 +156,10 @@ function Polaroid({
           {/* Photo area */}
           <mesh position={[0, photoOffsetY, 0.007]}>
             <planeGeometry args={size} />
-            <meshBasicMaterial map={texture} />
+            <meshBasicMaterial
+              map={texture || null}
+              color={texture ? '#ffffff' : '#334155'}
+            />
           </mesh>
         </group>
       </group>

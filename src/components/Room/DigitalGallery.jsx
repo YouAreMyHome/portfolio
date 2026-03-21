@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import InteractiveObject from './InteractiveObject'
 
@@ -43,25 +42,53 @@ function DigitalGallery({
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [texturesLoaded, setTexturesLoaded] = useState(false)
+  const [textureArray, setTextureArray] = useState([])
   const frameRef = useRef()
   const screenRef = useRef()
   const glowRef = useRef()
+  const imageCount = GALLERY_IMAGES.length
   
-  // Load textures
-  const textures = useTexture(GALLERY_IMAGES, (loadedTextures) => {
-    // Configure textures
-    const textureArray = Array.isArray(loadedTextures) ? loadedTextures : [loadedTextures]
-    textureArray.forEach(tex => {
-      tex.colorSpace = THREE.SRGBColorSpace
-      tex.minFilter = THREE.LinearFilter
-      tex.magFilter = THREE.LinearFilter
+  useEffect(() => {
+    if (imageCount === 0) {
+      setTexturesLoaded(true)
+      return
+    }
+
+    let active = true
+    const loader = new THREE.TextureLoader()
+    const loadedTextures = new Array(imageCount).fill(null)
+    let settled = 0
+
+    GALLERY_IMAGES.forEach((url, index) => {
+      loader.load(
+        url,
+        (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace
+          texture.minFilter = THREE.LinearFilter
+          texture.magFilter = THREE.LinearFilter
+          loadedTextures[index] = texture
+          settled += 1
+
+          if (active && settled === imageCount) {
+            setTextureArray(loadedTextures)
+            setTexturesLoaded(true)
+          }
+        },
+        undefined,
+        () => {
+          settled += 1
+          if (active && settled === imageCount) {
+            setTextureArray(loadedTextures)
+            setTexturesLoaded(true)
+          }
+        }
+      )
     })
-    setTexturesLoaded(true)
-  })
-  
-  const textureArray = useMemo(() => {
-    return Array.isArray(textures) ? textures : [textures]
-  }, [textures])
+
+    return () => {
+      active = false
+    }
+  }, [imageCount])
   
   // Auto slideshow
   useEffect(() => {
@@ -76,11 +103,11 @@ function DigitalGallery({
   
   // Chuyển ảnh tiếp theo
   const nextImage = () => {
-    if (isTransitioning) return
+    if (isTransitioning || imageCount === 0) return
     
     setIsTransitioning(true)
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % textureArray.length)
+      setCurrentIndex((prev) => (prev + 1) % imageCount)
       setIsTransitioning(false)
     }, 300)
   }
@@ -184,8 +211,8 @@ function DigitalGallery({
         
         {/* Navigation indicator dots */}
         <group position={[0, -screenHeight/2 - 0.03, 0.033]}>
-          {textureArray.map((_, idx) => (
-            <mesh key={idx} position={[(idx - (textureArray.length - 1) / 2) * 0.04, 0, 0]}>
+          {Array.from({ length: imageCount }).map((_, idx) => (
+            <mesh key={idx} position={[(idx - (imageCount - 1) / 2) * 0.04, 0, 0]}>
               <circleGeometry args={[0.008, 8]} />
               <meshBasicMaterial 
                 color={idx === currentIndex ? '#00ffff' : '#333333'}
