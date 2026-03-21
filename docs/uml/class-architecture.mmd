@@ -1,0 +1,125 @@
+classDiagram
+  class App {
+    +render()
+  }
+
+  class Scene {
+    +setSceneReady()
+  }
+
+  class Room {
+    +renderObjects()
+  }
+
+  class InteractiveObject {
+    +name: string
+    +panelId: string
+    +handlePointerOver()
+    +handlePointerOut()
+    +handleClick()
+  }
+
+  class PanelOverlay {
+    +renderPanel()
+    +handleClose()
+  }
+
+  class TVGameOverlay {
+    +simulateKey()
+    +handleExit()
+  }
+
+  class TVScreen {
+    +currentScreen: string
+    +selectedGame: number
+    +startGame(gameId)
+    +restartGame()
+    +handleGameOver()
+  }
+
+  class GAME_REGISTRY {
+    +getGameList()
+    +getGame(id)
+    +loadGameScore(gameId)
+    +saveGameScore(gameId, score)
+  }
+
+  class useStore {
+    +activePanel: string
+    +isNightMode: boolean
+    +hoveredObject: string
+    +setActivePanel(panel)
+    +closePanel()
+    +toggleNightMode()
+    +openPolaroid(images)
+  }
+
+  class useSoundStore {
+    +isMuted: boolean
+    +volume: number
+    +toggleMute()
+    +setVolume(volume)
+  }
+
+  class HUD {
+    +toggleLanguage()
+    +toggleMute()
+  }
+
+  class MusicPlayer {
+    +playPause()
+    +nextTrack()
+    +prevTrack()
+    +seek(time)
+  }
+
+  class PolaroidLightbox {
+    +nextImage()
+    +prevImage()
+    +close()
+  }
+
+  class PortfolioOS
+  class I18nService
+  class EmailJSService
+  class AnalyticsService
+  class LocalStorageService
+  class PortfolioData
+  class PlaylistData
+  class ImagesData
+
+  App *-- Scene
+  App *-- PanelOverlay
+  App *-- TVGameOverlay
+  App *-- HUD
+  App *-- MusicPlayer
+  App *-- PolaroidLightbox
+
+  Scene *-- Room
+  Room *-- InteractiveObject
+  Room *-- TVScreen
+
+  App ..> useStore
+  Scene ..> useStore
+  Room ..> useStore
+  InteractiveObject ..> useStore
+  PanelOverlay ..> useStore
+  TVGameOverlay ..> useStore
+
+  HUD ..> useSoundStore
+  HUD ..> I18nService
+
+  PanelOverlay ..> PortfolioOS
+  PanelOverlay ..> PortfolioData
+  PanelOverlay ..> EmailJSService
+
+  MusicPlayer ..> PlaylistData
+  PolaroidLightbox ..> ImagesData
+
+  TVScreen --> GAME_REGISTRY
+  TVScreen ..> AnalyticsService
+
+  useStore ..> AnalyticsService
+  useStore ..> LocalStorageService
+
+  GAME_REGISTRY ..> LocalStorageService

@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+
+actor "Visitor\n(Nguoi choi)" as Visitor
+actor "Keyboard/Touch Input" as Input
+actor "LocalStorage Service" as Storage
+actor "Vercel Analytics" as Analytics
+
+rectangle "TV Arcade Subsystem / He mini-game TV" {
+  usecase "Open TV Arcade\nMo TV Arcade" as UG_Open
+  usecase "Select Retro Game\nChon game retro" as UG_Select
+  usecase "Start Game Session\nBat dau van game" as UG_Start
+  usecase "Initialize Game State\nKhoi tao trang thai game" as UG_Init
+  usecase "Control Gameplay\nDieu khien gameplay" as UG_Control
+  usecase "Use Mobile D-Pad\nDung D-Pad tren mobile" as UG_DPad
+  usecase "Pause Resume Game\nTam dung tiep tuc" as UG_Pause
+  usecase "End Game\nKet thuc game" as UG_End
+  usecase "Save Best Score\nLuu diem cao" as UG_Save
+  usecase "Load Best Score\nTai diem cao" as UG_Load
+  usecase "Exit Game\nThoat game" as UG_Exit
+  usecase "Track Game Events\nTrack su kien game" as UG_Track
+}
+
+Visitor --> UG_Open
+Visitor --> UG_Select
+Visitor --> UG_Start
+Visitor --> UG_Control
+Visitor --> UG_Pause
+Visitor --> UG_End
+Visitor --> UG_Exit
+
+Input --> UG_Control
+Input --> UG_Pause
+
+UG_Open ..> UG_Load : <<include>>
+UG_Select ..> UG_Load : <<include>>
+UG_Start ..> UG_Init : <<include>>
+UG_Start ..> UG_Track : <<include>>
+UG_Control ..> UG_DPad : <<extend>>
+UG_End ..> UG_Save : <<include>>
+UG_End ..> UG_Track : <<include>>
+
+Storage --> UG_Save
+Storage --> UG_Load
+Analytics --> UG_Track
+
+@enduml

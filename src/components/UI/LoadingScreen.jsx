@@ -1,6 +1,6 @@
 import { useProgress } from '@react-three/drei'
 import { useEffect, useState, useRef } from 'react'
-import { Home, Armchair, Monitor, Bed, Leaf, Cat, Hand, FolderKanban, Sparkles, Mail, Gamepad2 } from 'lucide-react'
+import { Terminal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSounds } from '../../utils/useSounds'
 import useStore from '../../store/useStore'
@@ -18,13 +18,12 @@ import './LoadingScreen.css'
 const MIN_DISPLAY_MS = 1500 // Tối thiểu hiển thị loading
 
 function LoadingScreen() {
-  const { progress, active, loaded, total } = useProgress()
+  const { progress, loaded, total } = useProgress()
   const isSceneReady = useStore((state) => state.isSceneReady)
-  const { playSuccess, playWhoosh } = useSounds()
+  const { playSuccess } = useSounds()
 
   const { t } = useTranslation()
   const [displayProgress, setDisplayProgress] = useState(0)
-  const [showWelcome, setShowWelcome] = useState(false)
   const [hideAll, setHideAll] = useState(false)
   const [loadingStageKey, setLoadingStageKey] = useState('s0')
 
@@ -100,112 +99,88 @@ function LoadingScreen() {
     }
   }, [displayProgress])
 
-  // ── Chuyển sang welcome screen khi xong ──────────────────────────────────
+  // ── Kết thúc loading khi xong ────────────────────────────────────────────
   const isLoaded = displayProgress >= 99
 
   useEffect(() => {
-    if (isLoaded && !showWelcome) {
+    if (isLoaded) {
       if (!playedSuccessRef.current) {
         playedSuccessRef.current = true
         playSuccess()
       }
-      const welcomeTimer = setTimeout(() => setShowWelcome(true), 350)
-      const hideTimer    = setTimeout(() => setHideAll(true), 5000)
+      const hideTimer = setTimeout(() => setHideAll(true), 450)
       return () => {
-        clearTimeout(welcomeTimer)
         clearTimeout(hideTimer)
       }
     }
-  }, [isLoaded, showWelcome, playSuccess])
+  }, [isLoaded, playSuccess])
   
   if (hideAll) return null
   
   const roundedProgress = Math.round(displayProgress)
   
   return (
-    <div className={`loading-screen ${showWelcome ? 'welcome-mode' : ''}`}>
-      {/* Animated Background */}
-      <div className="loading-bg">
-        <div className="bg-orb orb-1"></div>
-        <div className="bg-orb orb-2"></div>
-        <div className="bg-orb orb-3"></div>
-      </div>
-      
-      {/* Loading State */}
-      {!showWelcome && (
-        <div className="loading-content">
-          {/* Pixel Art Room Icon */}
-          <div className="loading-icon-container">
-            <div className="loading-icon"><Home size={48} /></div>
-            <div className="loading-icon-glow"></div>
-          </div>
-          
-          <h1 className="loading-title">{t('loading.title')}</h1>
-          <p className="loading-subtitle">{t('loading.subtitle')}</p>
-          
-          {/* Progress Section */}
-          <div className="loading-progress">
-            <div className="loading-bar-container">
-              <div 
-                className="loading-bar" 
-                style={{ width: `${roundedProgress}%` }}
-              />
-              <div className="loading-bar-shine"></div>
-            </div>
-            
-            <div className="loading-info">
-              <span className="loading-text">{t(`loading.stages.${loadingStageKey}`)}</span>
-              <span className="loading-percent">{roundedProgress}%</span>
-            </div>
+    <div className="loading-screen">
+      <div className="loading-background"></div>
+      <div className="loading-gradient"></div>
+      <div className="loading-scanlines"></div>
+      <div className="loading-vignette"></div>
+      <div className="loading-glow loading-glow-left"></div>
+      <div className="loading-glow loading-glow-right"></div>
 
-            {/* Asset counter — chỉ hiện khi có assets drei thực */}
-            {hasRealAssets && total > 0 && (
-              <div className="loading-asset-info">
-                <span className="loading-asset-count">{loaded}/{total} assets</span>
-              </div>
-            )}
-          </div>
-          
-          {/* Loading Items Animation */}
-          <div className="loading-items">
-            <span className={roundedProgress >= 20 ? 'loaded' : ''}><Armchair size={20} /></span>
-            <span className={roundedProgress >= 40 ? 'loaded' : ''}><Monitor size={20} /></span>
-            <span className={roundedProgress >= 60 ? 'loaded' : ''}><Bed size={20} /></span>
-            <span className={roundedProgress >= 80 ? 'loaded' : ''}><Leaf size={20} /></span>
-            <span className={roundedProgress >= 100 ? 'loaded' : ''}><Cat size={20} /></span>
-          </div>
-        </div>
-      )}
-      
-      {/* Welcome State */}
-      {showWelcome && (
-        <div className="welcome-content show">
-          <div className="welcome-emoji"><Hand size={48} /></div>
-          <h1 className="welcome-title">{t('welcome.greeting')}</h1>
-          <h2 className="welcome-name">{t('welcome.name')}</h2>
-          <p className="welcome-hint">{t('welcome.hint')}</p>
-          <div className="welcome-icons">
-            <span title="Projects"><FolderKanban size={24} /></span>
-            <span title="Skills"><Sparkles size={24} /></span>
-            <span title="Contact"><Mail size={24} /></span>
-            <span title="Play"><Gamepad2 size={24} /></span>
-          </div>
-          <button className="welcome-enter" onClick={() => {
-            playWhoosh()
-            setHideAll(true)
-          }}>
-            {t('welcome.enter')}
-          </button>
-        </div>
-      )}
-      
-      <div className="loading-tips">
-        <p>{showWelcome ? 'Nhấn "Vào phòng" hoặc đợi...' : 'Đang tải trải nghiệm 3D...'}</p>
+      <div className="loading-branding">
+        <span className="loading-kicker">INTERACTIVE_3D_PORTFOLIO</span>
+        <h1 className="loading-logo">NGHIA&apos;S_ROOM</h1>
       </div>
-      
-      {/* Footer */}
-      <div className="loading-footer">
-        <span>Made with ❤️ by Nghia</span>
+
+      <div className="loading-content">
+        <div className="loading-status">
+          <Terminal size={14} />
+          <p>{t(`loading.stages.${loadingStageKey}`)}</p>
+        </div>
+
+        <div className="loading-divider"></div>
+
+        <div className="loading-progress-wrap">
+          <div className="loading-progress-frame">
+            <div className="loading-progress-track">
+              <div
+                className="loading-progress-fill"
+                style={{ width: `${roundedProgress}%` }}
+              >
+                <div className="loading-progress-scan"></div>
+              </div>
+              <span className="loading-progress-percent">{roundedProgress}%_COMPLETE</span>
+            </div>
+          </div>
+
+          <div className="loading-meta">
+            <span>{hasRealAssets ? `${loaded}/${total}_ASSETS` : 'SECTOR_01_MAP'}</span>
+            <div>
+              <span className="loading-live-dot">●</span>
+              <span>STATUS: ONLINE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="loading-tech-footer">
+        <div className="loading-breadcrumbs">
+          <span>ROLE: SOFTWARE_DEV</span>
+          <span>/</span>
+          <span>STACK: REACT_THREEJS</span>
+          <span>/</span>
+          <span className="active">MODE: INTERACTIVE</span>
+        </div>
+        <div className="loading-signature">
+          <span></span>
+          <p>©2026 NGHIA&apos;S ROOM</p>
+          <span></span>
+        </div>
+      </div>
+
+      <div className="loading-tips">
+        <p>Đợi Mình tải tài nguyên 1 xíu nhee...</p>
       </div>
     </div>
   )

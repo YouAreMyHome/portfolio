@@ -1,0 +1,73 @@
+@startuml
+left to right direction
+
+actor "Visitor\n(Nguoi truy cap)" as Visitor
+actor "EmailJS Service" as EmailJS
+actor "Vercel Analytics" as Analytics
+actor "LocalStorage Service" as Storage
+
+rectangle "The Dev's Pixel Room" {
+  usecase "Explore 3D Room\nKham pha phong 3D" as UC_Explore
+  usecase "Hover Interactive Object\nHover vat the tuong tac" as UC_Hover
+
+  usecase "Open Projects\nMo Projects" as UC_Projects
+  usecase "Open Skills\nMo Skills" as UC_Skills
+  usecase "Open About\nMo About" as UC_About
+  usecase "Open Contact\nMo Contact" as UC_Contact
+  usecase "Send Contact Message\nGui lien he" as UC_SendContact
+  usecase "Validate Contact Form\nKiem tra form" as UC_Validate
+  usecase "Send Email via EmailJS\nGui email qua EmailJS" as UC_EmailSend
+
+  usecase "Open Books\nMo Books" as UC_Books
+  usecase "Toggle Day-Night Theme\nChuyen Day-Night" as UC_Theme
+  usecase "Persist Theme Pref\nLuu cai dat theme" as UC_ThemePersist
+
+  usecase "Open Music Player\nMo trinh phat nhac" as UC_Music
+  usecase "Open Polaroid Gallery\nMo gallery polaroid" as UC_Gallery
+  usecase "Navigate Gallery\nDieu huong gallery" as UC_GalleryNav
+
+  usecase "Toggle Sound\nBat tat am thanh" as UC_Sound
+  usecase "Change Language VI-EN\nDoi ngon ngu VI-EN" as UC_Language
+  usecase "Persist Language Pref\nLuu ngon ngu" as UC_LangPersist
+
+  usecase "Toggle String Lights\nBat tat den day" as UC_Lights
+  usecase "Persist Light Pref\nLuu cai dat den" as UC_LightsPersist
+
+  usecase "Track Interaction Event\nTrack su kien" as UC_Track
+}
+
+Visitor --> UC_Explore
+Visitor --> UC_Projects
+Visitor --> UC_Skills
+Visitor --> UC_About
+Visitor --> UC_Contact
+Visitor --> UC_SendContact
+Visitor --> UC_Books
+Visitor --> UC_Theme
+Visitor --> UC_Music
+Visitor --> UC_Gallery
+Visitor --> UC_Sound
+Visitor --> UC_Language
+Visitor --> UC_Lights
+
+UC_Explore ..> UC_Hover : <<include>>
+UC_SendContact ..> UC_Validate : <<include>>
+UC_SendContact ..> UC_EmailSend : <<include>>
+UC_SendContact ..> UC_Contact : <<extend>>
+
+UC_Theme ..> UC_ThemePersist : <<include>>
+UC_Language ..> UC_LangPersist : <<include>>
+UC_Lights ..> UC_LightsPersist : <<include>>
+
+UC_Gallery ..> UC_GalleryNav : <<include>>
+UC_Projects ..> UC_Track : <<include>>
+UC_Theme ..> UC_Track : <<include>>
+UC_Gallery ..> UC_Track : <<include>>
+
+EmailJS --> UC_EmailSend
+Analytics --> UC_Track
+Storage --> UC_ThemePersist
+Storage --> UC_LangPersist
+Storage --> UC_LightsPersist
+
+@enduml

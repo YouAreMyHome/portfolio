@@ -1,0 +1,46 @@
+flowchart LR
+  classDef actor fill:#ffffff,stroke:#333333,stroke-width:1px;
+  classDef usecase fill:#fff3e8,stroke:#9a4d00,stroke-width:1px;
+
+  Visitor[Visitor / Nguoi choi]:::actor
+  Input[Keyboard Touch Input / Ban phim va cam ung]:::actor
+  Storage[LocalStorage Service]:::actor
+  Analytics[Vercel Analytics]:::actor
+
+  subgraph System[TV Arcade Subsystem / He mini-game TV]
+    UG1([Open TV Arcade / Mo TV Arcade]):::usecase
+    UG2([Select Retro Game / Chon game retro]):::usecase
+    UG3([Start Game Session / Bat dau van game]):::usecase
+    UG31([Initialize Game State / Khoi tao trang thai game]):::usecase
+    UG4([Control Gameplay / Dieu khien gameplay]):::usecase
+    UG41([Use Mobile D-Pad / Dung D-Pad tren mobile]):::usecase
+    UG5([Pause Resume Game / Tam dung tiep tuc]):::usecase
+    UG6([End Game / Ket thuc game]):::usecase
+    UG7([Save Best Score / Luu diem cao]):::usecase
+    UG8([Load Best Score / Tai diem cao]):::usecase
+    UG9([Exit Game / Thoat game]):::usecase
+    UG10([Track Game Events / Track su kien game]):::usecase
+  end
+
+  Visitor --> UG1
+  Visitor --> UG2
+  Visitor --> UG3
+  Visitor --> UG4
+  Visitor --> UG5
+  Visitor --> UG6
+  Visitor --> UG9
+
+  Input --> UG4
+  Input --> UG5
+
+  UG1 -. include .-> UG8
+  UG2 -. include .-> UG8
+  UG3 -. include .-> UG31
+  UG3 -. include .-> UG10
+  UG4 -. extend .-> UG41
+  UG6 -. include .-> UG7
+  UG6 -. include .-> UG10
+
+  Storage --> UG7
+  Storage --> UG8
+  Analytics --> UG10

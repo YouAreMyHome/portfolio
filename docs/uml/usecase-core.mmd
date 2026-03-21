@@ -1,0 +1,71 @@
+flowchart LR
+  classDef actor fill:#ffffff,stroke:#333333,stroke-width:1px;
+  classDef usecase fill:#e8f4ff,stroke:#1f4b99,stroke-width:1px;
+
+  Visitor[Visitor / Nguoi truy cap]:::actor
+  EmailJS[EmailJS Service]:::actor
+  Analytics[Vercel Analytics]:::actor
+  Storage[LocalStorage Service]:::actor
+
+  subgraph System[The Dev's Pixel Room]
+    UC1([Explore 3D Room / Kham pha phong 3D]):::usecase
+    UC11([Hover Interactive Object / Hover vat the tuong tac]):::usecase
+
+    UC2([Open Projects / Mo Projects]):::usecase
+    UC3([Open Skills / Mo Skills]):::usecase
+    UC4([Open About / Mo About]):::usecase
+    UC5([Open Contact / Mo Contact]):::usecase
+    UC6([Send Contact Message / Gui lien he]):::usecase
+    UC61([Validate Contact Form / Kiem tra form]):::usecase
+    UC62([Send Email via EmailJS / Gui email qua EmailJS]):::usecase
+
+    UC7([Open Books / Mo Books]):::usecase
+    UC8([Toggle Day-Night Theme / Chuyen Day-Night]):::usecase
+    UC81([Persist Theme Pref / Luu cai dat theme]):::usecase
+    UC9([Open Music Player / Mo trinh phat nhac]):::usecase
+    UC10([Open Polaroid Gallery / Mo gallery polaroid]):::usecase
+    UC101([Navigate Gallery / Dieu huong gallery]):::usecase
+
+    UC12([Toggle Sound / Bat tat am thanh]):::usecase
+    UC13([Change Language VI-EN / Doi ngon ngu VI-EN]):::usecase
+    UC131([Persist Language Pref / Luu ngon ngu]):::usecase
+
+    UC14([Toggle String Lights / Bat tat den day]):::usecase
+    UC141([Persist Light Pref / Luu cai dat den]):::usecase
+
+    UC15([Track Interaction Event / Track su kien]):::usecase
+  end
+
+  Visitor --> UC1
+  Visitor --> UC2
+  Visitor --> UC3
+  Visitor --> UC4
+  Visitor --> UC5
+  Visitor --> UC6
+  Visitor --> UC7
+  Visitor --> UC8
+  Visitor --> UC9
+  Visitor --> UC10
+  Visitor --> UC12
+  Visitor --> UC13
+  Visitor --> UC14
+
+  UC1 -. include .-> UC11
+  UC6 -. include .-> UC61
+  UC6 -. include .-> UC62
+  UC6 -. extend .-> UC5
+
+  UC8 -. include .-> UC81
+  UC13 -. include .-> UC131
+  UC14 -. include .-> UC141
+
+  UC10 -. include .-> UC101
+  UC2 -. include .-> UC15
+  UC8 -. include .-> UC15
+  UC10 -. include .-> UC15
+
+  EmailJS --> UC62
+  Analytics --> UC15
+  Storage --> UC81
+  Storage --> UC131
+  Storage --> UC141
