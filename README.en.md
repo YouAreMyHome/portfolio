@@ -85,7 +85,7 @@ This project recreates an isometric 3D room where each object is an interaction 
 - npm run preview: preview local production build
 - npm run lint: run ESLint
 - npm run deploy: build and deploy dist to gh-pages branch
-- npm run analyze: build with bundle report
+- npm run analyze: runs build in analyze mode and generates bundle report at dist/stats.html
 
 ## Deployment
 

@@ -85,7 +85,7 @@ Project tái hiện một căn phòng isometric 3D, nơi mỗi object là một 
 - npm run preview: preview bản build local
 - npm run lint: chạy ESLint
 - npm run deploy: build và deploy dist lên nhánh gh-pages
-- npm run analyze: build kèm report bundle
+- npm run analyze: build ở mode analyze và tạo báo cáo bundle tại dist/stats.html
 
 ## Deploy
 
