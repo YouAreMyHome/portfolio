@@ -167,14 +167,6 @@ function MusicPlayer() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
   
-  // Close player
-  const closePlayer = () => {
-    if (audioRef.current) audioRef.current.pause()
-    setIsPlaying(false)
-    setShowMusicPlayer(false)
-    setShowPlaylist(false)
-  }
-  
   const progressPercent = (duration && duration > 0) ? (currentTime / duration) * 100 : 0
   
   if (!showMusicPlayer) return null
@@ -338,19 +330,6 @@ function MusicPlayer() {
               </button>
             )}
             
-            {/* Minimize button - PC only */}
-            {!isTouchDevice && (
-              <button 
-                className="sp-btn sp-btn-action"
-                onClick={() => setIsMinimized(true)}
-                title={t('music.minimize')}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 10l5 5 5-5z"/>
-                </svg>
-              </button>
-            )}
-            
             {/* Playlist toggle - hidden on mobile (tap track info instead) */}
             <button 
               className={`sp-btn sp-btn-action sp-btn-playlist ${showPlaylist ? 'active' : ''}`} 
@@ -362,10 +341,10 @@ function MusicPlayer() {
               </svg>
             </button>
             
-            {/* Close */}
-            <button className="sp-btn sp-btn-action" onClick={closePlayer} title="Close">
+            {/* Minimize - Replace Close */}
+            <button className="sp-btn sp-btn-action" onClick={() => setIsMinimized(true)} title={t('music.minimize')}>
               <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                <path d="M7 10l5 5 5-5z"/>
               </svg>
             </button>
           </div>

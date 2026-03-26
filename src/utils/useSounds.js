@@ -19,16 +19,30 @@ let audioContext = null
 
 const getAudioContext = () => {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext
+      if (!AudioCtx) {
+        console.warn('AudioContext not supported in this browser')
+        return null
+      }
+      audioContext = new AudioCtx()
+    } catch (error) {
+      console.warn('Failed to initialize AudioContext:', error)
+      return null
+    }
   }
   return audioContext
 }
 
 // Resume audio context on user interaction (required by browsers)
 const resumeAudioContext = () => {
-  const ctx = getAudioContext()
-  if (ctx.state === 'suspended') {
-    ctx.resume()
+  try {
+    const ctx = getAudioContext()
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(err => console.warn('Failed to resume AudioContext:', err))
+    }
+  } catch (error) {
+    console.warn('Error resuming AudioContext:', error)
   }
 }
 
