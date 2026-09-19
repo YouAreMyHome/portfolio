@@ -1,127 +1,125 @@
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { RoundedBox } from '@react-three/drei'
+import * as THREE from 'three'
 
 /* ─────────────────────────────────────────────────────────────────
-   TROPICAL PLANT  –  Bird-of-Paradise / Strelitzia
-   Lá to bản phẳng, xoè tán rộng, cong drooping ở đầu lá
-   Dùng gần TV (góc phải)
+   1. MONSTERA DELICIOSA (Trầu bà lá xẻ Nam Mỹ cao cấp)
+   - Phiến lá to bản xẻ rãnh nghệ thuật, màu xanh ngọc bích chuyển sắc
+   - Cuống lá uốn cong tự nhiên theo trọng lực, đung đưa nhẹ trong gió
+   - Chậu gốm tráng men gân sọc đặt trên giá gỗ 3 chân sang trọng
 ───────────────────────────────────────────────────────────────── */
-function TropicalPlant() {
+function MonsteraPlant() {
   const crownRef = useRef()
 
   useFrame(({ clock }) => {
     if (!crownRef.current) return
     const t = clock.elapsedTime
-    crownRef.current.rotation.z = Math.sin(t * 0.50) * 0.018
-    crownRef.current.rotation.x = Math.sin(t * 0.38 + 0.9) * 0.013
+    crownRef.current.rotation.z = Math.sin(t * 0.45) * 0.015
+    crownRef.current.rotation.x = Math.sin(t * 0.35 + 0.8) * 0.012
   })
 
-  // Leaf data: [ry = spin around Y, tilt = lean outward (rad), len, width, color]
-  // Arranged like a real Bird-of-Paradise fan
-  const DEEP   = '#1a5c1a'
-  const MID    = '#2d7d2d'
-  const BRIGHT = '#3da63d'
-  const YOUNG  = '#70c040'
-  const VEIN   = '#58d040'
-
-  const leafData = [
-    { ry: 0.00,            tilt: 0.52, len: 0.56, w: 0.064, c: DEEP   },
-    { ry: Math.PI * 0.28,  tilt: 0.40, len: 0.62, w: 0.072, c: MID    }, // biggest
-    { ry: Math.PI * 0.60,  tilt: 0.55, len: 0.52, w: 0.060, c: DEEP   },
-    { ry: Math.PI * 0.88,  tilt: 0.45, len: 0.58, w: 0.068, c: BRIGHT },
-    { ry: Math.PI * 1.18,  tilt: 0.50, len: 0.54, w: 0.062, c: MID    },
-    { ry: Math.PI * 1.50,  tilt: 0.48, len: 0.60, w: 0.070, c: DEEP   },
-    { ry: Math.PI * 1.80,  tilt: 0.22, len: 0.46, w: 0.044, c: YOUNG  }, // upright new growth
+  // Dữ liệu các tán lá Monstera: [góc quay Y, độ ngả, chiều dài, độ rộng, màu sắc]
+  const leaves = [
+    { ry: 0.1, tilt: 0.52, len: 0.55, w: 0.32, color: '#166534' },
+    { ry: 1.1, tilt: 0.62, len: 0.58, w: 0.34, color: '#15803d' },
+    { ry: 2.2, tilt: 0.48, len: 0.52, w: 0.30, color: '#14532d' },
+    { ry: 3.3, tilt: 0.58, len: 0.60, w: 0.36, color: '#166534' },
+    { ry: 4.4, tilt: 0.45, len: 0.54, w: 0.32, color: '#15803d' },
+    { ry: 5.5, tilt: 0.32, len: 0.46, w: 0.26, color: '#22c55e' }, // Lá non mới nhú
   ]
+
+  const woodColor = '#9a6b42'
 
   return (
     <group>
-      {/* ── Saucer ── */}
-      <mesh position={[0, 0.018, 0]} receiveShadow>
-        <cylinderGeometry args={[0.200, 0.178, 0.036, 12]} />
-        <meshToonMaterial color="#c86040" />
-      </mesh>
-
-      {/* ── Pot body (tall terracotta) ── */}
-      <mesh position={[0, 0.230, 0]} castShadow>
-        <cylinderGeometry args={[0.150, 0.096, 0.390, 12]} />
-        <meshToonMaterial color="#c15a34" />
-      </mesh>
-
-      {/* Darkened lower band */}
-      <mesh position={[0, 0.108, 0]}>
-        <cylinderGeometry args={[0.148, 0.096, 0.148, 12]} />
-        <meshToonMaterial color="#a84828" />
-      </mesh>
-
-      {/* ── Pot rim ── */}
-      <mesh position={[0, 0.437, 0]} castShadow>
-        <cylinderGeometry args={[0.162, 0.152, 0.030, 12]} />
-        <meshToonMaterial color="#a04020" />
-      </mesh>
-
-      {/* ── Dark soil ── */}
-      <mesh position={[0, 0.446, 0]}>
-        <cylinderGeometry args={[0.142, 0.142, 0.020, 12]} />
-        <meshToonMaterial color="#1e0c04" />
-      </mesh>
-
-      {/* Pebbles on soil */}
-      {[0, 1, 2, 3, 4].map((i) => {
-        const a = (i / 5) * Math.PI * 2 + 0.4
-        return (
-          <mesh key={i} position={[Math.cos(a) * 0.075, 0.462, Math.sin(a) * 0.075]}>
-            <sphereGeometry args={[0.016, 5, 5]} />
-            <meshToonMaterial color="#b89870" />
+      {/* ── Giá đỡ gỗ 3 chân (Tripod Stand) ── */}
+      {[0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].map((angle, idx) => (
+        <group key={idx} rotation={[0, angle, 0]}>
+          {/* Chân gỗ nghiêng thanh mảnh */}
+          <mesh position={[0.13, 0.12, 0]} rotation={[0, 0, -0.06]} castShadow>
+            <cylinderGeometry args={[0.011, 0.014, 0.26, 10]} />
+            <meshStandardMaterial color={woodColor} roughness={0.65} />
           </mesh>
-        )
-      })}
+          {/* Thanh giằng ngang liên kết 3 chân */}
+          <mesh position={[0.065, 0.15, 0]}>
+            <boxGeometry args={[0.13, 0.016, 0.016]} />
+            <meshStandardMaterial color={woodColor} roughness={0.65} />
+          </mesh>
+        </group>
+      ))}
 
-      {/* ── Short woody trunk ── */}
-      <mesh position={[0, 0.600, 0]} castShadow>
-        <cylinderGeometry args={[0.022, 0.030, 0.330, 7]} />
-        <meshToonMaterial color="#4a2a14" />
-      </mesh>
-      {/* Trunk bark texture ring */}
-      <mesh position={[0, 0.520, 0]}>
-        <cylinderGeometry args={[0.031, 0.028, 0.040, 7]} />
-        <meshToonMaterial color="#3a1e0c" />
-      </mesh>
+      {/* ── Chậu gốm tráng men màu kem thanh lịch (Ceramic Planter) ── */}
+      <group position={[0, 0.18, 0]}>
+        <mesh position={[0, 0.12, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[0.14, 0.11, 0.24, 24]} />
+          <meshStandardMaterial color="#f1ede6" roughness={0.5} metalness={0.04} />
+        </mesh>
+        {/* Miệng chậu bo viền */}
+        <mesh position={[0, 0.24, 0]} castShadow>
+          <torusGeometry args={[0.14, 0.012, 10, 24]} rotation={[Math.PI / 2, 0, 0]} />
+          <meshStandardMaterial color="#e5ded3" roughness={0.5} />
+        </mesh>
+        {/* Lớp đất trồng cây màu nâu thẫm */}
+        <mesh position={[0, 0.22, 0]}>
+          <cylinderGeometry args={[0.13, 0.13, 0.02, 18]} />
+          <meshStandardMaterial color="#22150e" roughness={0.95} />
+        </mesh>
+        {/* Lớp sỏi trang trí rải mặt chậu */}
+        {[...Array(6)].map((_, i) => {
+          const a = (i / 6) * Math.PI * 2 + 0.3
+          return (
+            <mesh key={i} position={[Math.cos(a) * 0.08, 0.232, Math.sin(a) * 0.08]}>
+              <sphereGeometry args={[0.014, 8, 8]} />
+              <meshStandardMaterial color={i % 2 === 0 ? '#e2d7c5' : '#c9baaa'} roughness={0.8} />
+            </mesh>
+          )
+        })}
+      </group>
 
-      {/* ── Crown of arching leaves ── */}
-      <group ref={crownRef} position={[0, 0.760, 0]}>
-        {leafData.map(({ ry, tilt, len, w, c }, i) => (
-          <group key={i} rotation={[0, ry, 0]}>
-            {/* Petiole (thin leaf stem) */}
-            <group rotation={[tilt * 0.55, 0, 0]}>
-              <mesh position={[0, len * 0.08, 0]} castShadow>
-                <cylinderGeometry args={[0.006, 0.009, len * 0.22, 5]} />
-                <meshToonMaterial color="#2a5a14" />
+      {/* ── Cụm tán lá Monstera uốn lượn tự nhiên ── */}
+      <group ref={crownRef} position={[0, 0.54, 0]}>
+        {leaves.map((leaf, idx) => (
+          <group key={idx} rotation={[0, leaf.ry, 0]}>
+            {/* Cuống lá (Petiole) vươn cong ra ngoài */}
+            <group rotation={[leaf.tilt * 0.6, 0, 0]}>
+              <mesh position={[0, leaf.len * 0.2, 0]} castShadow>
+                <cylinderGeometry args={[0.007, 0.012, leaf.len * 0.42, 8]} />
+                <meshStandardMaterial color="#1e5c2b" roughness={0.6} />
               </mesh>
             </group>
 
-            {/* Leaf – lower half: straight up-outward */}
-            <group rotation={[tilt, 0, 0]}>
-              <mesh position={[0, len * 0.28, 0]} castShadow>
-                <boxGeometry args={[w, len * 0.52, 0.006]} />
-                <meshToonMaterial color={c} side={2} />
-              </mesh>
-              {/* Midrib lower */}
-              <mesh position={[0, len * 0.28, 0.007]}>
-                <boxGeometry args={[0.006, len * 0.50, 0.003]} />
-                <meshToonMaterial color={VEIN} />
+            {/* Phiến lá Monstera xẻ rãnh */}
+            <group position={[0, leaf.len * 0.35, 0]} rotation={[leaf.tilt, 0, 0]}>
+              {/* Sống lá chính giữa */}
+              <mesh position={[0, leaf.len * 0.3, 0.006]} castShadow>
+                <boxGeometry args={[0.012, leaf.len * 0.6, 0.008]} />
+                <meshStandardMaterial color="#4ade80" roughness={0.5} />
               </mesh>
 
-              {/* Leaf – upper droop: tip bends further outward */}
-              <group position={[0, len * 0.54, 0]} rotation={[0.42, 0, 0]}>
-                <mesh position={[0, len * 0.20, 0]} castShadow>
-                  <boxGeometry args={[w * 0.72, len * 0.42, 0.006]} />
-                  <meshToonMaterial color={c} side={2} />
-                </mesh>
-                {/* Midrib upper */}
-                <mesh position={[0, len * 0.20, 0.007]}>
-                  <boxGeometry args={[0.005, len * 0.40, 0.003]} />
-                  <meshToonMaterial color={VEIN} />
+              {/* Thân lá trung tâm */}
+              <mesh position={[0, leaf.len * 0.3, 0]} castShadow>
+                <boxGeometry args={[leaf.w * 0.55, leaf.len * 0.58, 0.006]} />
+                <meshStandardMaterial color={leaf.color} roughness={0.5} side={2} />
+              </mesh>
+
+              {/* Các dải lá xẻ đối xứng hai bên (Leaf Fenestrations) */}
+              {[-0.14, 0.14].map((sideX, sIdx) => (
+                <group key={sIdx} position={[sideX, leaf.len * 0.28, 0]}>
+                  {[-0.1, 0, 0.1].map((fy, fIdx) => (
+                    <mesh key={fIdx} position={[0, fy, 0]} rotation={[0, 0, sIdx === 0 ? -0.2 : 0.2]} castShadow>
+                      <boxGeometry args={[leaf.w * 0.42, 0.065, 0.006]} />
+                      <meshStandardMaterial color={leaf.color} roughness={0.5} side={2} />
+                    </mesh>
+                  ))}
+                </group>
+              ))}
+
+              {/* Chóp đầu lá rủ nhẹ xuống */}
+              <group position={[0, leaf.len * 0.58, 0]} rotation={[0.3, 0, 0]}>
+                <mesh position={[0, 0.06, 0]} castShadow>
+                  <coneGeometry args={[leaf.w * 0.28, 0.14, 4]} />
+                  <meshStandardMaterial color={leaf.color} roughness={0.5} side={2} />
                 </mesh>
               </group>
             </group>
@@ -133,131 +131,99 @@ function TropicalPlant() {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   BUSH PLANT  –  cây bụi tròn dễ thương với hoa
-   Dùng gần giường (góc trái)
+   2. SUCCULENT PLANTER (Chậu sen đá Jade Plant mọng nước cạnh giường)
+   - Chậu đất nung Terracotta dập nổi hoa văn hình học
+   - Các nhánh sen đá xếp cánh mọng nước chuyển màu xanh ngọc pha phớt hồng
 ───────────────────────────────────────────────────────────────── */
-function BushPlant() {
-  const leavesRef = useRef()
+function SucculentPlant() {
+  const plantRef = useRef()
 
   useFrame(({ clock }) => {
-    if (!leavesRef.current) return
+    if (!plantRef.current) return
     const t = clock.elapsedTime
-    leavesRef.current.rotation.z = Math.sin(t * 0.88 + 0.5) * 0.026
-    leavesRef.current.rotation.x = Math.sin(t * 0.62 + 2.0) * 0.018
+    plantRef.current.rotation.y = Math.sin(t * 0.3) * 0.01
   })
-
-  const G1 = '#4caf50'  // bright green
-  const G2 = '#66bb6a'  // lighter green
-  const G3 = '#388e3c'  // darker green
-  const G4 = '#81c784'  // pale highlight green
-
-  // Leaf sphere clusters [position, radius, color]
-  const clusters = [
-    { p: [ 0.00,  0.14,  0.00], r: 0.160, c: G1 },
-    { p: [-0.11,  0.10,  0.04], r: 0.110, c: G3 },
-    { p: [ 0.12,  0.09,  0.02], r: 0.100, c: G2 },
-    { p: [ 0.04,  0.09, -0.10], r: 0.100, c: G3 },
-    { p: [-0.06,  0.09, -0.09], r: 0.090, c: G1 },
-    { p: [ 0.07,  0.25,  0.02], r: 0.070, c: G4 },
-    { p: [-0.05,  0.24, -0.03], r: 0.065, c: G2 },
-    { p: [ 0.00,  0.29,  0.01], r: 0.055, c: G4 },
-  ]
-
-  // Cute flowers [position]
-  const flowers = [
-    { p: [ 0.09,  0.31,  0.05] },
-    { p: [-0.07,  0.29, -0.06] },
-    { p: [ 0.01,  0.34,  0.08] },
-    { p: [-0.10,  0.24,  0.08] },
-  ]
 
   return (
     <group>
-      {/* ── Saucer (mint) ── */}
+      {/* ── Đĩa lót chậu đất nung (Terracotta Saucer) ── */}
       <mesh position={[0, 0.015, 0]} receiveShadow>
-        <cylinderGeometry args={[0.175, 0.158, 0.030, 12]} />
-        <meshToonMaterial color="#a8d8b0" />
+        <cylinderGeometry args={[0.22, 0.19, 0.03, 18]} />
+        <meshStandardMaterial color="#c26a45" roughness={0.85} />
       </mesh>
 
-      {/* ── Pot body (cream white) ── */}
-      <mesh position={[0, 0.156, 0]} castShadow>
-        <cylinderGeometry args={[0.135, 0.104, 0.256, 12]} />
-        <meshToonMaterial color="#f0ede6" />
+      {/* ── Thân chậu đất nung gờ miệng nổi ── */}
+      <mesh position={[0, 0.18, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.18, 0.13, 0.3, 18]} />
+        <meshStandardMaterial color="#c8704b" roughness={0.85} />
+      </mesh>
+      {/* Vành miệng chậu dày dặn */}
+      <mesh position={[0, 0.335, 0]} castShadow>
+        <cylinderGeometry args={[0.195, 0.185, 0.035, 18]} />
+        <meshStandardMaterial color="#b9623e" roughness={0.85} />
       </mesh>
 
-      {/* Mint decorative stripe */}
-      <mesh position={[0, 0.108, 0]}>
-        <cylinderGeometry args={[0.137, 0.120, 0.044, 12]} />
-        <meshToonMaterial color="#a8d8b0" />
+      {/* ── Lớp sỏi núi lửa phủ mặt ── */}
+      <mesh position={[0, 0.33, 0]}>
+        <cylinderGeometry args={[0.17, 0.17, 0.02, 16]} />
+        <meshStandardMaterial color="#382a22" roughness={0.95} />
       </mesh>
 
-      {/* Second thin accent stripe */}
-      <mesh position={[0, 0.195, 0]}>
-        <cylinderGeometry args={[0.1365, 0.131, 0.014, 12]} />
-        <meshToonMaterial color="#c8e6c9" />
-      </mesh>
+      {/* ── Cụm hoa sen đá mọng nước (Succulent Rosette) ── */}
+      <group ref={plantRef} position={[0, 0.35, 0]}>
+        {/* Tầng cánh lớn bên dưới */}
+        {[0, 1, 2, 3, 4, 5].map((i) => {
+          const rotY = (i / 6) * Math.PI * 2
+          return (
+            <group key={i} rotation={[0, rotY, 0]}>
+              <mesh position={[0.07, 0.03, 0]} rotation={[0, 0, -0.45]} castShadow>
+                <coneGeometry args={[0.048, 0.11, 6]} />
+                <meshStandardMaterial color="#4ade80" roughness={0.6} />
+              </mesh>
+              {/* Phớt hồng viền chóp lá */}
+              <mesh position={[0.11, 0.05, 0]} rotation={[0, 0, -0.45]}>
+                <sphereGeometry args={[0.014, 6, 6]} />
+                <meshStandardMaterial color="#fb7185" roughness={0.5} />
+              </mesh>
+            </group>
+          )
+        })}
 
-      {/* ── Pot rim ── */}
-      <mesh position={[0, 0.292, 0]} castShadow>
-        <cylinderGeometry args={[0.147, 0.137, 0.026, 12]} />
-        <meshToonMaterial color="#e0ddd4" />
-      </mesh>
+        {/* Tầng cánh trung tâm hướng lên */}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const rotY = (i / 5) * Math.PI * 2 + 0.4
+          return (
+            <group key={i} rotation={[0, rotY, 0]}>
+              <mesh position={[0.045, 0.08, 0]} rotation={[0, 0, -0.25]} castShadow>
+                <coneGeometry args={[0.036, 0.09, 6]} />
+                <meshStandardMaterial color="#86efac" roughness={0.55} />
+              </mesh>
+              {/* Phớt hồng viền chóp lá tầng trên */}
+              <mesh position={[0.065, 0.11, 0]} rotation={[0, 0, -0.25]}>
+                <sphereGeometry args={[0.011, 6, 6]} />
+                <meshStandardMaterial color="#f43f5e" roughness={0.5} />
+              </mesh>
+            </group>
+          )
+        })}
 
-      {/* ── Pebble soil layer ── */}
-      <mesh position={[0, 0.300, 0]}>
-        <cylinderGeometry args={[0.127, 0.127, 0.018, 12]} />
-        <meshToonMaterial color="#b0a490" />
-      </mesh>
-
-      {/* Individual pebbles */}
-      {[0, 1, 2, 3, 4].map((i) => {
-        const a = (i / 5) * Math.PI * 2
-        return (
-          <mesh key={i} position={[Math.cos(a) * 0.068, 0.314, Math.sin(a) * 0.068]}>
-            <sphereGeometry args={[0.016, 5, 5]} />
-            <meshToonMaterial color={i % 2 === 0 ? '#c8b8a8' : '#a09080'} />
-          </mesh>
-        )
-      })}
-
-      {/* ── Leaf clusters + flowers with sway ── */}
-      <group ref={leavesRef} position={[0, 0.30, 0]}>
-        {clusters.map(({ p, r, c }, i) => (
-          <mesh key={i} position={p} castShadow>
-            <sphereGeometry args={[r, 8, 8]} />
-            <meshToonMaterial color={c} />
-          </mesh>
-        ))}
-
-        {/* Cute small flowers */}
-        {flowers.map(({ p }, i) => (
-          <group key={i} position={p}>
-            {/* Pink petal blob */}
-            <mesh castShadow>
-              <sphereGeometry args={[0.026, 6, 6]} />
-              <meshToonMaterial color="#ffb3c6" />
-            </mesh>
-            {/* Yellow centre */}
-            <mesh position={[0, 0.021, 0]}>
-              <sphereGeometry args={[0.013, 5, 5]} />
-              <meshToonMaterial color="#ffd54f" />
-            </mesh>
-          </group>
-        ))}
+        {/* Búp non giữa tâm sen đá */}
+        <mesh position={[0, 0.13, 0]} castShadow>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color="#bbf7d0" roughness={0.5} />
+        </mesh>
       </group>
     </group>
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   MAIN EXPORT
-   variant: 'tropical' (near TV, right corner)
-            'bush'     (near bed, left corner)
-───────────────────────────────────────────────────────────────── */
-function Plant({ position, variant = 'tropical' }) {
+/**
+ * Plant Component tổng hợp
+ */
+function Plant({ variant = 'tropical', ...props }) {
   return (
-    <group position={position}>
-      {variant === 'tropical' ? <TropicalPlant /> : <BushPlant />}
+    <group {...props}>
+      {variant === 'tropical' ? <MonsteraPlant /> : <SucculentPlant />}
     </group>
   )
 }

@@ -9,37 +9,37 @@ function Walls() {
       {/* Back Wall (Z = -4) */}
       <mesh position={[0, 1.5, -4]} receiveShadow>
         <boxGeometry args={[8, 3, 0.1]} />
-        <meshToonMaterial color={COLORS.wall} />
+        <meshStandardMaterial color={COLORS.wall} roughness={0.88} metalness={0.04} />
       </mesh>
       
       {/* Left Wall (X = -4) */}
       <mesh position={[-4, 1.5, 0]} receiveShadow>
         <boxGeometry args={[0.1, 3, 8]} />
-        <meshToonMaterial color={COLORS.wallDark} />
+        <meshStandardMaterial color={COLORS.wallDark} roughness={0.88} metalness={0.04} />
       </mesh>
       
       {/* Crown molding - Back */}
       <mesh position={[0, 2.95, -3.93]}>
         <boxGeometry args={[8, 0.08, 0.08]} />
-        <meshToonMaterial color={COLORS.white} />
+        <meshStandardMaterial color={COLORS.white} roughness={0.5} metalness={0.1} />
       </mesh>
       
       {/* Crown molding - Left */}
       <mesh position={[-3.93, 2.95, 0]}>
         <boxGeometry args={[0.08, 0.08, 8]} />
-        <meshToonMaterial color={COLORS.white} />
+        <meshStandardMaterial color={COLORS.white} roughness={0.5} metalness={0.1} />
       </mesh>
       
       {/* Baseboard - Back */}
       <mesh position={[0, 0.08, -3.93]}>
         <boxGeometry args={[8, 0.15, 0.08]} />
-        <meshToonMaterial color="#6B5344" />
+        <meshStandardMaterial color="#6B5344" roughness={0.65} metalness={0.08} />
       </mesh>
       
       {/* Baseboard - Left */}
       <mesh position={[-3.93, 0.08, 0]}>
         <boxGeometry args={[0.08, 0.15, 8]} />
-        <meshToonMaterial color="#6B5344" />
+        <meshStandardMaterial color="#6B5344" roughness={0.65} metalness={0.08} />
       </mesh>
     </group>
   )

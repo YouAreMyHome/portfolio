@@ -21,32 +21,45 @@ import WallDecorations from './WallDecorations'
 import FloorDetails from './FloorDetails'
 import RecordPlayer from './RecordPlayer'
 import PixelPerson from './PixelPerson'
+import VolumetricAtmosphere from './VolumetricAtmosphere'
 
 /**
- * Room Component - Phase 3: Interaction & Logic
- * 
+ * Room Component - Căn phòng 3D Pixel Diorama bóng bẩy
+ *
  * Navigation Map:
- * - PC → Projects
+ * - PC → Projects (Portfolio OS)
  * - Board → Skills
- * - TV → Playground  
+ * - TV → Playground (Arcade mini games)
  * - Bed/Phone → Contact
- * - Window → Theme Toggle
+ * - Window → Preset Ánh sáng (Sáng, Hoàng hôn, Mưa, Đêm)
  * - Cat → Easter Egg
+ * - Đèn bàn / Bảng ghim → Tương tác tiện ích
  */
-
 function Room({ graphics = {} }) {
   const roomRef = useRef()
-  const toggleNightMode = useStore((state) => state.toggleNightMode)
+  const lightingPreset = useStore((state) => state.lightingPreset)
+  const setLightingPreset = useStore((state) => state.setLightingPreset)
+  const isNightMode = useStore((state) => state.isNightMode)
+
   const clickCat = useStore((state) => state.clickCat)
   const toggleRecordPlayer = useStore((state) => state.toggleRecordPlayer)
   const toggleClockTime = useStore((state) => state.toggleClockTime)
+  const toggleDeskLamp = useStore((state) => state.toggleDeskLamp)
+  const openGuestbook = useStore((state) => state.openGuestbook)
+
+  const handleWindowClick = () => {
+    const cycle = { morning: 'sunset', sunset: 'rainy', rainy: 'night', night: 'morning' }
+    const current = isNightMode ? 'night' : lightingPreset || 'morning'
+    const next = cycle[current] || 'sunset'
+    setLightingPreset(next)
+  }
 
   const {
     contactShadows = true,
     contactShadowFramesMain = 120,
     contactShadowFramesRug = 80,
     contactShadowResolutionMain = 512,
-    contactShadowResolutionRug = 256
+    contactShadowResolutionRug = 256,
   } = graphics
 
   return (
@@ -54,71 +67,90 @@ function Room({ graphics = {} }) {
       {/* Structure */}
       <Walls />
       <Floor />
-      
-      {/* Window - Theme Toggle */}
-      <InteractiveObject name="window" onClick={toggleNightMode} hoverLift={0.02}>
+
+      {/* Hiệu ứng không khí: Luồng sáng, hạt bụi bay, hơi nước cà phê, mưa */}
+      <VolumetricAtmosphere />
+
+      {/* Window - Chuyển đổi linh hoạt 4 khung cảnh ánh sáng */}
+      <InteractiveObject name="window" onClick={handleWindowClick} hoverLift={0.02}>
         <Window />
       </InteractiveObject>
-      
+
       {/* PC Setup - Projects */}
       <InteractiveObject name="pc" panelId="projects">
         <DeskSetup />
       </InteractiveObject>
-      
+
+      {/* Đèn bàn làm việc tương tác (Click vào khu vực đèn để bật/tắt) */}
+      <InteractiveObject name="desklamp" onClick={toggleDeskLamp} hoverLift={0.02}>
+        <mesh position={[-2.45, 1.1, -2.4]} visible={false}>
+          <boxGeometry args={[0.3, 0.4, 0.3]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      </InteractiveObject>
+
       {/* Chair - About Me */}
       <InteractiveObject name="chair" panelId="about">
         <Chair />
       </InteractiveObject>
-      
+
       <Cabinet />
-      
       <Shelf />
-      
+
       {/* Clock - Show current time */}
       <InteractiveObject name="clock" onClick={toggleClockTime} hoverLift={0.05}>
         <Clock />
       </InteractiveObject>
-      
-      {/* TV - Playground */}
+
+      {/* TV - Playground (Arcade Retro) */}
       <InteractiveObject name="tv" panelId="playground">
         <TVSetup />
       </InteractiveObject>
-      
+
       {/* Bed - Contact */}
       <InteractiveObject name="bed" panelId="contact">
         <Bed />
       </InteractiveObject>
-      
+
       {/* Plan Board - Skills */}
       <InteractiveObject name="board" panelId="skills">
         <PlanBoard />
       </InteractiveObject>
-      
+
+      {/* Mẩu giấy nhớ ghim trên tường cạnh bảng - Click mở Guestbook */}
+      <InteractiveObject name="guestbook" onClick={openGuestbook} hoverLift={0.04}>
+        <group position={[-3.88, 1.35, 1.05]}>
+          <mesh rotation={[0, Math.PI / 2, 0]} castShadow>
+            <planeGeometry args={[0.2, 0.2]} />
+            <meshStandardMaterial color="#fef08a" roughness={0.7} />
+          </mesh>
+          <mesh position={[0.006, 0.07, 0]} rotation={[0, 0, 0]}>
+            <sphereGeometry args={[0.014, 8, 8]} />
+            <meshStandardMaterial color="#ef4444" roughness={0.2} metalness={0.4} />
+          </mesh>
+        </group>
+      </InteractiveObject>
+
       {/* Decorations */}
-      {/* Bush plant – góc trái, gần giường */}
       <Plant position={[-3.3, 0, 3.2]} variant="bush" />
-      {/* Tropical plant – góc phải, gần TV */}
-      <Plant position={[2.5, 0, -3.2]} variant="tropical" />
+      <Plant position={[2.25, 0, -3.38]} variant="tropical" />
       <WallDecorations />
       <FloorDetails />
-      
-      {/* Record Player - Music (bên trái TV với tủ riêng) */}
+
+      {/* Record Player - Music */}
       <InteractiveObject name="recordplayer" onClick={toggleRecordPlayer} hoverLift={0.05}>
         <RecordPlayer position={[-0.3, 0.35, -3.6]} />
       </InteractiveObject>
-      
-      {/* Cat - Easter Egg (ngủ trên thảm giữa phòng) */}
+
+      {/* Cat - Easter Egg */}
       <InteractiveObject name="cat" onClick={clickCat} hoverLift={0.12}>
         <Cat position={[0.3, 0.05, 0.5]} scale={0.8} />
       </InteractiveObject>
 
-      {/* Pixel Person - Owner avatar standing in room */}
-      <PixelPerson 
-  position={[1.6, 0, 1.2]} 
-  rotation={[0, 0.185, 0]} 
-/>
-      
-      {/* Contact shadows cập nhật hữu hạn để giảm GPU load. */}
+      {/* Pixel Person - Chủ phòng */}
+      <PixelPerson position={[1.15, 0.049, 0.85]} rotation={[0, 0.12, 0]} />
+
+      {/* Contact shadows */}
       {contactShadows && (
         <>
           <ContactShadows
@@ -132,7 +164,6 @@ function Room({ graphics = {} }) {
             frames={contactShadowFramesMain}
           />
 
-          {/* Additional contact shadow on top of main rug */}
           <ContactShadows
             position={[0, 0.048, 0]}
             opacity={0.35}

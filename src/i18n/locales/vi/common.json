@@ -42,13 +42,18 @@
       "s86": "Render frame đầu tiên...",
       "sFallback": "Kích hoạt tài nguyên dự phòng...",
       "s100": "Sẵn sàng! 🎉"
-    }
+    },
+    "tip": "Đang chuẩn bị căn phòng ấm cúng cho bạn...",
+    "status_readying": "CHUẨN BỊ KHÔNG GIAN"
   },
   "welcome": {
     "greeting": "Chào mừng đến với",
     "name": "Nghia's Room",
-    "hint": "Click vào các vật thể để khám phá!",
-    "enter": "Vào phòng →"
+    "subtitle": "Interactive 3D Portfolio",
+    "tagline": "Khám phá không gian sáng tạo của một lập trình viên",
+    "hint": "Click vào các vật thể để khám phá • Kéo để xoay 360°",
+    "enter": "Vào Phòng",
+    "sound_hint": "Bật âm thanh để có trải nghiệm tốt nhất 🎧"
   },
   "panel": {
     "projects": "Projects",

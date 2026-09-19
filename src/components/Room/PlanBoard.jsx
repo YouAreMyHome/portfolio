@@ -100,14 +100,6 @@ function PlanBoard() {
             />
           </mesh>
         ))}
-        
-        {/* Soft ambient light */}
-        <pointLight 
-          position={[0, 0, 0.4]} 
-          intensity={0.1} 
-          distance={1.2} 
-          color="#ffffff"
-        />
       </group>
     </InteractiveObject>
   )

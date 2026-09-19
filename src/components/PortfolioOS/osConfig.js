@@ -63,8 +63,15 @@ export const DESKTOP_ICONS = [
   {
     id: 'recycle-bin',
     name: 'Recycle Bin',
-    icon: '✘',
+    icon: '✕',
     app: 'recycle',
+    position: { x: 20, y: 260 },
+  },
+  {
+    id: 'admin-console',
+    name: 'Admin CMS',
+    icon: '⚙',
+    app: 'admin',
     position: { x: 20, y: 340 },
   },
 ]

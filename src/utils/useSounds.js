@@ -390,17 +390,27 @@ export function useSounds() {
     }
   }, [playSound])
   
+  const playClick = useCallback(() => playSound('click'), [playSound])
+  const playPanelOpen = useCallback(() => playSound('panelOpen'), [playSound])
+  const playPanelClose = useCallback(() => playSound('panelClose'), [playSound])
+  const playDayMode = useCallback(() => playSound('dayMode'), [playSound])
+  const playNightMode = useCallback(() => playSound('nightMode'), [playSound])
+  const playMeow = useCallback(() => playSound('meow'), [playSound])
+  const playEasterEgg = useCallback(() => playSound('easterEgg'), [playSound])
+  const playSuccess = useCallback(() => playSound('success'), [playSound])
+  const playWhoosh = useCallback(() => playSound('whoosh'), [playSound])
+
   return {
-    playClick: () => playSound('click'),
+    playClick,
     playHover,
-    playPanelOpen: () => playSound('panelOpen'),
-    playPanelClose: () => playSound('panelClose'),
-    playDayMode: () => playSound('dayMode'),
-    playNightMode: () => playSound('nightMode'),
-    playMeow: () => playSound('meow'),
-    playEasterEgg: () => playSound('easterEgg'),
-    playSuccess: () => playSound('success'),
-    playWhoosh: () => playSound('whoosh'),
+    playPanelOpen,
+    playPanelClose,
+    playDayMode,
+    playNightMode,
+    playMeow,
+    playEasterEgg,
+    playSuccess,
+    playWhoosh,
     playSound,
   }
 }

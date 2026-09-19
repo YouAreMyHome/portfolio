@@ -1,8 +1,9 @@
-﻿import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox, useHelper } from '@react-three/drei'
 import * as THREE from 'three'
 import { COLORS } from './colors'
+import useStore from '../../store/useStore'
 
 /**
  * Create realistic monitor screen texture with static content
@@ -397,18 +398,14 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
  * Dark walnut desk Â· VESA monitor arm Â· PC tower on floor Â· Hairpin legs
  */
 function DeskSetup({ onProjectClick }) {
-  const pcRgbRef  = useRef()
-  const kbRgbRef  = useRef()
+  const pcRgbRef = useRef()
+  const kbRgbRef = useRef()
+  const deskLampOn = useStore((state) => state.deskLampOn)
+  const toggleDeskLamp = useStore((state) => state.toggleDeskLamp)
 
-  const DESK_H = 0.76   // Y-center cá»§a máº·t bÃ n (dÃ y 0.05 â†’ top táº¡i +0.025)
+  const DESK_H = 0.76   // Y-center của mặt bàn (dày 0.05 → top tại +0.025)
   const LEG_H  = 0.74
 
-  useFrame((state) => {
-    const t = state.clock.elapsedTime
-    if (pcRgbRef.current)  pcRgbRef.current.color.setHSL((t * 0.12) % 1, 0.95, 0.5)
-    if (kbRgbRef.current)  kbRgbRef.current.color.setHSL((t * 0.12 + 0.33) % 1, 0.85, 0.5)
-  })
-  
   useFrame((state) => {
     const t = state.clock.elapsedTime
     if (pcRgbRef.current)  pcRgbRef.current.color.setHSL((t * 0.12) % 1, 0.95, 0.5)
@@ -715,17 +712,31 @@ function DeskSetup({ onProjectClick }) {
               <cylinderGeometry args={[0.007, 0.007, 0.18, 8]} />
               <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
             </mesh>
-            {/* LED bar */}
-            <group position={[0, 0, 0.19]} rotation={[0.5, 0, 0]}>
+            {/* LED bar - Nhấp chuột để bật/tắt đèn bàn làm việc */}
+            <group 
+              position={[0, 0, 0.19]} 
+              rotation={[0.5, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleDeskLamp()
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <RoundedBox args={[0.28, 0.02, 0.03]} radius={0.006} castShadow>
                 <meshStandardMaterial color="#0f172a" metalness={0.6} roughness={0.2} />
               </RoundedBox>
-              {/* Dáº£i LED áº¥m */}
+              {/* Dải LED ấm */}
               <mesh position={[0, -0.011, 0]}>
                 <boxGeometry args={[0.26, 0.003, 0.026]} />
-                <meshBasicMaterial color="#fff8e1" />
+                <meshBasicMaterial color={deskLampOn ? "#fff8e1" : "#334155"} />
               </mesh>
-              <pointLight color="#fff5cc" intensity={0.6} distance={1.2} decay={2} position={[0, -0.05, 0.08]} />
+              <pointLight 
+                color="#fff5cc" 
+                intensity={deskLampOn ? 0.65 : 0} 
+                distance={1.2} 
+                decay={2} 
+                position={[0, -0.05, 0.08]} 
+              />
             </group>
           </group>
         </group>

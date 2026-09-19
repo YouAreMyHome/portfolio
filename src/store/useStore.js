@@ -24,6 +24,8 @@ const useStore = create(
   // UI State
   activePanel: null, // 'projects', 'skills', 'playground', 'contact', 'about'
   isLoading: false,
+  showWelcome: false,
+  hasEnteredRoom: false,
   isSceneReady: false, // true khi frame 3D đầu tiên đã render xong
   isCriticalAssetsReady: false,
   criticalAssetsTotal: 0,
@@ -40,8 +42,18 @@ const useStore = create(
   transitionPhase: 'idle',
   transitionTarget: 'night', // 'night' | 'day' — hướng chuyển đổi
   
-  // Theme
+  // Theme & Lighting Presets ('morning' | 'sunset' | 'rainy' | 'night')
   isNightMode: false,
+  lightingPreset: 'morning', // 'morning' | 'sunset' | 'rainy' | 'night'
+  retroPixelMode: false,     // Bộ lọc retro pixel art shader
+  deskLampOn: false,         // Đèn bàn làm việc
+  
+  // Interactive Overlays
+  showGuestbook: false,
+  showLeaderboard: false,
+  activeLeaderboardGame: 'snake',
+  showPhotoMode: false,
+  showAdmin: false,
   
   // Interaction State
   hoveredObject: null,
@@ -138,6 +150,16 @@ const useStore = create(
       isZoomed: false 
     })
   },
+
+  setShowWelcome: (show) => set({ showWelcome: show }),
+
+  enterRoom: () => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('panelOpen')
+    set({ hasEnteredRoom: true })
+  },
+
+  completeWelcomeExit: () => set({ showWelcome: false }),
   
   setLoading: (loading) => set({ isLoading: loading }),
 
@@ -252,6 +274,59 @@ const useStore = create(
     if (!showMusicPlayer) track('music_player_open')
     set({ showMusicPlayer: !showMusicPlayer })
   },
+
+  // Lighting Presets ('morning' | 'sunset' | 'rainy' | 'night')
+  setLightingPreset: (preset) => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    const isNight = preset === 'night'
+    set({
+      lightingPreset: preset,
+      isNightMode: isNight,
+    })
+  },
+
+  // Retro Pixel Shader filter toggle
+  toggleRetroPixelMode: () => {
+    const { onSoundTrigger, retroPixelMode } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ retroPixelMode: !retroPixelMode })
+  },
+
+  // Desk Lamp toggle
+  toggleDeskLamp: () => {
+    const { onSoundTrigger, deskLampOn } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ deskLampOn: !deskLampOn })
+  },
+
+  // Guestbook modal
+  openGuestbook: () => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showGuestbook: true })
+  },
+  closeGuestbook: () => set({ showGuestbook: false }),
+
+  // Leaderboard modal
+  openLeaderboard: (game = 'snake') => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showLeaderboard: true, activeLeaderboardGame: game })
+  },
+  closeLeaderboard: () => set({ showLeaderboard: false }),
+
+  // Photo Mode
+  openPhotoMode: () => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ showPhotoMode: true })
+  },
+  closePhotoMode: () => set({ showPhotoMode: false }),
+
+  // Admin Dashboard
+  openAdmin: () => set({ showAdmin: true }),
+  closeAdmin: () => set({ showAdmin: false }),
     }),
     {
       name: 'nghia-room-prefs',   // localStorage key
@@ -259,6 +334,9 @@ const useStore = create(
       partialize: (state) => ({
         isNightMode: state.isNightMode,
         stringLightsOn: state.stringLightsOn,
+        lightingPreset: state.lightingPreset,
+        retroPixelMode: state.retroPixelMode,
+        deskLampOn: state.deskLampOn,
       }),
     }
   )

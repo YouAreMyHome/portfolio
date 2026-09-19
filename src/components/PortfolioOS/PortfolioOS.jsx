@@ -11,10 +11,12 @@ import {
   Monitor, FolderOpen, Terminal, FileText, Trash2,
   Palette, Server, Wrench, Star, Square, FolderSearch, Info,
   User, Sparkles, Mail, Github, Linkedin, MapPin,
-  Power, Volume2, LayoutGrid
+  Power, Volume2, LayoutGrid, Sliders
 } from 'lucide-react'
 import { DESKTOP_ICONS, RECYCLED_PROJECTS, TERMINAL_COMMANDS, TERMINAL_WELCOME, OS_THEME } from './osConfig'
 import { personalInfo, aboutMe, skills, projects } from '../../data/portfolio'
+import dataService from '../../services/dataService'
+import useStore from '../../store/useStore'
 import './PortfolioOS.css'
 
 // Icon mapping for desktop icons (Lucide React)
@@ -24,6 +26,7 @@ const ICON_MAP = {
   'terminal': <Terminal size={32} />,
   'about-me': <FileText size={32} />,
   'recycle-bin': <Trash2 size={32} />,
+  'admin-console': <Sliders size={32} />,
 }
 
 // Small icons for taskbar/menus
@@ -33,6 +36,7 @@ const ICON_MAP_SMALL = {
   'terminal': <Terminal size={16} />,
   'about-me': <FileText size={16} />,
   'recycle-bin': <Trash2 size={16} />,
+  'admin-console': <Sliders size={16} />,
 }
 
 // ========== WINDOW COMPONENT ==========
@@ -277,11 +281,18 @@ function TerminalApp() {
 
 // ========== SKILLS APP (MY COMPUTER) ==========
 function SkillsApp() {
+  const [skillsData, setSkillsData] = useState(skills)
   const categories = [
     { key: 'frontend', label: 'Frontend', icon: <Palette size={16} /> },
     { key: 'backend', label: 'Backend', icon: <Server size={16} /> },
     { key: 'tools', label: 'Tools', icon: <Wrench size={16} /> },
   ]
+
+  useEffect(() => {
+    dataService.getSkills().then((data) => {
+      if (data) setSkillsData(data)
+    })
+  }, [])
   
   return (
     <>
@@ -301,7 +312,7 @@ function SkillsApp() {
           {categories.map(cat => (
             <div key={cat.key} className="skill-category">
               <h3>{cat.icon} {cat.label}</h3>
-              {skills[cat.key]?.map(skill => (
+              {skillsData[cat.key]?.map(skill => (
                 <div key={skill.name} className="skill-row">
                   <span className="skill-name">{skill.name}</span>
                   <div className="skill-bar-container">
@@ -318,7 +329,7 @@ function SkillsApp() {
         </div>
       </div>
       <div className="window-statusbar">
-        <span className="statusbar-item">{Object.values(skills).flat().length} skills</span>
+        <span className="statusbar-item">{Object.values(skillsData).flat().length} skills</span>
         <span className="statusbar-item">Ready</span>
       </div>
     </>
@@ -327,9 +338,16 @@ function SkillsApp() {
 
 // ========== PROJECTS APP ==========
 function ProjectsApp() {
+  const [projectList, setProjectList] = useState(projects)
   const [selectedProject, setSelectedProject] = useState(null)
   const { i18n } = useTranslation()
   const lf = (vi, en) => i18n.language === 'en' && en ? en : vi
+
+  useEffect(() => {
+    dataService.getProjects().then((data) => {
+      if (data && data.length > 0) setProjectList(data)
+    })
+  }, [])
   
   return (
     <>
@@ -347,7 +365,7 @@ function ProjectsApp() {
       <div className="window-content">
         <div className="projects-content">
           <div className="projects-list">
-            {projects.map(project => (
+            {projectList.map(project => (
               <div 
                 key={project.id}
                 className={`project-item ${selectedProject === project.id ? 'selected' : ''}`}
@@ -370,7 +388,7 @@ function ProjectsApp() {
         </div>
       </div>
       <div className="window-statusbar">
-        <span className="statusbar-item">{projects.length} projects</span>
+        <span className="statusbar-item">{projectList.length} projects</span>
         <span className="statusbar-item">{selectedProject ? lf('Double-click để mở demo', 'Double-click to open demo') : lf('Chọn một dự án', 'Select a project')}</span>
       </div>
     </>
@@ -566,7 +584,13 @@ function PortfolioOS({ onExit }) {
     ))
   }, [])
   
+  const openAdmin = useStore((state) => state.openAdmin)
+
   const handleIconDoubleClick = (icon) => {
+    if (icon.app === 'admin') {
+      openAdmin()
+      return
+    }
     openApp(icon.app)
   }
   

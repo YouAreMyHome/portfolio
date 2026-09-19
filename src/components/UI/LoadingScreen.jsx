@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react'
-import { Terminal } from 'lucide-react'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import { Sparkles, Compass, Moon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { track } from '@vercel/analytics'
 import { useSounds } from '../../utils/useSounds'
@@ -8,14 +8,9 @@ import { mark, measure } from '../../utils/loadingMetrics'
 import './LoadingScreen.css'
 
 /**
- * LoadingScreen — Màn hình loading chính xác
- *
- * Logic progress:
- *  1. Theo dõi assets critical đã settle (loaded hoặc failed)
- *  2. Chờ frame scene đầu tiên render xong
- *  3. Chỉ complete khi qua min display time để tránh flash
+ * LoadingScreen — Màn hình loading đồng bộ hoàn toàn với Welcome Screen
+ * Phong cách: Game Main Menu Prelude (Bầu trời đêm, card kính mờ, thanh progress neon vàng/tím)
  */
-
 function LoadingScreen() {
   const isSceneReady = useStore((state) => state.isSceneReady)
   const isCriticalAssetsReady = useStore((state) => state.isCriticalAssetsReady)
@@ -25,16 +20,32 @@ function LoadingScreen() {
   const loadingStartedAt = useStore((state) => state.loadingStartedAt)
   const loadingMinDisplayMs = useStore((state) => state.loadingMinDisplayMs)
   const setLoadingMetrics = useStore((state) => state.setLoadingMetrics)
+  const setShowWelcome = useStore((state) => state.setShowWelcome)
+  const hasEnteredRoom = useStore((state) => state.hasEnteredRoom)
   const { playSuccess } = useSounds()
 
   const { t } = useTranslation()
   const [displayProgress, setDisplayProgress] = useState(0)
+  const [isFadingOut, setIsFadingOut] = useState(false)
   const [hideAll, setHideAll] = useState(false)
   const [loadingStageKey, setLoadingStageKey] = useState('s0')
 
   const animationRef = useRef(null)
   const startTimeRef = useRef(Date.now())
   const playedSuccessRef = useRef(false)
+  const hasCompletedRef = useRef(false)
+
+  // Ambient stars for the night sky backdrop
+  const ambientStars = useMemo(() => {
+    return Array.from({ length: 35 }, (_, i) => ({
+      id: i,
+      left: `${(i * 21.7 + 7.3) % 96}%`,
+      top: `${(i * 19.3 + 4.5) % 85}%`,
+      size: i % 4 === 0 ? 2.5 : 1.5,
+      delay: (i % 6) * 0.5,
+      duration: 2.2 + (i % 4) * 0.7,
+    }))
+  }, [])
 
   useEffect(() => {
     if (loadingStartedAt > 0) {
@@ -55,14 +66,13 @@ function LoadingScreen() {
         (minPassed ? 1 : 0)
       const stepProgress = (Math.min(totalSteps, completedSteps) / totalSteps) * 100
 
-      setDisplayProgress(prev => {
+      setDisplayProgress((prev) => {
         const isReadyToComplete = isSceneReady && isCriticalAssetsReady && minPassed
         const target = isReadyToComplete ? 100 : Math.min(99, stepProgress)
 
         const diff = target - prev
         if (Math.abs(diff) < 0.15) return target
 
-        // Mượt khi tiến, nhanh khi nhảy lên 100
         const speed = target >= 99 ? 0.18 : 0.09
         return prev + diff * speed
       })
@@ -81,7 +91,7 @@ function LoadingScreen() {
     loadingMinDisplayMs,
   ])
 
-  // ── Loading text theo elapsed time (tự nhiên hơn theo %): ────────────────
+  // ── Loading text theo elapsed time ────────────────────────────────────────
   useEffect(() => {
     const settledAssets = criticalAssetsLoaded + criticalAssetsFailed
     const settledRatio = criticalAssetsTotal > 0 ? settledAssets / criticalAssetsTotal : 0
@@ -108,11 +118,15 @@ function LoadingScreen() {
     }
   }, [criticalAssetsLoaded, criticalAssetsFailed, criticalAssetsTotal, isSceneReady, isCriticalAssetsReady])
 
-  // ── Kết thúc loading khi xong ────────────────────────────────────────────
+  // ── Kết thúc loading: Fade out & dissolve vào WelcomeScreen ─────────────
   const isLoaded = displayProgress >= 99
 
   useEffect(() => {
+    if (hasEnteredRoom || hasCompletedRef.current) return
+
     if (isLoaded) {
+      hasCompletedRef.current = true
+
       if (!playedSuccessRef.current) {
         playedSuccessRef.current = true
         mark('loading:ui-hidden')
@@ -140,21 +154,28 @@ function LoadingScreen() {
 
         playSuccess()
       }
-      const hideTimer = setTimeout(() => setHideAll(true), 450)
+
+      // Kích hoạt WelcomeScreen sẵn sàng bên dưới và bắt đầu dissolve LoadingScreen
+      setShowWelcome(true)
+      setIsFadingOut(true)
+
+      const hideTimer = setTimeout(() => {
+        setHideAll(true)
+      }, 750)
+
       return () => {
         clearTimeout(hideTimer)
       }
     }
   }, [
     isLoaded,
-    playSuccess,
-    setLoadingMetrics,
+    hasEnteredRoom,
     criticalAssetsFailed,
     criticalAssetsTotal,
   ])
-  
-  if (hideAll) return null
-  
+
+  if (hasEnteredRoom || hideAll) return null
+
   const roundedProgress = Math.round(displayProgress)
   const settledAssets = criticalAssetsLoaded + criticalAssetsFailed
   const hasFailures = criticalAssetsFailed > 0
@@ -169,69 +190,102 @@ function LoadingScreen() {
     actualCompletedSteps,
     Math.max(0, Math.round((roundedProgress / 100) * totalSteps))
   )
-  
+
   return (
-    <div className="loading-screen">
-      <div className="loading-background"></div>
-      <div className="loading-gradient"></div>
-      <div className="loading-scanlines"></div>
-      <div className="loading-vignette"></div>
-      <div className="loading-glow loading-glow-left"></div>
-      <div className="loading-glow loading-glow-right"></div>
+    <div className={`loading-screen ${isFadingOut ? 'loading-screen-fading' : ''}`}>
+      {/* Cùng bầu trời đêm với WelcomeScreen */}
+      <div className="loading-sky-gradient" />
+      <div className="loading-scanlines" />
+      <div className="loading-vignette" />
 
-      <div className="loading-branding">
-        <span className="loading-kicker">INTERACTIVE_3D_PORTFOLIO</span>
-        <h1 className="loading-logo">NGHIA&apos;S_ROOM</h1>
+      {/* Sao nhấp nháy nền */}
+      <div className="loading-stars-layer">
+        {ambientStars.map((s) => (
+          <span
+            key={s.id}
+            className="loading-star"
+            style={{
+              left: s.left,
+              top: s.top,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              animationDelay: `${s.delay}s`,
+              animationDuration: `${s.duration}s`,
+            }}
+          />
+        ))}
       </div>
 
-      <div className="loading-content">
-        <div className="loading-status">
-          <Terminal size={14} />
-          <p>{t(`loading.stages.${loadingStageKey}`)}</p>
+      {/* Ánh trăng halo sau card */}
+      <div className="loading-center-halo" />
+
+      {/* Card Loading đồng bộ với Game Hero Card */}
+      <div className="loading-card">
+        {/* Góc bracket kiểu game */}
+        <div className="card-corner corner-tl" />
+        <div className="card-corner corner-tr" />
+        <div className="card-corner corner-bl" />
+        <div className="card-corner corner-br" />
+
+        {/* Top badge */}
+        <div className="loading-badge">
+          <Sparkles size={13} className="loading-badge-icon" />
+          <span>{t('loading.status_readying', 'INITIALIZING SPACE')}</span>
         </div>
 
-        <div className="loading-divider"></div>
+        {/* Brand Title giống Welcome Screen */}
+        <h1 className="loading-title">
+          <span className="title-highlight">NGHIA&apos;S</span>
+          <span className="title-sub">ROOM</span>
+        </h1>
 
-        <div className="loading-progress-wrap">
-          <div className="loading-progress-frame">
-            <div className="loading-progress-track">
-              <div
-                className="loading-progress-fill"
-                style={{ width: `${Math.max(0, Math.min(100, displayProgress))}%` }}
-              >
-                <div className="loading-progress-scan"></div>
-              </div>
-              <span className="loading-progress-percent">{roundedProgress}%_COMPLETE</span>
+        <p className="loading-subtitle">
+          {t('loading.subtitle', 'Interactive 3D Portfolio')}
+        </p>
+
+        {/* Status indicator */}
+        <div className="loading-stage-pill">
+          <span className="loading-stage-dot" />
+          <span className="loading-stage-text">
+            {t(`loading.stages.${loadingStageKey}`)}
+          </span>
+        </div>
+
+        {/* Progress Bar Container */}
+        <div className="loading-bar-wrap">
+          <div className="loading-bar-track">
+            <div
+              className="loading-bar-fill"
+              style={{ width: `${Math.max(0, Math.min(100, displayProgress))}%` }}
+            >
+              <div className="loading-bar-glow-tip" />
+              <div className="loading-bar-shimmer" />
             </div>
           </div>
 
-          <div className="loading-meta">
-            <span>{`${visibleCompletedSteps}/${totalSteps}_PIPELINE_STEPS`}</span>
-            <div>
-              <span className="loading-live-dot">●</span>
-              <span>{hasFailures ? `STATUS: FALLBACK_${criticalAssetsFailed}` : 'STATUS: ONLINE'}</span>
-            </div>
+          <div className="loading-meta-row">
+            <span className="loading-meta-steps">
+              {`${visibleCompletedSteps}/${totalSteps} STEPS`}
+            </span>
+            <span className="loading-meta-percent">
+              {roundedProgress}%
+            </span>
           </div>
         </div>
+
+        {/* Cozy Tip */}
+        <p className="loading-cozy-tip">
+          {t('loading.tip', 'Đang chuẩn bị căn phòng ấm cúng cho bạn...')}
+        </p>
       </div>
 
-      <div className="loading-tech-footer">
-        <div className="loading-breadcrumbs">
-          <span>ROLE: SOFTWARE_DEV</span>
-          <span>/</span>
-          <span>STACK: REACT_THREEJS</span>
-          <span>/</span>
-          <span className="active">MODE: INTERACTIVE</span>
-        </div>
-        <div className="loading-signature">
-          <span></span>
-          <p>©2026 NGHIA&apos;S ROOM</p>
-          <span></span>
-        </div>
-      </div>
-
-      <div className="loading-tips">
-        <p>Đợi Mình tải tài nguyên 1 xíu nhee...</p>
+      {/* Ambient Footer */}
+      <div className="loading-footer-brand">
+        <span>EST. 2026</span>
+        <span>•</span>
+        <span>THREE.JS &amp; REACT</span>
+        <span>•</span>
+        <span>{hasFailures ? `FALLBACK (${criticalAssetsFailed})` : 'READYING SYSTEM'}</span>
       </div>
     </div>
   )

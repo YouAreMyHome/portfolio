@@ -1,7 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
-import { OrbitControls, SoftShadows } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
+import { OrbitControls } from '@react-three/drei'
 import { Analytics } from '@vercel/analytics/react'
 import { Hand, RotateCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -9,8 +8,10 @@ import { ErrorBoundary, WebGLErrorBoundary } from './components/UI/ErrorBoundary
 import Room from './components/Room/Room'
 import SceneLighting from './components/Room/SceneLighting'
 import CameraController from './components/Room/CameraController'
+import PostProcessingEffects from './components/Room/PostProcessingEffects'
 import HUD from './components/UI/HUD'
 import LoadingScreen from './components/UI/LoadingScreen'
+import WelcomeScreen from './components/UI/WelcomeScreen'
 import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
 import TransitionOverlay from './components/UI/TransitionOverlay'
 import useStore from './store/useStore'
@@ -26,6 +27,10 @@ const TVGameOverlay = lazy(() => import('./components/UI/TVGameOverlay'))
 const KanbanOverlay = lazy(() => import('./components/UI/KanbanOverlay'))
 const MusicPlayer = lazy(() => import('./components/UI/MusicPlayer'))
 const PolaroidLightbox = lazy(() => import('./components/UI/PolaroidLightbox'))
+const GuestbookOverlay = lazy(() => import('./components/UI/GuestbookOverlay'))
+const LeaderboardOverlay = lazy(() => import('./components/UI/LeaderboardOverlay'))
+const PhotoMode = lazy(() => import('./components/UI/PhotoMode'))
+const AdminIndex = lazy(() => import('./components/Admin/index'))
 
 /**
  * THE DEV'S PIXEL ROOM - Phase 4: Polish
@@ -40,12 +45,20 @@ const PolaroidLightbox = lazy(() => import('./components/UI/PolaroidLightbox'))
 // Background color controller component
 function BackgroundController() {
   const isNightMode = useStore((state) => state.isNightMode)
+  const lightingPreset = useStore((state) => state.lightingPreset)
   
   useEffect(() => {
     // Smooth transition cho body background
-    document.body.style.transition = 'background-color 0.5s ease'
-    document.body.style.backgroundColor = isNightMode ? '#0f172a' : '#f0f0f0'
-  }, [isNightMode])
+    document.body.style.transition = 'background-color 0.6s ease'
+    const colors = {
+      morning: '#f1f5f9',
+      sunset: '#2a110a',
+      rainy: '#1e293b',
+      night: '#090d16',
+    }
+    const preset = isNightMode ? 'night' : (lightingPreset || 'morning')
+    document.body.style.backgroundColor = colors[preset] || '#f1f5f9'
+  }, [isNightMode, lightingPreset])
   
   return null
 }
@@ -68,6 +81,7 @@ function Scene({ isNightMode, graphics = {} }) {
   const activePanel = useStore((state) => state.activePanel)
   const isSceneReady = useStore((state) => state.isSceneReady)
   const setSceneReady = useStore((state) => state.setSceneReady)
+  const lightingPreset = useStore((state) => state.lightingPreset)
 
   // Bắt tín hiệu frame đầu tiên render xong
   useFrame(() => {
@@ -86,17 +100,20 @@ function Scene({ isNightMode, graphics = {} }) {
     postProcessing = true,
     shadowSamples = 16,
     shadowSize = 25,
-    composerMultisampling = 4,
-    bloomIntensity = 0.35
   } = graphics
   
+  const sceneBgColor = isNightMode
+    ? '#0B0F19'
+    : lightingPreset === 'sunset'
+    ? '#2A130C'
+    : lightingPreset === 'rainy'
+    ? '#1E2530'
+    : '#EFEBE4'
+
   return (
     <>
       {/* Dynamic scene background */}
-      <color attach="background" args={[isNightMode ? '#0f172a' : '#f0f0f0']} />
-      
-      {/* Soft Shadows - conditional for mobile */}
-      {softShadows && <SoftShadows size={shadowSize} samples={shadowSamples} focus={0.5} />}
+      <color attach="background" args={[sceneBgColor]} />
       
       <Suspense fallback={null}>
         {/* Dynamic Lighting */}
@@ -130,24 +147,9 @@ function Scene({ isNightMode, graphics = {} }) {
           }}
         />
         
-        {/* Post-processing Effects - conditional for mobile */}
+        {/* Post-processing Effects - N8AO, Bloom, ToneMapping, Vignette, Pixelation */}
         {postProcessing && (
-          <EffectComposer multisampling={composerMultisampling}>
-            {/* Bloom - phát sáng cho cửa sổ, màn hình và đèn */}
-            <Bloom 
-              intensity={isNightMode ? 0.5 : bloomIntensity}
-              luminanceThreshold={1.0}
-              luminanceSmoothing={0.9}
-              mipmapBlur
-              radius={0.6}
-            />
-            
-            {/* Vignette - tối góc để tập trung */}
-            <Vignette 
-              offset={0.35}
-              darkness={isNightMode ? 0.5 : 0.3}
-            />
-          </EffectComposer>
+          <PostProcessingEffects graphics={graphics} />
         )}
       </Suspense>
     </>
@@ -292,6 +294,18 @@ function AppContent() {
         
         {/* Kanban Board Overlay */}
         <KanbanOverlay />
+
+        {/* Guestbook Sticky Notes Overlay */}
+        <GuestbookOverlay />
+
+        {/* Arcade Leaderboard Overlay */}
+        <LeaderboardOverlay />
+
+        {/* Polaroid Camera Photo Mode */}
+        <PhotoMode />
+
+        {/* Admin CMS Portal */}
+        <AdminIndex />
       </Suspense>
       
       {/* HUD */}
@@ -310,6 +324,9 @@ function AppContent() {
 
       {/* Loading Screen */}
       <LoadingScreen />
+      
+      {/* Welcome Screen - Game Main Menu Style */}
+      <WelcomeScreen />
       
       <Suspense fallback={<OverlayFallback />}>
         {/* Polaroid Lightbox */}
@@ -350,14 +367,17 @@ function OverlayFallback() {
  */
 function MobileTouchHint() {
   const [show, setShow] = useState(true)
+  const hasEnteredRoom = useStore((state) => state.hasEnteredRoom)
+  const showWelcome = useStore((state) => state.showWelcome)
   const { t } = useTranslation()
   
   useEffect(() => {
+    if (!hasEnteredRoom || showWelcome) return
     const timer = setTimeout(() => setShow(false), 4000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [hasEnteredRoom, showWelcome])
   
-  if (!show) return null
+  if (!show || !hasEnteredRoom || showWelcome) return null
   
   return (
     <div className="mobile-touch-hint">

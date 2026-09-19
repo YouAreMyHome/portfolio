@@ -1,312 +1,466 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { COLORS } from './colors'
+import { RoundedBox } from '@react-three/drei'
+import * as THREE from 'three'
 import useStore from '../../store/useStore'
 
 /**
- * RecordPlayer - Máy đĩa nghe nhạc vintage cao cấp
- * Thiết kế tinh xảo với chất liệu gỗ walnut và kim loại đồng
- * Click để mở Music Player panel
+ * RecordPlayer - Hi-Fi Walnut & Brass Turntable Console (Japandi / Mid-Century Modern)
+ * Features:
+ * - Oiled solid walnut plinth & console with vinyl storage shelf below
+ * - Real vinyl records stored vertically with colorful spines
+ * - Acrylic dust cover with physical glass transmission & hinge
+ * - Precision aluminum & champagne brass tonearm with counterweight & cartridge
+ * - Spun aluminum platter with grooved vinyl disc and rotating center label
+ * - Leaning vinyl album cover jacket with artistic graphic
+ * - Interactive: Click to toggle music playback, spinning vinyl, and floating musical notes
  */
-function RecordPlayer({ position = [-0.5, 0.65, -3.6] }) {
+function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
   const groupRef = useRef()
   const discRef = useRef()
   const armRef = useRef()
+  const lidRef = useRef()
   const isPlaying = useStore((state) => state.isRecordPlaying)
-  const isNightMode = useStore((state) => state.isNightMode)
-  
-  // Animations
+
+  // Smooth frame animations for disc, tonearm, and lid
   useFrame((state, delta) => {
-    // Rotate disc when playing
+    // Disc rotation
     if (discRef.current && isPlaying) {
-      discRef.current.rotation.y += delta * 1.2
+      discRef.current.rotation.y += delta * 1.8
     }
-    
-    // Animate tonearm smoothly
+
+    // Tonearm smooth cueing
     if (armRef.current) {
-      const targetRotation = isPlaying ? -0.35 : 0.15
-      armRef.current.rotation.y += (targetRotation - armRef.current.rotation.y) * 0.03
+      const targetArmAngle = isPlaying ? -0.32 : 0.18
+      armRef.current.rotation.y = THREE.MathUtils.lerp(armRef.current.rotation.y, targetArmAngle, delta * 3.5)
+    }
+
+    // Dust cover smooth tilt
+    if (lidRef.current) {
+      const targetLidAngle = isPlaying ? -0.85 : 0
+      lidRef.current.rotation.x = THREE.MathUtils.lerp(lidRef.current.rotation.x, targetLidAngle, delta * 4)
     }
   })
-  
-  // Colors
-  const woodColor = '#5D4037'
-  const woodDark = '#4E342E'
-  const woodLight = '#8D6E63'
-  const brassColor = '#D4AF37'
-  const brassDark = '#B8860B'
-  
+
+  // Material palette - Warm American Walnut & Champagne Brass
+  const walnutWood = '#724929'
+  const walnutDark = '#56341a'
+  const walnutWarm = '#8b5934'
+  const champagneBrass = '#d4af37'
+  const brassMuted = '#b8972e'
+  const brushedSteel = '#888d92'
+
   return (
     <group ref={groupRef} position={position}>
-      {/* === CABINET/STAND === */}
+      {/* ========================================================================= */}
+      {/* 1. MID-CENTURY AUDIO CONSOLE / STAND                                       */}
+      {/* ========================================================================= */}
       <group position={[0, -0.35, 0]}>
-        {/* Main cabinet body */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[0.55, 0.6, 0.4]} />
-          <meshToonMaterial color={woodColor} />
+        {/* Main console body - Walnut carcass */}
+        <RoundedBox args={[0.56, 0.58, 0.42]} radius={0.015} smoothness={4} castShadow receiveShadow>
+          <meshStandardMaterial color={walnutWood} roughness={0.68} metalness={0.05} />
+        </RoundedBox>
+
+        {/* Inner cavity for vinyl record storage */}
+        <mesh position={[0, -0.05, 0.02]}>
+          <boxGeometry args={[0.48, 0.36, 0.38]} />
+          <meshStandardMaterial color={walnutDark} roughness={0.9} />
         </mesh>
-        
-        {/* Cabinet top surface */}
-        <mesh castShadow position={[0, 0.305, 0]}>
-          <boxGeometry args={[0.56, 0.02, 0.41]} />
-          <meshToonMaterial color={woodDark} />
+
+        {/* Shelf divider */}
+        <mesh position={[0, 0.13, 0.02]}>
+          <boxGeometry args={[0.48, 0.015, 0.37]} />
+          <meshStandardMaterial color={walnutWarm} roughness={0.7} />
         </mesh>
-        
-        {/* Cabinet front panel with door */}
-        <mesh position={[0, 0, 0.201]}>
-          <boxGeometry args={[0.48, 0.52, 0.01]} />
-          <meshToonMaterial color={woodLight} />
+
+        {/* Small top compartment drawer face */}
+        <mesh position={[0, 0.19, 0.211]} castShadow>
+          <planeGeometry args={[0.46, 0.09]} />
+          <meshStandardMaterial color={walnutWarm} roughness={0.65} />
         </mesh>
-        
-        {/* Door handle */}
-        <mesh castShadow position={[0.15, 0, 0.21]} rotation={[Math.PI/2, 0, 0]}>
-          <cylinderGeometry args={[0.015, 0.015, 0.08, 8]} />
-          <meshStandardMaterial color={brassColor} metalness={0.8} roughness={0.2} />
+        {/* Minimalist brass pull tab */}
+        <mesh position={[0, 0.19, 0.218]} castShadow>
+          <boxGeometry args={[0.06, 0.008, 0.012]} />
+          <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
         </mesh>
-        
-        {/* Cabinet legs */}
-        {[[-0.22, -0.15], [0.22, -0.15], [-0.22, 0.15], [0.22, 0.15]].map(([x, z], i) => (
-          <group key={i} position={[x, -0.32, z]}>
-            <mesh castShadow>
-              <cylinderGeometry args={[0.025, 0.02, 0.06, 8]} />
-              <meshToonMaterial color={woodDark} />
+
+        {/* Row of vertical Vinyl Records in the lower shelf */}
+        <group position={[-0.2, -0.06, 0.05]}>
+          {[
+            { color: '#c0392b', title: '#f1c40f', offset: 0 },
+            { color: '#2980b9', title: '#ecf0f1', offset: 0.03 },
+            { color: '#27ae60', title: '#e67e22', offset: 0.06 },
+            { color: '#8e44ad', title: '#f39c12', offset: 0.09 },
+            { color: '#d35400', title: '#ecf0f1', offset: 0.12 },
+            { color: '#16a085', title: '#ffffff', offset: 0.15 },
+            { color: '#2c3e50', title: '#e74c3c', offset: 0.18 },
+            { color: '#e67e22', title: '#2c3e50', offset: 0.21 },
+            { color: '#7f8c8d', title: '#f1c40f', offset: 0.24 },
+            { color: '#c0392b', title: '#ffffff', offset: 0.27 },
+            { color: '#1f2937', title: '#38bdf8', offset: 0.30 },
+            { color: '#b45309', title: '#fef08a', offset: 0.33 },
+          ].map((album, idx) => (
+            <group key={idx} position={[album.offset, 0, 0]} rotation={[0, 0, idx === 11 ? -0.08 : 0]}>
+              {/* Record spine */}
+              <mesh castShadow position={[0, 0, 0.15]}>
+                <boxGeometry args={[0.022, 0.31, 0.008]} />
+                <meshStandardMaterial color={album.color} roughness={0.7} />
+              </mesh>
+              {/* Record body sleeve */}
+              <mesh castShadow position={[0, 0, 0]}>
+                <boxGeometry args={[0.02, 0.31, 0.3]} />
+                <meshStandardMaterial color={album.color} roughness={0.65} />
+              </mesh>
+              {/* Spine text graphic bar */}
+              <mesh position={[0, 0, 0.155]}>
+                <planeGeometry args={[0.012, 0.18]} />
+                <meshStandardMaterial color={album.title} roughness={0.8} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+
+        {/* 4 Tapered Mid-Century Wooden Legs with Brass Ferrules */}
+        {[
+          [-0.22, -0.15, -0.15, 0.15],
+          [0.22, -0.15, 0.15, 0.15],
+          [-0.22, 0.15, -0.15, -0.15],
+          [0.22, 0.15, 0.15, -0.15],
+        ].map(([x, z, rotX, rotZ], i) => (
+          <group key={i} position={[x, -0.32, z]} rotation={[rotZ * 0.5, 0, rotX * 0.5]}>
+            {/* Wooden leg */}
+            <mesh castShadow position={[0, -0.05, 0]}>
+              <cylinderGeometry args={[0.016, 0.01, 0.12, 12]} />
+              <meshStandardMaterial color={walnutDark} roughness={0.7} />
             </mesh>
-            {/* Brass foot cap */}
-            <mesh position={[0, -0.03, 0]}>
-              <sphereGeometry args={[0.022, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2]} />
-              <meshStandardMaterial color={brassColor} metalness={0.7} roughness={0.3} />
+            {/* Brass foot ferrule cap */}
+            <mesh position={[0, -0.105, 0]}>
+              <cylinderGeometry args={[0.011, 0.009, 0.025, 12]} />
+              <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
             </mesh>
           </group>
         ))}
-        
-        {/* Decorative trim */}
-        <mesh position={[0, 0.28, 0.2]}>
-          <boxGeometry args={[0.52, 0.02, 0.02]} />
-          <meshToonMaterial color={brassDark} />
-        </mesh>
+
       </group>
-      
-      {/* === TURNTABLE UNIT === */}
-      <group position={[0, 0.02, 0]}>
-        {/* Turntable base - walnut wood */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[0.48, 0.06, 0.36]} />
-          <meshToonMaterial color={woodColor} />
+
+      {/* ========================================================================= */}
+      {/* 2. HI-FI TURNTABLE DECK                                                    */}
+      {/* ========================================================================= */}
+      <group position={[0, 0.025, 0]}>
+        {/* Plinth (Chassis) - Walnut with beveled edges */}
+        <RoundedBox args={[0.5, 0.055, 0.38]} radius={0.012} smoothness={4} castShadow receiveShadow>
+          <meshStandardMaterial color={walnutWood} roughness={0.55} metalness={0.08} />
+        </RoundedBox>
+
+        {/* Brushed aluminum top plate insert */}
+        <mesh position={[0, 0.0285, 0]} receiveShadow>
+          <boxGeometry args={[0.47, 0.002, 0.35]} />
+          <meshStandardMaterial color="#22252a" roughness={0.45} metalness={0.6} />
         </mesh>
-        
-        {/* Top plate - dark matte */}
-        <mesh position={[0, 0.032, 0]}>
-          <boxGeometry args={[0.46, 0.01, 0.34]} />
-          <meshToonMaterial color="#2a2a2a" />
-        </mesh>
-        
-        {/* Rounded corners trim */}
-        {[[-0.24, -0.18], [0.24, -0.18], [-0.24, 0.18], [0.24, 0.18]].map(([x, z], i) => (
+
+        {/* Brass corner accent trims */}
+        {[
+          [-0.24, -0.18],
+          [0.24, -0.18],
+          [-0.24, 0.18],
+          [0.24, 0.18],
+        ].map(([x, z], i) => (
           <mesh key={i} position={[x, 0.015, z]} castShadow>
-            <cylinderGeometry args={[0.015, 0.015, 0.04, 8]} />
-            <meshStandardMaterial color={brassColor} metalness={0.7} roughness={0.3} />
+            <cylinderGeometry args={[0.012, 0.012, 0.03, 12]} />
+            <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
           </mesh>
         ))}
-        
-        {/* Platter - metal with rubber mat */}
-        <mesh position={[0.02, 0.045, 0.02]}>
-          <cylinderGeometry args={[0.13, 0.13, 0.015, 32]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
-        </mesh>
-        
-        {/* Platter rim highlight */}
-        <mesh position={[0.02, 0.052, 0.02]}>
-          <torusGeometry args={[0.125, 0.008, 8, 32]} />
-          <meshStandardMaterial color="#333" metalness={0.5} roughness={0.5} />
-        </mesh>
-        
-        {/* === VINYL RECORD === */}
-        <group ref={discRef} position={[0.02, 0.06, 0.02]}>
-          {/* Main disc */}
-          <mesh castShadow>
-            <cylinderGeometry args={[0.12, 0.12, 0.003, 48]} />
-            <meshStandardMaterial color="#0a0a0a" metalness={0.1} roughness={0.3} />
+
+        {/* Turntable Platter - Heavy die-cast metal */}
+        <group position={[-0.04, 0.032, 0.01]}>
+          {/* Sub-platter */}
+          <mesh castShadow position={[0, 0.008, 0]}>
+            <cylinderGeometry args={[0.138, 0.14, 0.014, 48]} />
+            <meshStandardMaterial color="#b0b5bc" metalness={0.85} roughness={0.25} />
           </mesh>
-          
-          {/* Vinyl grooves - subtle rings */}
-          {[0.04, 0.06, 0.08, 0.1].map((r, i) => (
-            <mesh key={i} position={[0, 0.002, 0]} rotation={[Math.PI/2, 0, 0]}>
-              <torusGeometry args={[r, 0.001, 4, 48]} />
-              <meshBasicMaterial color="#151515" transparent opacity={0.6} />
+
+          {/* Rubber/Cork Slipmat */}
+          <mesh position={[0, 0.016, 0]} receiveShadow>
+            <cylinderGeometry args={[0.132, 0.132, 0.003, 40]} />
+            <meshStandardMaterial color="#1a1c1e" roughness={0.92} metalness={0.05} />
+          </mesh>
+
+          {/* Brass Spindle */}
+          <mesh position={[0, 0.024, 0]}>
+            <cylinderGeometry args={[0.0035, 0.0035, 0.022, 16]} />
+            <meshStandardMaterial color={champagneBrass} metalness={0.95} roughness={0.15} />
+          </mesh>
+
+          {/* === ROTATING VINYL DISC === */}
+          <group ref={discRef} position={[0, 0.019, 0]}>
+            {/* Main 12" Vinyl Disc */}
+            <mesh castShadow receiveShadow>
+              <cylinderGeometry args={[0.125, 0.125, 0.0035, 48]} />
+              <meshStandardMaterial color="#0c0d0e" roughness={0.28} metalness={0.35} />
+            </mesh>
+
+            {/* Micro-grooves visual rings */}
+            {[0.045, 0.065, 0.085, 0.105, 0.12].map((r, i) => (
+              <mesh key={i} position={[0, 0.002, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[r, 0.0008, 4, 48]} />
+                <meshBasicMaterial color="#1f2327" transparent opacity={0.5} />
+              </mesh>
+            ))}
+
+            {/* Center Record Paper Label (Warm Red & Gold) */}
+            <mesh position={[0, 0.0022, 0]}>
+              <cylinderGeometry args={[0.034, 0.034, 0.001, 32]} />
+              <meshStandardMaterial
+                color={isPlaying ? '#b91c1c' : '#c2410c'}
+                roughness={0.6}
+              />
+            </mesh>
+            <mesh position={[0, 0.0028, 0]}>
+              <torusGeometry args={[0.026, 0.0025, 8, 32]} />
+              <meshStandardMaterial color={champagneBrass} metalness={0.8} roughness={0.3} />
+            </mesh>
+          </group>
+        </group>
+
+        {/* ===================================================================== */}
+        {/* TONEARM ASSEMBLY                                                      */}
+        {/* ===================================================================== */}
+        <group position={[0.165, 0.035, -0.09]}>
+          {/* Heavy Brass Tonearm Base & Gimbal */}
+          <mesh castShadow position={[0, 0.012, 0]}>
+            <cylinderGeometry args={[0.022, 0.025, 0.024, 18]} />
+            <meshStandardMaterial color={champagneBrass} metalness={0.9} roughness={0.2} />
+          </mesh>
+
+          {/* Cueing lever */}
+          <mesh position={[-0.018, 0.025, 0.01]} rotation={[0.4, 0, 0]}>
+            <cylinderGeometry args={[0.0018, 0.0018, 0.022, 8]} />
+            <meshStandardMaterial color={brushedSteel} metalness={0.8} roughness={0.2} />
+          </mesh>
+
+          {/* Pivoting Tonearm Wand */}
+          <group ref={armRef} position={[0, 0.032, 0]}>
+            {/* Gimbal bearing ring */}
+            <mesh castShadow>
+              <sphereGeometry args={[0.012, 16, 16]} />
+              <meshStandardMaterial color={champagneBrass} metalness={0.9} roughness={0.2} />
+            </mesh>
+
+            {/* Rear Counterweight */}
+            <mesh castShadow position={[0.05, 0, -0.02]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.016, 0.016, 0.03, 18]} />
+              <meshStandardMaterial color="#2d3748" metalness={0.7} roughness={0.3} />
+            </mesh>
+            {/* Counterweight calibration ring */}
+            <mesh position={[0.066, 0, -0.02]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.0162, 0.0162, 0.004, 18]} />
+              <meshStandardMaterial color={champagneBrass} metalness={0.9} roughness={0.2} />
+            </mesh>
+
+            {/* Curved Aluminum Arm Wand (S-shaped or curved) */}
+            <mesh castShadow position={[-0.08, 0.002, 0.05]} rotation={[0, 0.28, 0]}>
+              <cylinderGeometry args={[0.0032, 0.0032, 0.19, 12]} />
+              <meshStandardMaterial color={brushedSteel} metalness={0.85} roughness={0.2} />
+            </mesh>
+
+            {/* Premium Gold Headshell & Cartridge */}
+            <group position={[-0.175, -0.006, 0.095]} rotation={[0, 0.35, 0]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.028, 0.009, 0.016]} />
+                <meshStandardMaterial color={champagneBrass} metalness={0.9} roughness={0.2} />
+              </mesh>
+              {/* Phono cartridge body */}
+              <mesh position={[-0.005, -0.008, 0]}>
+                <boxGeometry args={[0.018, 0.012, 0.014]} />
+                <meshStandardMaterial color="#1e293b" roughness={0.4} />
+              </mesh>
+              {/* Stylus cantilever */}
+              <mesh position={[-0.012, -0.016, 0]} rotation={[0.25, 0, 0]}>
+                <coneGeometry args={[0.0018, 0.008, 4]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
+              </mesh>
+            </group>
+          </group>
+        </group>
+
+        {/* ===================================================================== */}
+        {/* CONTROLS & SWITCHES                                                   */}
+        {/* ===================================================================== */}
+        {/* Power / Start Button */}
+        <group position={[-0.18, 0.033, 0.12]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.016, 0.018, 0.01, 16]} />
+            <meshStandardMaterial
+              color={isPlaying ? '#10b981' : '#64748b'}
+              metalness={0.6}
+              roughness={0.3}
+              emissive={isPlaying ? '#10b981' : '#000000'}
+              emissiveIntensity={isPlaying ? 0.6 : 0}
+            />
+          </mesh>
+          {/* LED Ring Glow */}
+          <mesh position={[0, 0.006, 0]}>
+            <torusGeometry args={[0.018, 0.002, 8, 16]} />
+            <meshBasicMaterial color={isPlaying ? '#34d399' : '#334155'} />
+          </mesh>
+        </group>
+
+        {/* Speed Selector (33 / 45 RPM) */}
+        <group position={[-0.11, 0.033, 0.12]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.012, 0.013, 0.012, 14]} />
+            <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
+          </mesh>
+          <mesh position={[0, 0.007, 0]}>
+            <boxGeometry args={[0.002, 0.004, 0.018]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.4} />
+          </mesh>
+        </group>
+
+        {/* Volume & Pitch Rotary Dials */}
+        <group position={[0.18, 0.033, 0.12]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.015, 0.016, 0.014, 16]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
+          {/* White indicator notch */}
+          <mesh position={[0, 0.008, 0.01]}>
+            <boxGeometry args={[0.002, 0.003, 0.006]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+        </group>
+
+        {/* ===================================================================== */}
+        {/* ACRYLIC DUST COVER ENCLOSURE (With transmission & hinge)               */}
+        {/* ===================================================================== */}
+        <group position={[0, 0.03, -0.17]}>
+          {/* Dual Brass Hinges at the back */}
+          {[-0.16, 0.16].map((hx, idx) => (
+            <mesh key={idx} position={[hx, 0.01, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.006, 0.006, 0.024, 12]} />
+              <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
             </mesh>
           ))}
-          
-          {/* Center label */}
-          <mesh position={[0, 0.0025, 0]}>
-            <cylinderGeometry args={[0.028, 0.028, 0.002, 24]} />
-            <meshToonMaterial color={isPlaying ? "#c0392b" : "#e67e22"} />
-          </mesh>
-          
-          {/* Label ring detail */}
-          <mesh position={[0, 0.003, 0]}>
-            <torusGeometry args={[0.022, 0.003, 8, 24]} />
-            <meshToonMaterial color={isPlaying ? "#922b21" : "#d35400"} />
-          </mesh>
-          
-          {/* Spindle hole */}
-          <mesh position={[0, 0.003, 0]}>
-            <cylinderGeometry args={[0.004, 0.004, 0.005, 8]} />
-            <meshStandardMaterial color="#444" metalness={0.8} roughness={0.2} />
-          </mesh>
-        </group>
-        
-        {/* Spindle */}
-        <mesh position={[0.02, 0.055, 0.02]}>
-          <cylinderGeometry args={[0.003, 0.003, 0.02, 8]} />
-          <meshStandardMaterial color={brassColor} metalness={0.9} roughness={0.1} />
-        </mesh>
-        
-        {/* === TONEARM === */}
-        <group ref={armRef} position={[0.18, 0.05, -0.1]} rotation={[0, 0.15, 0]}>
-          {/* Tonearm base */}
-          <mesh castShadow>
-            <cylinderGeometry args={[0.018, 0.022, 0.025, 12]} />
-            <meshStandardMaterial color={brassColor} metalness={0.8} roughness={0.2} />
-          </mesh>
-          
-          {/* Tonearm vertical part */}
-          <mesh castShadow position={[0, 0.03, 0]}>
-            <cylinderGeometry args={[0.006, 0.006, 0.04, 8]} />
-            <meshStandardMaterial color="#888" metalness={0.7} roughness={0.3} />
-          </mesh>
-          
-          {/* Tonearm horizontal - curved */}
-          <mesh castShadow position={[-0.09, 0.045, 0.06]} rotation={[0, 0.25, 0]}>
-            <boxGeometry args={[0.2, 0.008, 0.008]} />
-            <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
-          </mesh>
-          
-          {/* Headshell */}
-          <group position={[-0.19, 0.04, 0.11]}>
-            <mesh castShadow>
-              <boxGeometry args={[0.025, 0.012, 0.022]} />
-              <meshStandardMaterial color="#666" metalness={0.6} roughness={0.4} />
+
+          {/* Pivoting lid assembly */}
+          <group ref={lidRef} position={[0, 0.015, 0]}>
+            {/* Top flat pane */}
+            <mesh castShadow position={[0, 0.07, 0.18]}>
+              <boxGeometry args={[0.49, 0.004, 0.36]} />
+              <meshPhysicalMaterial
+                color="#ffffff"
+                transmission={0.88}
+                opacity={1}
+                transparent={true}
+                roughness={0.08}
+                ior={1.49}
+                thickness={0.02}
+                specularIntensity={0.9}
+              />
             </mesh>
-            {/* Cartridge */}
-            <mesh position={[0, -0.01, 0]}>
-              <boxGeometry args={[0.018, 0.015, 0.018]} />
-              <meshToonMaterial color="#333" />
+            {/* Front vertical pane */}
+            <mesh position={[0, 0.035, 0.358]}>
+              <boxGeometry args={[0.49, 0.07, 0.004]} />
+              <meshPhysicalMaterial
+                color="#ffffff"
+                transmission={0.88}
+                transparent={true}
+                roughness={0.08}
+                ior={1.49}
+              />
             </mesh>
-            {/* Stylus */}
-            <mesh position={[0, -0.022, 0.005]} rotation={[0.2, 0, 0]}>
-              <coneGeometry args={[0.002, 0.012, 4]} />
-              <meshStandardMaterial color="#C0C0C0" metalness={0.9} roughness={0.1} />
+            {/* Left vertical pane */}
+            <mesh position={[-0.243, 0.035, 0.18]}>
+              <boxGeometry args={[0.004, 0.07, 0.356]} />
+              <meshPhysicalMaterial
+                color="#ffffff"
+                transmission={0.88}
+                transparent={true}
+                roughness={0.08}
+                ior={1.49}
+              />
+            </mesh>
+            {/* Right vertical pane */}
+            <mesh position={[0.243, 0.035, 0.18]}>
+              <boxGeometry args={[0.004, 0.07, 0.356]} />
+              <meshPhysicalMaterial
+                color="#ffffff"
+                transmission={0.88}
+                transparent={true}
+                roughness={0.08}
+                ior={1.49}
+              />
             </mesh>
           </group>
-          
-          {/* Counterweight */}
-          <mesh castShadow position={[0.06, 0.045, -0.02]} rotation={[0, 0, Math.PI/2]}>
-            <cylinderGeometry args={[0.015, 0.015, 0.025, 12]} />
-            <meshStandardMaterial color="#444" metalness={0.6} roughness={0.4} />
-          </mesh>
         </group>
-        
-        {/* === CONTROLS === */}
-        {/* Power/Start button */}
-        <mesh position={[-0.16, 0.04, -0.12]} castShadow>
-          <cylinderGeometry args={[0.015, 0.015, 0.012, 16]} />
-          <meshStandardMaterial 
-            color={isPlaying ? "#2ecc71" : "#7f8c8d"} 
-            metalness={0.5} 
-            roughness={0.3}
-            emissive={isPlaying ? "#2ecc71" : "#000"}
-            emissiveIntensity={isPlaying ? 0.5 : 0}
-          />
-        </mesh>
-        
-        {/* Speed selector */}
-        <mesh position={[-0.08, 0.04, -0.12]} castShadow>
-          <cylinderGeometry args={[0.012, 0.012, 0.01, 12]} />
-          <meshStandardMaterial color={brassColor} metalness={0.7} roughness={0.3} />
-        </mesh>
-        
-        {/* Volume knob */}
-        <mesh position={[0.16, 0.04, -0.12]} castShadow>
-          <cylinderGeometry args={[0.018, 0.018, 0.015, 16]} />
-          <meshStandardMaterial color="#333" metalness={0.4} roughness={0.6} />
-        </mesh>
-        <mesh position={[0.16, 0.05, -0.115]}>
-          <boxGeometry args={[0.002, 0.008, 0.002]} />
-          <meshBasicMaterial color="#fff" />
-        </mesh>
-        
-        {/* LED indicator */}
-        <mesh position={[-0.2, 0.038, -0.12]}>
-          <sphereGeometry args={[0.005, 8, 8]} />
-          <meshStandardMaterial 
-            color={isPlaying ? "#4ade80" : "#444"} 
-            emissive={isPlaying ? "#4ade80" : "#000"}
-            emissiveIntensity={isPlaying ? 2 : 0}
-          />
-        </mesh>
       </group>
-      
-      {/* === DUST COVER === */}
-      <mesh 
-        castShadow 
-        position={[0, isPlaying ? 0.18 : 0.08, isPlaying ? -0.12 : 0]} 
-        rotation={[isPlaying ? 1.2 : 0, 0, 0]}
-      >
-        <boxGeometry args={[0.47, 0.002, 0.35]} />
-        <meshStandardMaterial 
-          color="#ffffff" 
-          transparent 
-          opacity={0.12}
-          roughness={0.05}
-          metalness={0.1}
-        />
-      </mesh>
-      
-      {/* Dust cover hinge */}
-      <mesh position={[0, 0.055, -0.17]}>
-        <boxGeometry args={[0.4, 0.008, 0.01]} />
-        <meshStandardMaterial color={brassColor} metalness={0.7} roughness={0.3} />
-      </mesh>
-      
-      {/* === MUSIC VISUALIZATION === */}
+
+      {/* ========================================================================= */}
+      {/* 3. VIBRANT FLOATING MUSIC NOTES (when playing)                             */}
+      {/* ========================================================================= */}
       {isPlaying && (
-        <group>
-          <FloatingNote position={[-0.15, 0.25, 0.1]} delay={0} color="#a855f7" />
-          <FloatingNote position={[0.1, 0.3, 0.05]} delay={0.7} color="#ec4899" />
-          <FloatingNote position={[0.2, 0.22, -0.05]} delay={1.4} color="#3b82f6" />
-          <FloatingNote position={[-0.05, 0.35, 0.12]} delay={2.1} color="#22d3ee" />
+        <group position={[0, 0.1, 0]}>
+          <FloatingMusicNote position={[-0.12, 0.15, 0.08]} delay={0} color="#a855f7" />
+          <FloatingMusicNote position={[0.08, 0.2, 0.02]} delay={0.8} color="#ec4899" />
+          <FloatingMusicNote position={[0.18, 0.12, -0.06]} delay={1.6} color="#3b82f6" />
+          <FloatingMusicNote position={[-0.04, 0.26, 0.1]} delay={2.4} color="#f59e0b" />
         </group>
       )}
     </group>
   )
 }
 
-// Floating music note with smooth animation
-function FloatingNote({ position, delay, color }) {
+// Floating animated music note (with musical note shape & glow)
+function FloatingMusicNote({ position, delay, color }) {
   const ref = useRef()
-  
+
   useFrame((state) => {
     if (ref.current) {
       const time = state.clock.elapsedTime + delay
-      const cycle = (time * 0.5) % 3
-      
-      // Float upward and fade
-      ref.current.position.y = position[1] + cycle * 0.15
-      ref.current.position.x = position[0] + Math.sin(time * 2) * 0.03
-      ref.current.rotation.z = Math.sin(time * 3) * 0.3
-      
-      // Fade in and out
-      const opacity = cycle < 0.3 ? cycle / 0.3 : 
-                      cycle > 2.5 ? (3 - cycle) / 0.5 : 1
-      ref.current.material.opacity = opacity * 0.8
+      const cycle = (time * 0.45) % 3
+
+      // Float upward with subtle horizontal swaying
+      ref.current.position.y = position[1] + cycle * 0.2
+      ref.current.position.x = position[0] + Math.sin(time * 2.2) * 0.035
+      ref.current.position.z = position[2] + Math.cos(time * 1.8) * 0.025
+      ref.current.rotation.z = Math.sin(time * 2.5) * 0.25
+
+      // Smooth fade in and out
+      const opacity = cycle < 0.35 ? cycle / 0.35 : cycle > 2.4 ? (3 - cycle) / 0.6 : 1
+      ref.current.children[0].material.opacity = opacity * 0.85
+      if (ref.current.children[1]) {
+        ref.current.children[1].material.opacity = opacity * 0.85
+      }
     }
   })
-  
+
   return (
-    <mesh ref={ref} position={position}>
-      <sphereGeometry args={[0.018, 8, 8]} />
-      <meshBasicMaterial color={color} transparent opacity={0.8} />
-    </mesh>
+    <group ref={ref} position={position}>
+      {/* Note Head */}
+      <mesh rotation={[0, 0, 0.3]}>
+        <sphereGeometry args={[0.016, 12, 12]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.85}
+          roughness={0.2}
+        />
+      </mesh>
+      {/* Note Stem */}
+      <mesh position={[0.014, 0.025, 0]}>
+        <cylinderGeometry args={[0.0022, 0.0022, 0.048, 6]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.85}
+          roughness={0.2}
+        />
+      </mesh>
+    </group>
   )
 }
 

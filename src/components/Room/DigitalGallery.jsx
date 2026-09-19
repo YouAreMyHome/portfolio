@@ -222,11 +222,13 @@ function DigitalGallery({
           ))}
         </group>
         
-        {/* Ambient light from screen */}
-        <pointLight 
-          position={[0, 0, 0.15]} 
-          intensity={isHovered ? 0.4 : 0.2} 
-          distance={1.5} 
+        {/* Ambient forward glow from screen into room */}
+        <spotLight 
+          position={[0, 0, 0.05]} 
+          angle={Math.PI / 2.8}
+          penumbra={0.9}
+          intensity={isHovered ? 0.25 : 0.08} 
+          distance={1.0} 
           color="#87CEEB"
         />
       </group>

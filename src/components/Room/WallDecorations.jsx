@@ -158,9 +158,22 @@ function Polaroid({
             <planeGeometry args={size} />
             <meshBasicMaterial
               map={texture || null}
-              color={texture ? '#ffffff' : '#334155'}
+              color={texture ? '#ffffff' : '#f5ebe0'}
             />
           </mesh>
+          {/* Minimalist modern art graphic if texture is loading or absent */}
+          {!texture && (
+            <group position={[0, photoOffsetY, 0.008]}>
+              <mesh position={[0, 0.025, 0]}>
+                <circleGeometry args={[size[0] * 0.28, 24]} />
+                <meshBasicMaterial color="#e76f51" />
+              </mesh>
+              <mesh position={[0, -0.035, 0]}>
+                <planeGeometry args={[size[0] * 0.65, size[1] * 0.28]} />
+                <meshBasicMaterial color="#264653" />
+              </mesh>
+            </group>
+          )}
         </group>
       </group>
     </InteractiveObject>
@@ -210,39 +223,48 @@ function WallDecorations() {
         onToggle={toggleStringLights} 
       />
       
-      {/* String lights / Fairy lights - CAO trên tường, dọc theo Z (Y=2.6) */}
+      {/* String lights / Fairy lights - CAO trên tường, dọc theo Z (Y=2.6, ép sát tường X=-3.92) */}
       <group>
-        <group position={[-3.85, 2.6, 0]}>
+        <group position={[-3.92, 2.6, 0]}>
           {/* Wire - dây treo ngang theo Z */}
           <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[0.008, 0.008, 3.5]} />
-            <meshToonMaterial color="#222" />
+            <boxGeometry args={[0.006, 0.006, 3.4]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.7} />
           </mesh>
           
           {/* Các bóng đèn treo dọc dây */}
-          {[-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((z, i) => (
+          {[-1.4, -0.95, -0.5, 0, 0.5, 0.95, 1.4].map((z, i) => (
             <group key={i} position={[0, 0, z]}>
-              {/* Dây treo xuống */}
-              <mesh position={[0, -0.06, 0]}>
-                <boxGeometry args={[0.003, 0.12, 0.003]} />
-                <meshToonMaterial color="#222" />
+              {/* Dây treo kim loại xuống */}
+              <mesh position={[0, -0.04, 0]}>
+                <cylinderGeometry args={[0.0015, 0.0015, 0.08, 6]} />
+                <meshStandardMaterial color="#1e293b" roughness={0.7} />
               </mesh>
-              {/* Bóng đèn */}
-              <mesh position={[0, -0.14, 0]} castShadow>
-                <sphereGeometry args={[0.035, 8, 8]} />
+              {/* Chụp đui đèn đồng thau */}
+              <mesh position={[0, -0.085, 0]}>
+                <cylinderGeometry args={[0.009, 0.008, 0.014, 8]} />
+                <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.25} />
+              </mesh>
+              {/* Bóng đèn thủy tinh tròn */}
+              <mesh position={[0, -0.11, 0]} castShadow>
+                <sphereGeometry args={[0.024, 12, 12]} />
                 <meshStandardMaterial 
-                  color={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#666'}
-                  emissive={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#000'}
-                  emissiveIntensity={stringLightsOn ? 0.8 : 0}
+                  color={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fdfaf5'}
+                  emissive={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fef3c7'}
+                  emissiveIntensity={stringLightsOn ? 1.2 : 0.08}
+                  roughness={0.15}
+                  metalness={0.05}
+                  transparent
+                  opacity={0.92}
                   toneMapped={false}
                 />
               </mesh>
               {/* Ánh sáng nhỏ từ mỗi bóng */}
               {stringLightsOn && (
                 <pointLight 
-                  position={[0, -0.14, 0]} 
-                  intensity={0.15} 
-                  distance={0.8} 
+                  position={[0, -0.11, 0]} 
+                  intensity={0.2} 
+                  distance={0.7} 
                   color={['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i]}
                 />
               )}

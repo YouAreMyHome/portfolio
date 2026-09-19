@@ -42,13 +42,18 @@
       "s86": "Rendering first frame...",
       "sFallback": "Activating fallback assets...",
       "s100": "Ready! 🎉"
-    }
+    },
+    "tip": "Preparing a cozy room for you...",
+    "status_readying": "INITIALIZING SPACE"
   },
   "welcome": {
     "greeting": "Welcome to",
     "name": "Nghia's Room",
-    "hint": "Click on objects to explore!",
-    "enter": "Enter room →"
+    "subtitle": "Interactive 3D Portfolio",
+    "tagline": "Explore the creative space of a software developer",
+    "hint": "Click objects to explore • Drag to rotate 360°",
+    "enter": "Enter Room",
+    "sound_hint": "Best experienced with sound on 🎧"
   },
   "panel": {
     "projects": "Projects",

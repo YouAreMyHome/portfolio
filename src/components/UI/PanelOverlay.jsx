@@ -1,6 +1,6 @@
 import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import emailjs from '@emailjs/browser'
@@ -18,6 +18,7 @@ import {
 import { personalInfo, aboutMe, skills, projects, experience, education } from '../../data/portfolio'
 import { books } from '../../data/books'
 import { PortfolioOS } from '../PortfolioOS'
+import dataService from '../../services/dataService'
 import './Panels.css'
 
 /**
@@ -31,17 +32,24 @@ import './Panels.css'
  * - about: Giới thiệu
  */
 
-// Projects Panel - Connected to portfolio.js
+// Projects Panel - Connected to dataService with fallback to portfolio.js
 function ProjectsPanel({ isNightMode }) {
+  const [projectList, setProjectList] = useState(projects)
   const { t, i18n } = useTranslation()
   const lang = i18n.language
   const lf = (vi, en) => lang === 'en' && en ? en : vi
+
+  useEffect(() => {
+    dataService.getProjects().then((data) => {
+      if (data && data.length > 0) setProjectList(data)
+    })
+  }, [])
 
   return (
     <div className="panel-content">
       <h2>{t('panel.projects')}</h2>
       <div className="projects-grid">
-        {projects.map((project) => (
+        {projectList.map((project) => (
           <div key={project.id} className={`project-card ${project.featured ? 'featured' : ''}`}>
             <div className="project-header">
               <h3>{project.title}</h3>
@@ -72,14 +80,21 @@ function ProjectsPanel({ isNightMode }) {
   )
 }
 
-// Skills Panel - Connected to portfolio.js
+// Skills Panel - Connected to dataService with fallback to portfolio.js
 function SkillsPanel({ isNightMode }) {
+  const [skillsData, setSkillsData] = useState(skills)
   const { t } = useTranslation()
   const skillCategories = [
     { key: 'frontend', label: t('panel.skills_frontend'), icon: <Palette size={18} /> },
     { key: 'backend', label: t('panel.skills_backend'), icon: <Server size={18} /> },
     { key: 'tools', label: t('panel.skills_tools'), icon: <Wrench size={18} /> },
   ]
+
+  useEffect(() => {
+    dataService.getSkills().then((data) => {
+      if (data) setSkillsData(data)
+    })
+  }, [])
   
   return (
     <div className="panel-content">
@@ -89,7 +104,7 @@ function SkillsPanel({ isNightMode }) {
           <div key={key} className="skill-group">
             <h3>{icon} {label}</h3>
             <div className="skill-items">
-              {skills[key]?.map((skill) => (
+              {skillsData[key]?.map((skill) => (
                 <div key={skill.name} className="skill-item">
                   <span className="skill-name">{skill.name}</span>
                   <div className="skill-bar">
