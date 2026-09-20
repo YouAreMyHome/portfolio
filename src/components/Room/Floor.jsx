@@ -1,4 +1,5 @@
 import React from 'react'
+import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import { COLORS } from './colors'
 
@@ -8,42 +9,36 @@ import { COLORS } from './colors'
  * - Vân gỗ parquet đan xen vát rãnh tinh xảo
  * - Thảm trung tâm bo góc mềm mại, êm ái
  */
+// Shared materials cho toàn bộ sàn nhà (Tránh tạo 32 vật liệu lặp lại)
+const mainFloorMat = new THREE.MeshStandardMaterial({ color: '#c89d68', roughness: 0.35, metalness: 0.05 })
+const plankMatA = new THREE.MeshStandardMaterial({ color: '#c39763', roughness: 0.32, metalness: 0.04 })
+const plankMatB = new THREE.MeshStandardMaterial({ color: '#bd905c', roughness: 0.32, metalness: 0.04 })
+const grooveMat = new THREE.MeshBasicMaterial({ color: '#6a4c33', opacity: 0.55, transparent: true })
+const rugBorderMat = new THREE.MeshStandardMaterial({ color: '#d8cebf', roughness: 0.92, metalness: 0.02 })
+const rugInnerMat = new THREE.MeshStandardMaterial({ color: '#ede6d8', roughness: 0.9 })
+const rugPatternMat = new THREE.MeshStandardMaterial({ color: '#dfd2c0', roughness: 0.88 })
+const rugCenterMat = new THREE.MeshStandardMaterial({ color: '#f7f3ec', roughness: 0.85 })
+
 function Floor() {
   return (
     <group>
       {/* ── 1. Nền sàn gỗ bóng bẩy (Varnished Parquet Floor) ── */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]} receiveShadow material={mainFloorMat}>
         <planeGeometry args={[8.02, 8.02]} />
-        <meshPhysicalMaterial
-          color="#c89d68"
-          roughness={0.24}
-          metalness={0.06}
-          clearcoat={0.45}
-          clearcoatRoughness={0.12}
-          reflectivity={0.6}
-        />
       </mesh>
 
       {/* ── 2. Các tấm ván sàn ghép rãnh bắt sáng (Beveled Wood Planks) ── */}
       {[...Array(16)].map((_, i) => {
-        const isAlternate = i % 2 === 0
+        const plankMat = i % 2 === 0 ? plankMatA : plankMatB
         return (
           <group key={i} position={[0, 0.001, -3.75 + i * 0.5]}>
             {/* Plank bề mặt */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow material={plankMat}>
               <planeGeometry args={[8, 0.48]} />
-              <meshPhysicalMaterial
-                color={isAlternate ? '#c39763' : '#bd905c'}
-                roughness={0.22}
-                metalness={0.05}
-                clearcoat={0.4}
-                clearcoatRoughness={0.15}
-              />
             </mesh>
             {/* Rãnh tối giữa các nan gỗ */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0.245]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0.245]} material={grooveMat}>
               <planeGeometry args={[8, 0.015]} />
-              <meshBasicMaterial color="#6a4c33" opacity={0.55} transparent />
             </mesh>
           </group>
         )
@@ -55,59 +50,42 @@ function Floor() {
         <RoundedBox
           args={[3.25, 0.035, 2.75]}
           radius={0.08}
-          smoothness={6}
+          smoothness={2}
           position={[0, 0.018, 0]}
           receiveShadow
           castShadow
-        >
-          <meshStandardMaterial
-            color="#d8cebf"
-            roughness={0.92}
-            metalness={0.02}
-          />
-        </RoundedBox>
+          material={rugBorderMat}
+        />
 
         {/* Lớp lòng thảm - Màu kem dệt len tự nhiên ấm áp */}
         <RoundedBox
           args={[2.92, 0.015, 2.42]}
           radius={0.06}
-          smoothness={6}
+          smoothness={2}
           position={[0, 0.036, 0]}
           receiveShadow
-        >
-          <meshStandardMaterial
-            color="#ede6d8"
-            roughness={0.9}
-          />
-        </RoundedBox>
+          material={rugInnerMat}
+        />
 
         {/* Họa tiết bo viền trong thanh lịch */}
         <RoundedBox
           args={[2.25, 0.01, 1.75]}
           radius={0.04}
-          smoothness={6}
+          smoothness={2}
           position={[0, 0.044, 0]}
           receiveShadow
-        >
-          <meshStandardMaterial
-            color="#dfd2c0"
-            roughness={0.88}
-          />
-        </RoundedBox>
+          material={rugPatternMat}
+        />
 
         {/* Lớp hoa văn tâm thảm màu kem sáng */}
         <RoundedBox
           args={[1.55, 0.008, 1.05]}
           radius={0.03}
-          smoothness={6}
+          smoothness={2}
           position={[0, 0.05, 0]}
           receiveShadow
-        >
-          <meshStandardMaterial
-            color="#f7f3ec"
-            roughness={0.85}
-          />
-        </RoundedBox>
+          material={rugCenterMat}
+        />
 
         {/* Các dải sợi dệt sọc trang trí tinh tế màu Terracotta ấm áp */}
         {[-0.85, -0.42, 0, 0.42, 0.85].map((x, idx) => (

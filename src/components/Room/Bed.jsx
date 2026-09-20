@@ -285,25 +285,24 @@ function Bed() {
           {/* Thân ly thủy tinh có khúc xạ ánh sáng */}
           <mesh position={[0, 0.038, 0]} castShadow>
             <cylinderGeometry args={[0.024, 0.02, 0.065, 14, 1, true]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
               color="#ffffff"
               roughness={0.08}
-              transmission={0.94}
+              metalness={0.1}
               transparent
-              opacity={0.3}
-              thickness={0.03}
-              reflectivity={0.9}
+              opacity={0.25}
+              depthWrite={false}
             />
           </mesh>
           {/* Nước bên trong ly */}
           <mesh position={[0, 0.032, 0]}>
             <cylinderGeometry args={[0.022, 0.018, 0.048, 12]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
               color="#dbeafe"
-              roughness={0.05}
-              transmission={0.88}
+              roughness={0.08}
               transparent
-              opacity={0.5}
+              opacity={0.4}
+              depthWrite={false}
             />
           </mesh>
         </group>

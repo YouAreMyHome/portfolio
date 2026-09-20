@@ -118,15 +118,16 @@ function Clock() {
         </mesh>
       </group>
 
-      {/* ── 8. Mặt kính bảo vệ phản xạ ánh sáng (Convex Protective Glass) ── */}
+      {/* ── 8. Mặt kính bảo vệ phản xạ ánh sáng (Lightweight Protective Glass) ── */}
       <mesh position={[0, 0, 0.052]}>
         <circleGeometry args={[0.26, 32]} />
-        <meshPhysicalMaterial
-          roughness={0.05}
-          transmission={0.92}
+        <meshStandardMaterial
+          roughness={0.06}
+          metalness={0.1}
           transparent
-          opacity={0.25}
-          reflectivity={0.95}
+          opacity={0.18}
+          color="#ffffff"
+          depthWrite={false}
         />
       </mesh>
     </group>

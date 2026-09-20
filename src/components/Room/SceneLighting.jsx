@@ -3,6 +3,10 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import useStore from '../../store/useStore'
 
+// Đối tượng tạm dùng chung (Zero Allocation - Không tạo rác GC mỗi frame)
+const _tempColor = new THREE.Color()
+const _tempVec3 = new THREE.Vector3()
+
 /**
  * SceneLighting - Hệ thống chiếu sáng chuẩn Diorama 3D
  * - Góc chiếu dốc đứng từ hướng cửa sổ, bóng đổ gọn gàng ngay dưới chân đồ vật
@@ -25,7 +29,6 @@ function SceneLighting() {
   const PRESET_CONFIGS = {
     morning: {
       ambient: { intensity: 0.85, color: '#fcfaf4' },
-      // Chiếu từ phía trên cửa sổ xuống (X=-3, Y=16, Z=-3) -> bóng đổ ngắn, gọn, tinh tế
       directional: { intensity: 1.45, color: '#fffdf5', pos: [-3, 16, -3] },
       window: { intensity: 0.35, color: '#fff7ed' },
       rim: { intensity: 0.25, color: '#fef3c7' },
@@ -54,7 +57,7 @@ function SceneLighting() {
   const isNight = activePreset === 'night'
   const targetConfig = PRESET_CONFIGS[activePreset] || PRESET_CONFIGS.morning
 
-  // Chuyển đổi mượt mà giữa các trạng thái
+  // Chuyển đổi mượt mà giữa các trạng thái (Zero Garbage Collection)
   useFrame(() => {
     if (ambientRef.current) {
       ambientRef.current.intensity = THREE.MathUtils.lerp(
@@ -62,7 +65,8 @@ function SceneLighting() {
         targetConfig.ambient.intensity,
         0.08
       )
-      ambientRef.current.color.lerp(new THREE.Color(targetConfig.ambient.color), 0.08)
+      _tempColor.set(targetConfig.ambient.color)
+      ambientRef.current.color.lerp(_tempColor, 0.08)
     }
 
     if (directionalRef.current) {
@@ -71,8 +75,10 @@ function SceneLighting() {
         targetConfig.directional.intensity,
         0.08
       )
-      directionalRef.current.color.lerp(new THREE.Color(targetConfig.directional.color), 0.08)
-      directionalRef.current.position.lerp(new THREE.Vector3(...targetConfig.directional.pos), 0.05)
+      _tempColor.set(targetConfig.directional.color)
+      directionalRef.current.color.lerp(_tempColor, 0.08)
+      _tempVec3.set(...targetConfig.directional.pos)
+      directionalRef.current.position.lerp(_tempVec3, 0.05)
     }
 
     if (windowLightRef.current) {
@@ -81,7 +87,8 @@ function SceneLighting() {
         targetConfig.window.intensity,
         0.08
       )
-      windowLightRef.current.color.lerp(new THREE.Color(targetConfig.window.color), 0.08)
+      _tempColor.set(targetConfig.window.color)
+      windowLightRef.current.color.lerp(_tempColor, 0.08)
     }
 
     if (rimLightRef.current) {
@@ -90,7 +97,8 @@ function SceneLighting() {
         targetConfig.rim.intensity,
         0.08
       )
-      rimLightRef.current.color.lerp(new THREE.Color(targetConfig.rim.color), 0.08)
+      _tempColor.set(targetConfig.rim.color)
+      rimLightRef.current.color.lerp(_tempColor, 0.08)
     }
 
     if (deskLampRef.current) {
@@ -112,14 +120,14 @@ function SceneLighting() {
         color={targetConfig.ambient.color}
       />
 
-      {/* ── 2. Directional Light chính (Góc đứng Y=16, bóng đổ gọn gàng, zero noise) ── */}
+      {/* ── 2. Directional Light chính (Shadow map 1024x1024 tối ưu, sắc sảo, nhẹ GPU) ── */}
       <directionalLight
         ref={directionalRef}
         position={targetConfig.directional.pos}
         intensity={targetConfig.directional.intensity}
         color={targetConfig.directional.color}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
         shadow-camera-far={45}
         shadow-camera-left={-7}
@@ -128,7 +136,7 @@ function SceneLighting() {
         shadow-camera-bottom={-7}
         shadow-bias={-0.0001}
         shadow-normalBias={0.035}
-        shadow-radius={2}
+        shadow-radius={1.5}
       />
 
       {/* ── 3. Fill Light nhẹ nhàng từ phía cửa sổ ── */}

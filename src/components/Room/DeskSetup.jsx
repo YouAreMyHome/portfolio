@@ -358,14 +358,12 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
       {/* Glass reflection layer */}
       <mesh position={[0, 0, 0.019]}>
         <planeGeometry args={[0.67, 0.39]} />
-        <meshPhysicalMaterial 
+        <meshStandardMaterial 
           transparent
           opacity={0.08}
           roughness={0.1}
-          metalness={0}
-          reflectivity={0.5}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          metalness={0.1}
+          color="#ffffff"
           depthWrite={false}
         />
       </mesh>
@@ -425,10 +423,10 @@ function DeskSetup({ onProjectClick }) {
           <meshStandardMaterial color="#0c0c12" metalness={0.5} roughness={0.3} />
         </RoundedBox>
 
-        {/* Tempered glass side panel (máº·t nhÃ¬n tá»« camera) */}
+        {/* Tempered glass side panel (mặt nhìn từ camera) */}
         <mesh position={[-0.117, 0.26, 0]} rotation={[0, Math.PI / 2, 0]}>
           <planeGeometry args={[0.44, 0.46]} />
-          <meshPhysicalMaterial color="#06060e" transparent opacity={0.5} roughness={0.04} transmission={0.25} />
+          <meshStandardMaterial color="#06060e" transparent opacity={0.5} roughness={0.08} metalness={0.2} depthWrite={false} />
         </mesh>
 
         {/* Front mesh panel */}

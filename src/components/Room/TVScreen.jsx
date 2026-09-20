@@ -66,11 +66,16 @@ function TVScreen({ isActive }) {
     return initial
   })
   
-  // ========== REFS ==========
   // Game state refs (mutable, not triggering re-renders)
   const gameStateRef = useRef(null)
   const lastUpdateRef = useRef(0)
   const inputRef = useRef({}) // For continuous input (jump, paddle movement)
+  const needsRedrawSelectRef = useRef(true)
+
+  // Đánh dấu cần vẽ lại select screen khi đổi game hoặc điểm số
+  useEffect(() => {
+    needsRedrawSelectRef.current = true
+  }, [selectedGame, scores, currentScreen])
   
   // ========== CANVAS & TEXTURE ==========
   const { canvas, texture } = useMemo(() => {
@@ -467,10 +472,13 @@ function TVScreen({ isActive }) {
     const ctx = canvas.getContext('2d')
     const now = state.clock.elapsedTime * 1000
     
-    // Game Select Screen
+    // Game Select Screen - Chỉ vẽ và upload texture khi trạng thái thay đổi
     if (currentScreen === 'select') {
-      drawGameSelect(ctx)
-      texture.needsUpdate = true
+      if (needsRedrawSelectRef.current) {
+        drawGameSelect(ctx)
+        texture.needsUpdate = true
+        needsRedrawSelectRef.current = false
+      }
       return
     }
     

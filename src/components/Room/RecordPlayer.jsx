@@ -345,50 +345,51 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
           {/* Pivoting lid assembly */}
           <group ref={lidRef} position={[0, 0.015, 0]}>
             {/* Top flat pane */}
-            <mesh castShadow position={[0, 0.07, 0.18]}>
+            <mesh position={[0, 0.07, 0.18]}>
               <boxGeometry args={[0.49, 0.004, 0.36]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#ffffff"
-                transmission={0.88}
-                opacity={1}
+                opacity={0.22}
                 transparent={true}
-                roughness={0.08}
-                ior={1.49}
-                thickness={0.02}
-                specularIntensity={0.9}
+                roughness={0.06}
+                metalness={0.1}
+                depthWrite={false}
               />
             </mesh>
             {/* Front vertical pane */}
             <mesh position={[0, 0.035, 0.358]}>
               <boxGeometry args={[0.49, 0.07, 0.004]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#ffffff"
-                transmission={0.88}
                 transparent={true}
-                roughness={0.08}
-                ior={1.49}
+                opacity={0.22}
+                roughness={0.06}
+                metalness={0.1}
+                depthWrite={false}
               />
             </mesh>
             {/* Left vertical pane */}
             <mesh position={[-0.243, 0.035, 0.18]}>
               <boxGeometry args={[0.004, 0.07, 0.356]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#ffffff"
-                transmission={0.88}
                 transparent={true}
-                roughness={0.08}
-                ior={1.49}
+                opacity={0.22}
+                roughness={0.06}
+                metalness={0.1}
+                depthWrite={false}
               />
             </mesh>
             {/* Right vertical pane */}
             <mesh position={[0.243, 0.035, 0.18]}>
               <boxGeometry args={[0.004, 0.07, 0.356]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#ffffff"
-                transmission={0.88}
                 transparent={true}
-                roughness={0.08}
-                ior={1.49}
+                opacity={0.22}
+                roughness={0.06}
+                metalness={0.1}
+                depthWrite={false}
               />
             </mesh>
           </group>

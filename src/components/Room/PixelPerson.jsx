@@ -71,37 +71,67 @@ const INTERACTIONS = [
   { messageKey: 'pixelPerson.m7', expression: 'happy',   behavior: 'bounce',  sound: 'charHappy', dismissDelay: 3800, moodDuration: 2200 },
 ]
 
-// ─── Reusable Rounded Voxel Helper ──────────────────────────────────────────────
+// Cache vật liệu chia sẻ (Tránh tạo hàng trăm MeshStandardMaterial mới)
+const _voxelMatCache = new Map()
+function getVoxelMaterial(color, roughness = 0.65, metalness = 0.04, transparent = false, opacity = 1) {
+  const key = `${color}_${roughness}_${metalness}_${transparent}_${opacity}`
+  let mat = _voxelMatCache.get(key)
+  if (!mat) {
+    mat = new THREE.MeshStandardMaterial({
+      color,
+      roughness,
+      metalness,
+      transparent,
+      opacity,
+    })
+    _voxelMatCache.set(key, mat)
+  }
+  return mat
+}
+
+// ─── Reusable Optimized Voxel Helper ──────────────────────────────────────────
 function Voxel({
   position = [0, 0, 0],
   args = [0.1, 0.1, 0.1],
   color = '#FFFFFF',
   rotation = [0, 0, 0],
   radius = 0.008,
-  smoothness = 4,
+  smoothness = 2,
   roughness = 0.65,
   metalness = 0.04,
   transparent = false,
   opacity = 1,
+  castShadow = false,
+  receiveShadow = false,
 }) {
-  return (
-    <RoundedBox
-      position={position}
-      args={args}
-      rotation={rotation}
-      radius={radius}
-      smoothness={smoothness}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial
-        color={color}
-        roughness={roughness}
-        metalness={metalness}
-        transparent={transparent}
-        opacity={opacity}
+  const material = getVoxelMaterial(color, roughness, metalness, transparent, opacity)
+
+  // Nếu là khối lớn có radius rõ rệt (> 0.02) thì dùng RoundedBox smoothness 2, ngược lại dùng Box tiêu chuẩn
+  if (radius && radius > 0.02) {
+    return (
+      <RoundedBox
+        position={position}
+        args={args}
+        rotation={rotation}
+        radius={radius}
+        smoothness={smoothness}
+        castShadow={castShadow}
+        receiveShadow={receiveShadow}
+        material={material}
       />
-    </RoundedBox>
+    )
+  }
+
+  return (
+    <mesh
+      position={position}
+      rotation={rotation}
+      castShadow={castShadow}
+      receiveShadow={receiveShadow}
+      material={material}
+    >
+      <boxGeometry args={args} />
+    </mesh>
   )
 }
 
@@ -139,45 +169,45 @@ function SpeechBubble({ visible, message }) {
       <group ref={bubbleRef} scale={0} frustumCulled={false}>
         <group ref={floatRef}>
           {/* Soft Drop Shadow */}
-          <RoundedBox args={[1.32, 0.78, 0.03]} radius={0.12} smoothness={8} position={[0.025, -0.025, -0.04]}>
+          <RoundedBox args={[1.32, 0.78, 0.03]} radius={0.12} smoothness={3} position={[0.025, -0.025, -0.04]}>
             <meshStandardMaterial {...shadowMat} />
           </RoundedBox>
 
           {/* Outer Border Layer */}
-          <RoundedBox args={[1.28, 0.74, 0.09]} radius={0.11} smoothness={10} position={[0, 0, 0]}>
+          <RoundedBox args={[1.28, 0.74, 0.09]} radius={0.11} smoothness={3} position={[0, 0, 0]}>
             <meshStandardMaterial {...borderMat} />
           </RoundedBox>
 
           {/* Inner Cream Bubble Body */}
-          <RoundedBox args={[1.20, 0.66, 0.085]} radius={0.09} smoothness={10} position={[0, 0, 0.008]}>
+          <RoundedBox args={[1.20, 0.66, 0.085]} radius={0.09} smoothness={3} position={[0, 0, 0.008]}>
             <meshStandardMaterial {...fillMat} />
           </RoundedBox>
 
           {/* Top Gloss Highlight Strip */}
-          <RoundedBox args={[0.58, 0.045, 0.015]} radius={0.02} smoothness={6} position={[-0.15, 0.245, 0.055]}>
+          <RoundedBox args={[0.58, 0.045, 0.015]} radius={0.02} smoothness={2} position={[-0.15, 0.245, 0.055]}>
             <meshStandardMaterial {...glossMat} />
           </RoundedBox>
-          <RoundedBox args={[0.08, 0.035, 0.015]} radius={0.015} smoothness={6} position={[-0.48, 0.235, 0.055]}>
+          <RoundedBox args={[0.08, 0.035, 0.015]} radius={0.015} smoothness={2} position={[-0.48, 0.235, 0.055]}>
             <meshStandardMaterial {...glossMat} />
           </RoundedBox>
 
           {/* Subtle Bottom Warm Shadow Line */}
-          <RoundedBox args={[0.96, 0.035, 0.01]} radius={0.016} smoothness={6} position={[0, -0.255, 0.053]}>
+          <RoundedBox args={[0.96, 0.035, 0.01]} radius={0.016} smoothness={2} position={[0, -0.255, 0.053]}>
             <meshStandardMaterial {...warmLineMat} />
           </RoundedBox>
 
           {/* Tail – Smooth stepped pointer pointing down to host */}
-          <RoundedBox args={[0.16, 0.14, 0.075]} radius={0.025} smoothness={6} position={[0.18, -0.40, 0.002]} rotation={[0, 0, -0.42]}>
+          <RoundedBox args={[0.16, 0.14, 0.075]} radius={0.025} smoothness={2} position={[0.18, -0.40, 0.002]} rotation={[0, 0, -0.42]}>
             <meshStandardMaterial {...borderMat} />
           </RoundedBox>
-          <RoundedBox args={[0.13, 0.11, 0.07]} radius={0.02} smoothness={6} position={[0.18, -0.40, 0.009]} rotation={[0, 0, -0.42]}>
+          <RoundedBox args={[0.13, 0.11, 0.07]} radius={0.02} smoothness={2} position={[0.18, -0.40, 0.009]} rotation={[0, 0, -0.42]}>
             <meshStandardMaterial {...fillMat} />
           </RoundedBox>
 
-          <RoundedBox args={[0.10, 0.09, 0.06]} radius={0.018} smoothness={6} position={[0.24, -0.48, 0.001]} rotation={[0, 0, -0.42]}>
+          <RoundedBox args={[0.10, 0.09, 0.06]} radius={0.018} smoothness={2} position={[0.24, -0.48, 0.001]} rotation={[0, 0, -0.42]}>
             <meshStandardMaterial {...borderMat} />
           </RoundedBox>
-          <RoundedBox args={[0.075, 0.07, 0.055]} radius={0.014} smoothness={6} position={[0.24, -0.48, 0.007]} rotation={[0, 0, -0.42]}>
+          <RoundedBox args={[0.075, 0.07, 0.055]} radius={0.014} smoothness={2} position={[0.24, -0.48, 0.007]} rotation={[0, 0, -0.42]}>
             <meshStandardMaterial {...fillMat} />
           </RoundedBox>
 
@@ -856,9 +886,9 @@ function PixelPerson({ position = [0, 0, 0], scale = 1, rotation = [0, 0, 0], ..
       onPointerOut={handlePointerOut}
       {...props}
     >
-      {/* ── 1. Invisible Precise Raycast Hit-Box (Visible to raycaster, fully transparent on screen) ── */}
-      <mesh position={[0, 0.65, 0.02]}>
-        <cylinderGeometry args={[0.32, 0.32, 1.4, 16]} />
+      {/* ── 1. Invisible Precise Raycast Hit-Box & Unified Shadow Caster Proxy ── */}
+      <mesh position={[0, 0.65, 0.02]} castShadow>
+        <cylinderGeometry args={[0.26, 0.28, 1.35, 12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 

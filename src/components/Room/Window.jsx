@@ -297,17 +297,16 @@ function Window() {
         <meshBasicMaterial map={sceneryTexture} toneMapped={false} />
       </mesh>
 
-      {/* ── 3. MẶT KÍNH CỬA SỔ PHẢN XẠ THỰC TẾ (Physical Glass Pane) ── */}
+      {/* ── 3. MẶT KÍNH CỬA SỔ TRONG SUỐT NHẸ NHÀNG (Lightweight Standard Glass Pane) ── */}
       <mesh position={[0, 0.04, 0.045]}>
         <planeGeometry args={[1.18, 1.52]} />
-        <meshPhysicalMaterial
+        <meshStandardMaterial
           color="#ffffff"
-          transmission={0.82}
-          roughness={0.06}
-          ior={1.5}
+          roughness={0.08}
+          metalness={0.1}
           transparent
-          opacity={0.3}
-          reflectivity={0.85}
+          opacity={0.2}
+          depthWrite={false}
         />
       </mesh>
 

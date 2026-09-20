@@ -145,13 +145,13 @@ function Cabinet() {
           {/* Lọ thủy tinh màu hổ phách */}
           <mesh position={[-0.05, 0.045, 0]} castShadow>
             <cylinderGeometry args={[0.026, 0.026, 0.065, 12]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
               color="#d97706"
               roughness={0.15}
-              transmission={0.65}
+              metalness={0.1}
               transparent
-              opacity={0.85}
-              thickness={0.04}
+              opacity={0.8}
+              depthWrite={false}
             />
           </mesh>
           {/* Nắp chai kim loại */}
@@ -208,12 +208,13 @@ function Cabinet() {
           {/* Lớp kính bảo vệ phản chiếu (Glass reflection) */}
           <mesh position={[0, 0.1, 0.013]}>
             <planeGeometry args={[0.13, 0.175]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
+              color="#ffffff"
               roughness={0.08}
-              transmission={0.92}
+              metalness={0.1}
               transparent
-              opacity={0.35}
-              reflectivity={0.8}
+              opacity={0.2}
+              depthWrite={false}
             />
           </mesh>
           {/* Chân chống khung tranh phía sau */}

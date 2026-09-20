@@ -24,27 +24,27 @@ export default function PostProcessingEffects({ graphics = {} }) {
   const retroPixelMode = useStore((state) => state.retroPixelMode)
 
   const {
-    composerMultisampling = 4,
+    composerMultisampling = 0,
     bloomIntensity = 0.35,
   } = graphics
 
   // Tính toán cường độ bloom theo preset
   const calculatedBloom = isNightMode || lightingPreset === 'night'
-    ? 0.55
-    : lightingPreset === 'sunset'
     ? 0.45
+    : lightingPreset === 'sunset'
+    ? 0.35
     : bloomIntensity
 
   return (
     <EffectComposer multisampling={composerMultisampling} disableNormalPass={false}>
-      {/* 1. N8AO: Ambient Occlusion cao cấp tạo chiều sâu sắc nét cho khối voxel/pixel */}
+      {/* 1. N8AO: Ambient Occlusion tính toán halfRes + bilateral filter (nhanh gấp 4 lần, chất lượng sắc sảo) */}
       <N8AO
         aoRadius={0.35}
         distanceFalloff={2.0}
-        intensity={0.8}
+        intensity={0.75}
         color="#16121a"
-        halfRes={false}
-        quality="high"
+        halfRes={true}
+        quality="medium"
       />
 
       {/* 2. Bloom: Chỉ phát sáng các nguồn sáng thực tế, không gây chói bề mặt tường */}

@@ -45,11 +45,16 @@ function InteractiveObject({
     }
   }, [isDisabled, hovered, setHoveredObject])
   
-  // Smooth lift animation (thay vì scale)
+  // Smooth lift animation (chỉ tính toán khi đang chuyển động, dừng khi đứng yên)
   useFrame(() => {
     if (groupRef.current) {
       const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
-      groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.15
+      const diff = targetY - groupRef.current.position.y
+      if (Math.abs(diff) > 0.0005) {
+        groupRef.current.position.y += diff * 0.15
+      } else if (groupRef.current.position.y !== targetY) {
+        groupRef.current.position.y = targetY
+      }
     }
   })
   

@@ -56,8 +56,8 @@ function Room({ graphics = {} }) {
 
   const {
     contactShadows = true,
-    contactShadowFramesMain = 120,
-    contactShadowFramesRug = 80,
+    contactShadowFramesMain = 1,
+    contactShadowFramesRug = 1,
     contactShadowResolutionMain = 512,
     contactShadowResolutionRug = 256,
   } = graphics
