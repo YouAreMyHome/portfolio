@@ -9,23 +9,78 @@ import { COLORS } from './colors'
  * - Vân gỗ parquet đan xen vát rãnh tinh xảo
  * - Thảm trung tâm bo góc mềm mại, êm ái
  */
-// Shared materials cho toàn bộ sàn nhà (Tránh tạo 32 vật liệu lặp lại)
-const mainFloorMat = new THREE.MeshStandardMaterial({ color: '#c89d68', roughness: 0.35, metalness: 0.05 })
-const plankMatA = new THREE.MeshStandardMaterial({ color: '#c39763', roughness: 0.32, metalness: 0.04 })
-const plankMatB = new THREE.MeshStandardMaterial({ color: '#bd905c', roughness: 0.32, metalness: 0.04 })
+// Shared materials cho toàn bộ sàn nhà (Flyweight Pattern - Tránh tạo vật liệu lặp lại)
+const mainFloorMat = new THREE.MeshPhysicalMaterial({ 
+  color: '#c89d68', 
+  roughness: 0.32, 
+  metalness: 0.05,
+  clearcoat: 0.28,
+  clearcoatRoughness: 0.2
+})
+const plankMatA = new THREE.MeshPhysicalMaterial({ 
+  color: '#c39763', 
+  roughness: 0.30, 
+  metalness: 0.04,
+  clearcoat: 0.22,
+  clearcoatRoughness: 0.25
+})
+const plankMatB = new THREE.MeshPhysicalMaterial({ 
+  color: '#bd905c', 
+  roughness: 0.30, 
+  metalness: 0.04,
+  clearcoat: 0.22,
+  clearcoatRoughness: 0.25
+})
 const grooveMat = new THREE.MeshBasicMaterial({ color: '#6a4c33', opacity: 0.55, transparent: true })
-const rugBorderMat = new THREE.MeshStandardMaterial({ color: '#d8cebf', roughness: 0.92, metalness: 0.02 })
-const rugInnerMat = new THREE.MeshStandardMaterial({ color: '#ede6d8', roughness: 0.9 })
-const rugPatternMat = new THREE.MeshStandardMaterial({ color: '#dfd2c0', roughness: 0.88 })
-const rugCenterMat = new THREE.MeshStandardMaterial({ color: '#f7f3ec', roughness: 0.85 })
+
+// ── Materials thảm dệt len cao cấp phong cách Japandi (Woven Wool Rug) ──
+const rugBaseMat = new THREE.MeshStandardMaterial({
+  color: '#ece5d8', // Màu sợi dệt tự nhiên Oatmeal / Be ấm áp
+  roughness: 0.96,
+  metalness: 0.0,
+})
+const rugInnerMat = new THREE.MeshStandardMaterial({
+  color: '#f7f4ec', // Lòng thảm sợi len kem sáng mềm mại
+  roughness: 0.98,
+})
+const rugBorderMat = new THREE.MeshStandardMaterial({
+  color: '#ded4c5', // Viền dệt vắt sổ linen tự nhiên
+  roughness: 0.92,
+})
+const rugStripeMatA = new THREE.MeshStandardMaterial({
+  color: '#b67a68', // Chỉ thêu Terracotta ấm cúng
+  roughness: 0.92,
+})
+const rugStripeMatB = new THREE.MeshStandardMaterial({
+  color: '#8b9a89', // Chỉ thêu Sage Green thanh lịch
+  roughness: 0.92,
+})
+const rugFringeMat = new THREE.MeshStandardMaterial({
+  color: '#f0eae1', // Sợi tua rua dệt thủ công hai đầu thảm
+  roughness: 0.95,
+})
+
+// Shared Geometries (Flyweight Pattern - Giảm GPU geometry allocations)
+const baseFloorGeo = new THREE.PlaneGeometry(8.02, 8.02)
+const plankGeo = new THREE.PlaneGeometry(8, 0.48)
+const grooveGeo = new THREE.PlaneGeometry(8, 0.015)
+const rugInnerPlaneGeo = new THREE.PlaneGeometry(3.08, 2.48)
+const rugCenterPlaneGeo = new THREE.PlaneGeometry(2.80, 2.20)
+const rugBorderPlaneGeo = new THREE.PlaneGeometry(2.84, 2.24)
+const rugStripeGeo = new THREE.PlaneGeometry(0.018, 1.8)
+const rugFringeGeo = new THREE.PlaneGeometry(0.016, 0.06)
+
+// Tọa độ các sợi tua rua hai đầu thảm (Flyweight array)
+const FRINGE_OFFSETS = [
+  -1.5, -1.35, -1.2, -1.05, -0.9, -0.75, -0.6, -0.45, -0.3, -0.15,
+  0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5
+]
 
 function Floor() {
   return (
     <group>
       {/* ── 1. Nền sàn gỗ bóng bẩy (Varnished Parquet Floor) ── */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]} receiveShadow material={mainFloorMat}>
-        <planeGeometry args={[8.02, 8.02]} />
-      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]} receiveShadow material={mainFloorMat} geometry={baseFloorGeo} />
 
       {/* ── 2. Các tấm ván sàn ghép rãnh bắt sáng (Beveled Wood Planks) ── */}
       {[...Array(16)].map((_, i) => {
@@ -33,70 +88,77 @@ function Floor() {
         return (
           <group key={i} position={[0, 0.001, -3.75 + i * 0.5]}>
             {/* Plank bề mặt */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow material={plankMat}>
-              <planeGeometry args={[8, 0.48]} />
-            </mesh>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow material={plankMat} geometry={plankGeo} />
             {/* Rãnh tối giữa các nan gỗ */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0.245]} material={grooveMat}>
-              <planeGeometry args={[8, 0.015]} />
-            </mesh>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0.245]} material={grooveMat} geometry={grooveGeo} />
           </group>
         )
       })}
 
-      {/* ── 3. Thảm phòng trung tâm (Plush Beveled Rug - Japandi Style) ── */}
+      {/* ── 3. Thảm phòng trung tâm (Slim Flatweave Japandi Rug - Siêu mỏng ~6mm chân thực) ── */}
       <group position={[0, 0, 0.3]}>
-        {/* Lớp viền nền thảm dày bo viền mềm - Màu hạt dẻ / Terracotta ấm cúng */}
+        {/* Lớp nền thảm dệt mỏng sát sàn - Không đổ bóng khối giả tạo (castShadow={false}) */}
         <RoundedBox
-          args={[3.25, 0.035, 2.75]}
-          radius={0.08}
+          args={[3.2, 0.006, 2.6]}
+          radius={0.012}
           smoothness={2}
-          position={[0, 0.018, 0]}
+          position={[0, 0.0035, 0]}
           receiveShadow
-          castShadow
-          material={rugBorderMat}
+          castShadow={false}
+          material={rugBaseMat}
         />
 
-        {/* Lớp lòng thảm - Màu kem dệt len tự nhiên ấm áp */}
-        <RoundedBox
-          args={[2.92, 0.015, 2.42]}
-          radius={0.06}
-          smoothness={2}
-          position={[0, 0.036, 0]}
+        {/* Lớp lòng thảm dệt phẳng mềm mại */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.0066, 0]}
           receiveShadow
+          geometry={rugInnerPlaneGeo}
           material={rugInnerMat}
         />
 
-        {/* Họa tiết bo viền trong thanh lịch */}
-        <RoundedBox
-          args={[2.25, 0.01, 1.75]}
-          radius={0.04}
-          smoothness={2}
-          position={[0, 0.044, 0]}
+        {/* Khung viền dệt chỉ vắt sổ thanh nhã */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.0068, 0]}
           receiveShadow
-          material={rugPatternMat}
+          geometry={rugBorderPlaneGeo}
+          material={rugBorderMat}
         />
 
-        {/* Lớp hoa văn tâm thảm màu kem sáng */}
-        <RoundedBox
-          args={[1.55, 0.008, 1.05]}
-          radius={0.03}
-          smoothness={2}
-          position={[0, 0.05, 0]}
+        {/* Lòng trong sáng màu êm ái */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.0070, 0]}
           receiveShadow
-          material={rugCenterMat}
+          geometry={rugCenterPlaneGeo}
+          material={rugInnerMat}
         />
 
-        {/* Các dải sợi dệt sọc trang trí tinh tế màu Terracotta ấm áp */}
-        {[-0.85, -0.42, 0, 0.42, 0.85].map((x, idx) => (
+        {/* Các dải chỉ thêu tối giản phong cách Bắc Âu (Japandi Stripes) */}
+        {[-0.9, -0.45, 0, 0.45, 0.9].map((x, idx) => (
           <mesh
             key={idx}
             rotation={[-Math.PI / 2, 0, 0]}
-            position={[x, 0.054, 0]}
-          >
-            <planeGeometry args={[0.035, 1.5]} />
-            <meshStandardMaterial color={idx % 2 === 0 ? "#c47c69" : "#9e6e58"} roughness={0.9} />
-          </mesh>
+            position={[x, 0.0072, 0]}
+            geometry={rugStripeGeo}
+            material={idx % 2 === 0 ? rugStripeMatA : rugStripeMatB}
+          />
+        ))}
+
+        {/* Tua rua dệt thủ công mềm mại ở hai đầu mép thảm (Fringe Tassels) */}
+        {[-1.315, 1.315].map((z, sideIdx) => (
+          <group key={sideIdx} position={[0, 0.003, z]}>
+            {FRINGE_OFFSETS.map((x, idx) => (
+              <mesh
+                key={idx}
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[x, 0, sideIdx === 0 ? -0.025 : 0.025]}
+                geometry={rugFringeGeo}
+                material={rugFringeMat}
+              />
+            ))}
+          </group>
         ))}
       </group>
     </group>

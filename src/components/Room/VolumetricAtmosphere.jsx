@@ -9,6 +9,9 @@ import useStore from '../../store/useStore'
  * 2. Hơi nước bốc lên từ cốc cà phê (Coffee Steam)
  * 3. Hạt mưa rơi bên ngoài cửa sổ khi trời mưa
  */
+// Flyweight geometry cho hơi nước cà phê
+const sharedSteamSphereGeo = new THREE.SphereGeometry(1, 6, 6)
+
 export default function VolumetricAtmosphere() {
   const lightingPreset = useStore((state) => state.lightingPreset)
   const isNightMode = useStore((state) => state.isNightMode)
@@ -93,6 +96,11 @@ export default function VolumetricAtmosphere() {
       }
       rainRef.current.geometry.attributes.position.needsUpdate = true
     }
+
+    // Animate Coffee Steam nhẹ nhàng
+    if (steamRef.current) {
+      steamRef.current.rotation.y = Math.sin(time * 0.8) * 0.12
+    }
   })
 
   const dustColor = isNightMode ? '#c7d2fe' : isSunset ? '#fed7aa' : '#fef08a'
@@ -101,15 +109,15 @@ export default function VolumetricAtmosphere() {
     <group>
       {/* ── 1. Floating Dust Motes (Disabled to prevent visual noise / wall artifacts) ── */}
 
-      {/* ── 2. Coffee Mug Steam (Nhẹ nhàng) ── */}
-      <group position={[-2.45, 0.84, -2.15]}>
+      {/* ── 2. Coffee Mug Steam (Nhẹ nhàng, sống động) ── */}
+      <group ref={steamRef} position={[-2.45, 0.84, -2.15]}>
         {steamData.map((d, i) => (
           <mesh
             key={i}
             position={[d.x, d.y, d.z]}
             scale={[d.scale, d.scale * 1.4, d.scale]}
+            geometry={sharedSteamSphereGeo}
           >
-            <sphereGeometry args={[1, 6, 6]} />
             <meshBasicMaterial
               color="#ffffff"
               transparent

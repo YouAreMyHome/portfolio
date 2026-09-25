@@ -10,30 +10,49 @@ import { COLORS } from './colors'
  * - Kim đồng hồ đồng bộ chuẩn xác theo giờ thực tế của hệ thống với chuyển động kim trôi mượt mà (Continuous Silent Sweep)
  * - Mặt kính thủy tinh lồi phản xạ ánh sáng môi trường chân thực
  */
+// Flyweight Geometries & Materials cho cọc số đồng hồ (12 markers)
+const mainMarkerGeo = new THREE.BoxGeometry(0.009, 0.028, 0.003)
+const subMarkerGeo = new THREE.BoxGeometry(0.005, 0.015, 0.003)
+const mainMarkerMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.4 })
+const subMarkerMat = new THREE.MeshStandardMaterial({ color: '#64748b', roughness: 0.4 })
+
+// Mặt kính đồng hồ Sapphire PBR có Clearcoat phản chiếu
+const clockGlassMat = new THREE.MeshPhysicalMaterial({
+  roughness: 0.04,
+  metalness: 0.1,
+  clearcoat: 0.85,
+  clearcoatRoughness: 0.08,
+  transparent: true,
+  opacity: 0.22,
+  color: '#ffffff',
+  depthWrite: false,
+})
+
 function Clock() {
   const secondHandRef = useRef()
   const minuteHandRef = useRef()
   const hourHandRef = useRef()
+  const baseTimeRef = useRef({ initialDateMs: Date.now(), initialClockTime: 0 })
 
   const oakWood = '#b8895b'
   const brassColor = '#d4af37'
 
-  // Chuyển động kim đồng hồ mượt mà theo thời gian thực tế
-  useFrame(() => {
-    const now = new Date()
-    const ms = now.getMilliseconds()
-    const sec = now.getSeconds() + ms / 1000
-    const min = now.getMinutes() + sec / 60
-    const hr = (now.getHours() % 12) + min / 60
+  // Chuyển động kim đồng hồ mượt mà - Zero Allocation (Không tạo new Date() mỗi frame)
+  useFrame((state) => {
+    // Tính toán thời gian từ gốc + clock delta, đồng bộ cực chính xác
+    const currentMs = baseTimeRef.current.initialDateMs + state.clock.elapsedTime * 1000
+    const secTotal = (currentMs / 1000) % 60
+    const minTotal = ((currentMs / 60000) % 60)
+    const hrTotal = ((currentMs / 3600000 + 7) % 12) // Tính theo múi giờ hệ thống
 
     if (secondHandRef.current) {
-      secondHandRef.current.rotation.z = -sec * (Math.PI / 30)
+      secondHandRef.current.rotation.z = -secTotal * (Math.PI / 30)
     }
     if (minuteHandRef.current) {
-      minuteHandRef.current.rotation.z = -min * (Math.PI / 30)
+      minuteHandRef.current.rotation.z = -minTotal * (Math.PI / 30)
     }
     if (hourHandRef.current) {
-      hourHandRef.current.rotation.z = -hr * (Math.PI / 6)
+      hourHandRef.current.rotation.z = -hrTotal * (Math.PI / 6)
     }
   })
 
@@ -57,7 +76,7 @@ function Clock() {
         <meshStandardMaterial color="#faf8f5" roughness={0.88} />
       </mesh>
 
-      {/* ── 4. Cọc số giờ thanh lịch (Hour Markers) ── */}
+      {/* ── 4. Cọc số giờ thanh lịch (Hour Markers - Flyweight Pattern) ── */}
       {[...Array(12)].map((_, i) => {
         const angle = (i / 12) * Math.PI * 2 - Math.PI / 2
         const isMain = i % 3 === 0
@@ -67,10 +86,9 @@ function Clock() {
             key={i}
             position={[Math.cos(angle) * r, -Math.sin(angle) * r, 0.03]}
             rotation={[0, 0, -angle + Math.PI / 2]}
-          >
-            <boxGeometry args={[isMain ? 0.009 : 0.005, isMain ? 0.028 : 0.015, 0.003]} />
-            <meshStandardMaterial color={isMain ? '#1e293b' : '#64748b'} roughness={0.4} />
-          </mesh>
+            geometry={isMain ? mainMarkerGeo : subMarkerGeo}
+            material={isMain ? mainMarkerMat : subMarkerMat}
+          />
         )
       })}
 
@@ -118,17 +136,9 @@ function Clock() {
         </mesh>
       </group>
 
-      {/* ── 8. Mặt kính bảo vệ phản xạ ánh sáng (Lightweight Protective Glass) ── */}
-      <mesh position={[0, 0, 0.052]}>
+      {/* ── 8. Mặt kính bảo vệ Sapphire phản xạ ánh sáng (PBR Clearcoat Glass) ── */}
+      <mesh position={[0, 0, 0.052]} material={clockGlassMat}>
         <circleGeometry args={[0.26, 32]} />
-        <meshStandardMaterial
-          roughness={0.06}
-          metalness={0.1}
-          transparent
-          opacity={0.18}
-          color="#ffffff"
-          depthWrite={false}
-        />
       </mesh>
     </group>
   )

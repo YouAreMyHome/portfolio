@@ -11,6 +11,14 @@ import { COLORS } from './colors'
  * - Balo vải canvas có ngăn khóa kéo
  * - Ván trượt Skateboard gỗ phong đậm chất Streetwear / Developer
  */
+// ── Flyweight Assets cho Ván trượt Skateboard ──
+const skateBaseTruckGeo = new THREE.BoxGeometry(0.05, 0.012, 0.04)
+const skateAxleGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.15, 8)
+const skateWheelGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.02, 14)
+const skateTruckMat = new THREE.MeshStandardMaterial({ color: '#94a3b8', metalness: 0.9, roughness: 0.25 })
+const skateAxleMat = new THREE.MeshStandardMaterial({ color: '#cbd5e1', metalness: 0.92, roughness: 0.2 })
+const skateWheelMat = new THREE.MeshStandardMaterial({ color: '#f97316', roughness: 0.3 })
+
 function FloorDetails() {
   return (
     <group>
@@ -27,7 +35,7 @@ function FloorDetails() {
       </group>
 
       {/* ── 2. Cuốn tạp chí thiết kế mở đôi trên thảm (Open Magazine) ── */}
-      <group position={[0.65, 0.054, 0.28]} rotation={[0, 0.35, 0]}>
+      <group position={[0.65, 0.007, 0.28]} rotation={[0, 0.35, 0]}>
         {/* Trang bên trái hơi cong nhẹ */}
         <group position={[-0.11, 0.004, 0]} rotation={[0, 0, 0.05]}>
           <mesh castShadow receiveShadow>
@@ -69,7 +77,7 @@ function FloorDetails() {
       </group>
 
       {/* ── 3. Tay cầm chơi game công thái học thế hệ mới (Next-Gen Game Controller) ── */}
-      <group position={[0.15, 0.062, 0.92]} rotation={[0, -0.4, 0]}>
+      <group position={[0.15, 0.022, 0.92]} rotation={[0, -0.4, 0]}>
         {/* Thân chính bo cong (Main Shell) */}
         <RoundedBox args={[0.14, 0.03, 0.09]} radius={0.012} smoothness={4} castShadow>
           <meshStandardMaterial color="#f1f5f9" roughness={0.3} metalness={0.1} />
@@ -201,7 +209,7 @@ function FloorDetails() {
         ))}
       </group>
 
-      {/* ── 6. Ván trượt Skateboard gỗ phong đặt trên sàn (Maple Skateboard on Floor) ── */}
+      {/* ── 6. Ván trượt Skateboard gỗ phong đặt trên sàn (Maple Skateboard on Floor - Flyweight) ── */}
       <group position={[2.05, 0, 0.35]} rotation={[0, 0.35, 0]}>
         {/* Mặt ván gỗ phong bo cong (Nose & Tail Kick) */}
         <RoundedBox args={[0.18, 0.014, 0.72]} radius={0.01} smoothness={4} position={[0, 0.046, 0]} castShadow receiveShadow>
@@ -214,25 +222,16 @@ function FloorDetails() {
           <meshStandardMaterial color="#18181b" roughness={0.98} />
         </mesh>
 
-        {/* Hai trục xe kim loại hợp kim (Trucks) */}
+        {/* Hai trục xe kim loại hợp kim (Trucks - Flyweight) */}
         {[-0.2, 0.2].map((tz, ti) => (
           <group key={ti} position={[0, 0.022, tz]}>
             {/* Đế trục gắn vào ván */}
-            <mesh position={[0, 0.01, 0]}>
-              <boxGeometry args={[0.05, 0.012, 0.04]} />
-              <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.25} />
-            </mesh>
+            <mesh position={[0, 0.01, 0]} geometry={skateBaseTruckGeo} material={skateTruckMat} />
             {/* Trục ngang */}
-            <mesh position={[0, 0, 0]}>
-              <cylinderGeometry args={[0.005, 0.005, 0.15, 8]} rotation={[0, 0, Math.PI / 2]} />
-              <meshStandardMaterial color="#cbd5e1" metalness={0.92} roughness={0.2} />
-            </mesh>
+            <mesh position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} geometry={skateAxleGeo} material={skateAxleMat} />
             {/* 2 bánh xe Urethane vàng cam đặt sát mặt sàn */}
             {[-0.075, 0.075].map((wx, wi) => (
-              <mesh key={wi} position={[wx, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-                <cylinderGeometry args={[0.022, 0.022, 0.02, 16]} />
-                <meshStandardMaterial color="#f97316" roughness={0.3} />
-              </mesh>
+              <mesh key={wi} position={[wx, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow geometry={skateWheelGeo} material={skateWheelMat} />
             ))}
           </group>
         ))}

@@ -15,6 +15,31 @@ import useStore from '../../store/useStore'
  * - Leaning vinyl album cover jacket with artistic graphic
  * - Interactive: Click to toggle music playback, spinning vinyl, and floating musical notes
  */
+// Flyweight Geometries & Materials cho RecordPlayer
+const sharedAlbumSpineGeo = new THREE.BoxGeometry(0.022, 0.31, 0.008)
+const sharedAlbumBodyGeo = new THREE.BoxGeometry(0.02, 0.31, 0.3)
+const sharedAlbumLabelGeo = new THREE.PlaneGeometry(0.012, 0.18)
+const sharedGrooveGeos = [0.045, 0.065, 0.085, 0.105, 0.12].map(
+  (r) => new THREE.TorusGeometry(r, 0.0008, 4, 32)
+)
+const sharedGrooveMat = new THREE.MeshBasicMaterial({ color: '#1f2327', transparent: true, opacity: 0.5 })
+const sharedConsoleLegGeo = new THREE.CylinderGeometry(0.016, 0.01, 0.12, 10)
+const sharedConsoleFerruleGeo = new THREE.CylinderGeometry(0.011, 0.009, 0.025, 10)
+const consoleLegMat = new THREE.MeshStandardMaterial({ color: '#56341a', roughness: 0.7 })
+const consoleFerruleMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.85, roughness: 0.25 })
+
+// Acrylic Glass Material cao cấp có Clearcoat
+const acrylicLidMat = new THREE.MeshPhysicalMaterial({
+  color: '#ffffff',
+  opacity: 0.24,
+  transparent: true,
+  roughness: 0.04,
+  metalness: 0.08,
+  clearcoat: 0.9,
+  clearcoatRoughness: 0.05,
+  depthWrite: false,
+})
+
 function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
   const groupRef = useRef()
   const discRef = useRef()
@@ -22,23 +47,25 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
   const lidRef = useRef()
   const isPlaying = useStore((state) => state.isRecordPlaying)
 
-  // Smooth frame animations for disc, tonearm, and lid
+  // Smooth frame animations with Delta-timed exponential damping
   useFrame((state, delta) => {
     // Disc rotation
     if (discRef.current && isPlaying) {
       discRef.current.rotation.y += delta * 1.8
     }
 
-    // Tonearm smooth cueing
+    // Tonearm smooth cueing with exponential damping
     if (armRef.current) {
       const targetArmAngle = isPlaying ? -0.32 : 0.18
-      armRef.current.rotation.y = THREE.MathUtils.lerp(armRef.current.rotation.y, targetArmAngle, delta * 3.5)
+      const armFactor = 1 - Math.exp(-4.5 * delta)
+      armRef.current.rotation.y += (targetArmAngle - armRef.current.rotation.y) * armFactor
     }
 
-    // Dust cover smooth tilt
+    // Dust cover smooth tilt with exponential damping
     if (lidRef.current) {
       const targetLidAngle = isPlaying ? -0.85 : 0
-      lidRef.current.rotation.x = THREE.MathUtils.lerp(lidRef.current.rotation.x, targetLidAngle, delta * 4)
+      const lidFactor = 1 - Math.exp(-5 * delta)
+      lidRef.current.rotation.x += (targetLidAngle - lidRef.current.rotation.x) * lidFactor
     }
   })
 
@@ -102,18 +129,15 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
           ].map((album, idx) => (
             <group key={idx} position={[album.offset, 0, 0]} rotation={[0, 0, idx === 11 ? -0.08 : 0]}>
               {/* Record spine */}
-              <mesh castShadow position={[0, 0, 0.15]}>
-                <boxGeometry args={[0.022, 0.31, 0.008]} />
+              <mesh castShadow position={[0, 0, 0.15]} geometry={sharedAlbumSpineGeo}>
                 <meshStandardMaterial color={album.color} roughness={0.7} />
               </mesh>
               {/* Record body sleeve */}
-              <mesh castShadow position={[0, 0, 0]}>
-                <boxGeometry args={[0.02, 0.31, 0.3]} />
+              <mesh castShadow position={[0, 0, 0]} geometry={sharedAlbumBodyGeo}>
                 <meshStandardMaterial color={album.color} roughness={0.65} />
               </mesh>
               {/* Spine text graphic bar */}
-              <mesh position={[0, 0, 0.155]}>
-                <planeGeometry args={[0.012, 0.18]} />
+              <mesh position={[0, 0, 0.155]} geometry={sharedAlbumLabelGeo}>
                 <meshStandardMaterial color={album.title} roughness={0.8} />
               </mesh>
             </group>
@@ -129,15 +153,9 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
         ].map(([x, z, rotX, rotZ], i) => (
           <group key={i} position={[x, -0.32, z]} rotation={[rotZ * 0.5, 0, rotX * 0.5]}>
             {/* Wooden leg */}
-            <mesh castShadow position={[0, -0.05, 0]}>
-              <cylinderGeometry args={[0.016, 0.01, 0.12, 12]} />
-              <meshStandardMaterial color={walnutDark} roughness={0.7} />
-            </mesh>
+            <mesh castShadow position={[0, -0.05, 0]} geometry={sharedConsoleLegGeo} material={consoleLegMat} />
             {/* Brass foot ferrule cap */}
-            <mesh position={[0, -0.105, 0]}>
-              <cylinderGeometry args={[0.011, 0.009, 0.025, 12]} />
-              <meshStandardMaterial color={champagneBrass} metalness={0.85} roughness={0.25} />
-            </mesh>
+            <mesh position={[0, -0.105, 0]} geometry={sharedConsoleFerruleGeo} material={consoleFerruleMat} />
           </group>
         ))}
 
@@ -200,11 +218,8 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
             </mesh>
 
             {/* Micro-grooves visual rings */}
-            {[0.045, 0.065, 0.085, 0.105, 0.12].map((r, i) => (
-              <mesh key={i} position={[0, 0.002, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[r, 0.0008, 4, 48]} />
-                <meshBasicMaterial color="#1f2327" transparent opacity={0.5} />
-              </mesh>
+            {sharedGrooveGeos.map((geo, i) => (
+              <mesh key={i} position={[0, 0.002, 0]} rotation={[Math.PI / 2, 0, 0]} geometry={geo} material={sharedGrooveMat} />
             ))}
 
             {/* Center Record Paper Label (Warm Red & Gold) */}
@@ -345,52 +360,20 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
           {/* Pivoting lid assembly */}
           <group ref={lidRef} position={[0, 0.015, 0]}>
             {/* Top flat pane */}
-            <mesh position={[0, 0.07, 0.18]}>
+            <mesh position={[0, 0.07, 0.18]} material={acrylicLidMat}>
               <boxGeometry args={[0.49, 0.004, 0.36]} />
-              <meshStandardMaterial
-                color="#ffffff"
-                opacity={0.22}
-                transparent={true}
-                roughness={0.06}
-                metalness={0.1}
-                depthWrite={false}
-              />
             </mesh>
             {/* Front vertical pane */}
-            <mesh position={[0, 0.035, 0.358]}>
+            <mesh position={[0, 0.035, 0.358]} material={acrylicLidMat}>
               <boxGeometry args={[0.49, 0.07, 0.004]} />
-              <meshStandardMaterial
-                color="#ffffff"
-                transparent={true}
-                opacity={0.22}
-                roughness={0.06}
-                metalness={0.1}
-                depthWrite={false}
-              />
             </mesh>
             {/* Left vertical pane */}
-            <mesh position={[-0.243, 0.035, 0.18]}>
+            <mesh position={[-0.243, 0.035, 0.18]} material={acrylicLidMat}>
               <boxGeometry args={[0.004, 0.07, 0.356]} />
-              <meshStandardMaterial
-                color="#ffffff"
-                transparent={true}
-                opacity={0.22}
-                roughness={0.06}
-                metalness={0.1}
-                depthWrite={false}
-              />
             </mesh>
             {/* Right vertical pane */}
-            <mesh position={[0.243, 0.035, 0.18]}>
+            <mesh position={[0.243, 0.035, 0.18]} material={acrylicLidMat}>
               <boxGeometry args={[0.004, 0.07, 0.356]} />
-              <meshStandardMaterial
-                color="#ffffff"
-                transparent={true}
-                opacity={0.22}
-                roughness={0.06}
-                metalness={0.1}
-                depthWrite={false}
-              />
             </mesh>
           </group>
         </group>

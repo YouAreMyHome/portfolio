@@ -11,32 +11,39 @@ import * as THREE from 'three'
  * - Chân sao 5 cánh hợp kim nhôm sáng bóng và bánh xe đôi
  * - Tự động xoay nhẹ thư giãn tự nhiên
  */
+// Shared Flyweight Materials & Geometries cho các chi tiết lặp lại của ghế
+const casterWheelGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.014, 12)
+const casterAxleGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.035, 8)
+const casterRimGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.038, 10)
+const casterArmGeo = new THREE.BoxGeometry(0.32, 0.035, 0.045)
+
+const CHAIR_COLORS = {
+  leather: '#18181b',       // Da đen Carbon nhám sang trọng
+  cushionInner: '#27272a',  // Lòng đệm xám than dập lỗ
+  accent: '#ef4444',        // Chỉ may viền đỏ thể thao tinh tế
+  chrome: '#f1f5f9',        // Kim loại mạ chrome bóng bẩy
+  metalDark: '#334155',     // Kim loại đen mờ
+  wheelRubber: '#09090b',   // Cao su bánh xe
+}
+
+const wheelMat = new THREE.MeshStandardMaterial({ color: CHAIR_COLORS.wheelRubber, roughness: 0.85 })
+const chromeMat = new THREE.MeshStandardMaterial({ color: CHAIR_COLORS.chrome, metalness: 0.95, roughness: 0.16 })
+const metalDarkMat = new THREE.MeshStandardMaterial({ color: CHAIR_COLORS.metalDark, metalness: 0.8 })
+
 function GamingChair(props) {
   const chairRef = useRef()
   const upperBodyRef = useRef()
   const [hovered, setHovered] = useState(false)
 
-  // Tinh chỉnh chuyển động đu đưa / xoay nhẹ êm ái
-  useFrame(({ clock }) => {
+  // Tinh chỉnh chuyển động đu đưa / xoay nhẹ êm ái (Delta-timed damping)
+  useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime
     if (upperBodyRef.current) {
       const targetRotY = hovered ? Math.sin(t * 2) * 0.12 : Math.sin(t * 0.6) * 0.03
-      upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(
-        upperBodyRef.current.rotation.y,
-        targetRotY,
-        0.05
-      )
+      const factor = 1 - Math.exp(-5 * delta)
+      upperBodyRef.current.rotation.y += (targetRotY - upperBodyRef.current.rotation.y) * factor
     }
   })
-
-  const CHAIR_COLORS = {
-    leather: '#18181b',       // Da đen Carbon nhám sang trọng
-    cushionInner: '#27272a',  // Lòng đệm xám than dập lỗ
-    accent: '#ef4444',        // Chỉ may viền đỏ thể thao tinh tế
-    chrome: '#f1f5f9',        // Kim loại mạ chrome bóng bẩy
-    metalDark: '#334155',     // Kim loại đen mờ
-    wheelRubber: '#09090b',   // Cao su bánh xe
-  }
 
   return (
     <group
@@ -158,29 +165,17 @@ function GamingChair(props) {
         {[0, 1, 2, 3, 4].map((i) => (
           <group key={i} rotation={[0, (i / 5) * Math.PI * 2, 0]}>
             {/* Nan chân ghế vát cạnh khí động học */}
-            <mesh position={[0.16, 0, 0]} rotation={[0, 0, -0.05]} castShadow>
-              <boxGeometry args={[0.32, 0.035, 0.045]} />
-              <meshStandardMaterial color={CHAIR_COLORS.chrome} metalness={0.95} roughness={0.16} />
-            </mesh>
+            <mesh position={[0.16, 0, 0]} rotation={[0, 0, -0.05]} castShadow geometry={casterArmGeo} material={chromeMat} />
 
             {/* Cụm bánh xe đôi 360 độ (Twin Dual Casters) */}
             <group position={[0.32, -0.045, 0]}>
               {/* Trục gắn bánh xe */}
-              <mesh position={[0, 0.025, 0]}>
-                <cylinderGeometry args={[0.012, 0.012, 0.035, 8]} />
-                <meshStandardMaterial color={CHAIR_COLORS.metalDark} metalness={0.8} />
-              </mesh>
+              <mesh position={[0, 0.025, 0]} geometry={casterAxleGeo} material={metalDarkMat} />
               {/* Vành bánh xe mạ chrome */}
-              <mesh position={[0, 0, 0]}>
-                <cylinderGeometry args={[0.016, 0.016, 0.038, 12]} rotation={[Math.PI / 2, 0, 0]} />
-                <meshStandardMaterial color={CHAIR_COLORS.chrome} metalness={0.9} roughness={0.2} />
-              </mesh>
+              <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} geometry={casterRimGeo} material={chromeMat} />
               {/* 2 bánh lăn cao su đen chống trầy sàn */}
               {[-0.018, 0.018].map((wz, wi) => (
-                <mesh key={wi} position={[0, 0, wz]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-                  <cylinderGeometry args={[0.026, 0.026, 0.014, 16]} />
-                  <meshStandardMaterial color={CHAIR_COLORS.wheelRubber} roughness={0.85} />
-                </mesh>
+                <mesh key={wi} position={[0, 0, wz]} rotation={[Math.PI / 2, 0, 0]} castShadow geometry={casterWheelGeo} material={wheelMat} />
               ))}
             </group>
           </group>

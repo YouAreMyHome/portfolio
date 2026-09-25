@@ -135,10 +135,23 @@ function MonsteraPlant() {
    - Chậu đất nung Terracotta dập nổi hoa văn hình học
    - Các nhánh sen đá xếp cánh mọng nước chuyển màu xanh ngọc pha phớt hồng
 ───────────────────────────────────────────────────────────────── */
+// ── Flyweight Assets cho Sen Đá (Succulent) ──
+const succulentLowerConeGeo = new THREE.ConeGeometry(0.048, 0.11, 6)
+const succulentLowerSphereGeo = new THREE.SphereGeometry(0.014, 6, 6)
+const succulentUpperConeGeo = new THREE.ConeGeometry(0.036, 0.09, 6)
+const succulentUpperSphereGeo = new THREE.SphereGeometry(0.011, 6, 6)
+const succulentCenterGeo = new THREE.SphereGeometry(0.03, 8, 8)
+
+const succulentLowerMat = new THREE.MeshStandardMaterial({ color: '#4ade80', roughness: 0.6 })
+const succulentLowerTipMat = new THREE.MeshStandardMaterial({ color: '#fb7185', roughness: 0.5 })
+const succulentUpperMat = new THREE.MeshStandardMaterial({ color: '#86efac', roughness: 0.55 })
+const succulentUpperTipMat = new THREE.MeshStandardMaterial({ color: '#f43f5e', roughness: 0.5 })
+const succulentCenterMat = new THREE.MeshStandardMaterial({ color: '#bbf7d0', roughness: 0.5 })
+
 function SucculentPlant() {
   const plantRef = useRef()
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     if (!plantRef.current) return
     const t = clock.elapsedTime
     plantRef.current.rotation.y = Math.sin(t * 0.3) * 0.01
@@ -169,22 +182,16 @@ function SucculentPlant() {
         <meshStandardMaterial color="#382a22" roughness={0.95} />
       </mesh>
 
-      {/* ── Cụm hoa sen đá mọng nước (Succulent Rosette) ── */}
+      {/* ── Cụm hoa sen đá mọng nước (Succulent Rosette - Flyweight Pattern) ── */}
       <group ref={plantRef} position={[0, 0.35, 0]}>
         {/* Tầng cánh lớn bên dưới */}
         {[0, 1, 2, 3, 4, 5].map((i) => {
           const rotY = (i / 6) * Math.PI * 2
           return (
             <group key={i} rotation={[0, rotY, 0]}>
-              <mesh position={[0.07, 0.03, 0]} rotation={[0, 0, -0.45]} castShadow>
-                <coneGeometry args={[0.048, 0.11, 6]} />
-                <meshStandardMaterial color="#4ade80" roughness={0.6} />
-              </mesh>
+              <mesh position={[0.07, 0.03, 0]} rotation={[0, 0, -0.45]} castShadow geometry={succulentLowerConeGeo} material={succulentLowerMat} />
               {/* Phớt hồng viền chóp lá */}
-              <mesh position={[0.11, 0.05, 0]} rotation={[0, 0, -0.45]}>
-                <sphereGeometry args={[0.014, 6, 6]} />
-                <meshStandardMaterial color="#fb7185" roughness={0.5} />
-              </mesh>
+              <mesh position={[0.11, 0.05, 0]} rotation={[0, 0, -0.45]} geometry={succulentLowerSphereGeo} material={succulentLowerTipMat} />
             </group>
           )
         })}
@@ -194,24 +201,15 @@ function SucculentPlant() {
           const rotY = (i / 5) * Math.PI * 2 + 0.4
           return (
             <group key={i} rotation={[0, rotY, 0]}>
-              <mesh position={[0.045, 0.08, 0]} rotation={[0, 0, -0.25]} castShadow>
-                <coneGeometry args={[0.036, 0.09, 6]} />
-                <meshStandardMaterial color="#86efac" roughness={0.55} />
-              </mesh>
+              <mesh position={[0.045, 0.08, 0]} rotation={[0, 0, -0.25]} castShadow geometry={succulentUpperConeGeo} material={succulentUpperMat} />
               {/* Phớt hồng viền chóp lá tầng trên */}
-              <mesh position={[0.065, 0.11, 0]} rotation={[0, 0, -0.25]}>
-                <sphereGeometry args={[0.011, 6, 6]} />
-                <meshStandardMaterial color="#f43f5e" roughness={0.5} />
-              </mesh>
+              <mesh position={[0.065, 0.11, 0]} rotation={[0, 0, -0.25]} geometry={succulentUpperSphereGeo} material={succulentUpperTipMat} />
             </group>
           )
         })}
 
         {/* Búp non giữa tâm sen đá */}
-        <mesh position={[0, 0.13, 0]} castShadow>
-          <sphereGeometry args={[0.03, 8, 8]} />
-          <meshStandardMaterial color="#bbf7d0" roughness={0.5} />
-        </mesh>
+        <mesh position={[0, 0.13, 0]} castShadow geometry={succulentCenterGeo} material={succulentCenterMat} />
       </group>
     </group>
   )

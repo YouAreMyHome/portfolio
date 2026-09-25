@@ -45,13 +45,14 @@ function InteractiveObject({
     }
   }, [isDisabled, hovered, setHoveredObject])
   
-  // Smooth lift animation (chỉ tính toán khi đang chuyển động, dừng khi đứng yên)
-  useFrame(() => {
+  // Smooth lift animation with Delta-timed Exponential Damping (Framerate-independent)
+  useFrame((_, delta) => {
     if (groupRef.current) {
       const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
       const diff = targetY - groupRef.current.position.y
-      if (Math.abs(diff) > 0.0005) {
-        groupRef.current.position.y += diff * 0.15
+      if (Math.abs(diff) > 0.0002) {
+        const factor = 1 - Math.exp(-14 * delta)
+        groupRef.current.position.y += diff * factor
       } else if (groupRef.current.position.y !== targetY) {
         groupRef.current.position.y = targetY
       }

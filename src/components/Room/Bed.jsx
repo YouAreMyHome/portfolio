@@ -11,6 +11,13 @@ import useStore from '../../store/useStore'
  * - Nệm ngủ êm ái, gối tựa phân tầng, chăn bông bồng bềnh và dải chăn len Terracotta
  * - Tủ đầu giường đầy đủ phụ kiện: ly thủy tinh, sổ tay, điện thoại tương tác và đèn ngủ vật lý IES
  */
+// Flyweight Assets cho Giường bệt Japandi
+const bedLegGeo = new THREE.CylinderGeometry(0.032, 0.038, 0.09, 12)
+const bedFerruleGeo = new THREE.CylinderGeometry(0.034, 0.038, 0.024, 12)
+const bedLegMat = new THREE.MeshStandardMaterial({ color: '#8a5e38', roughness: 0.6 })
+const bedBrassMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.88, roughness: 0.25 })
+const headboardTuftMat = new THREE.MeshStandardMaterial({ color: '#ece5db', roughness: 0.88 })
+
 function Bed() {
   const phoneRef = useRef()
   const isNightMode = useStore((state) => state.isNightMode)
@@ -45,7 +52,7 @@ function Bed() {
           <meshStandardMaterial color={oakWood} roughness={0.65} metalness={0.04} />
         </RoundedBox>
 
-        {/* Chân giường gỗ tròn bọc đồng đáy */}
+        {/* Chân giường gỗ tròn bọc đồng đáy (Flyweight) */}
         {[
           [-0.72, -0.96],
           [0.72, -0.96],
@@ -53,14 +60,8 @@ function Bed() {
           [0.72, 0.96],
         ].map(([x, z], i) => (
           <group key={i} position={[x, 0, z]}>
-            <mesh position={[0, 0.045, 0]} castShadow>
-              <cylinderGeometry args={[0.032, 0.038, 0.09, 12]} />
-              <meshStandardMaterial color={oakDark} roughness={0.6} />
-            </mesh>
-            <mesh position={[0, 0.012, 0]} castShadow>
-              <cylinderGeometry args={[0.034, 0.038, 0.024, 12]} />
-              <meshStandardMaterial color={brassColor} metalness={0.88} roughness={0.25} />
-            </mesh>
+            <mesh position={[0, 0.045, 0]} castShadow geometry={bedLegGeo} material={bedLegMat} />
+            <mesh position={[0, 0.012, 0]} castShadow geometry={bedFerruleGeo} material={bedBrassMat} />
           </group>
         ))}
 
@@ -71,7 +72,7 @@ function Bed() {
             <meshStandardMaterial color={oakDark} roughness={0.6} metalness={0.04} />
           </RoundedBox>
 
-          {/* Các múi đệm nỉ êm ái bọc vải linen màu kem ấm */}
+          {/* Các múi đệm nỉ êm ái bọc vải linen màu kem ấm (Flyweight) */}
           {[-0.6, -0.36, -0.12, 0.12, 0.36, 0.6].map((x, i) => (
             <RoundedBox
               key={i}
@@ -80,9 +81,8 @@ function Bed() {
               smoothness={4}
               position={[x, 0, 0.04]}
               castShadow
-            >
-              <meshStandardMaterial color="#ece5db" roughness={0.88} />
-            </RoundedBox>
+              material={headboardTuftMat}
+            />
           ))}
         </group>
 

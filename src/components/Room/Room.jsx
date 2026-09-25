@@ -144,11 +144,11 @@ function Room({ graphics = {} }) {
 
       {/* Cat - Easter Egg */}
       <InteractiveObject name="cat" onClick={clickCat} hoverLift={0.12}>
-        <Cat position={[0.3, 0.05, 0.5]} scale={0.8} />
+        <Cat position={[0.3, 0.007, 0.5]} scale={0.8} />
       </InteractiveObject>
 
       {/* Pixel Person - Chủ phòng */}
-      <PixelPerson position={[1.15, 0.049, 0.85]} rotation={[0, 0.12, 0]} />
+      <PixelPerson position={[1.15, 0.007, 0.85]} rotation={[0, 0.12, 0]} />
 
       {/* Contact shadows */}
       {contactShadows && (
@@ -165,7 +165,7 @@ function Room({ graphics = {} }) {
           />
 
           <ContactShadows
-            position={[0, 0.048, 0]}
+            position={[0, 0.0075, 0]}
             opacity={0.35}
             scale={4}
             blur={1.5}

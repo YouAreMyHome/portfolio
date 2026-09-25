@@ -13,6 +13,9 @@ import useStore from '../../store/useStore'
  * - Sleek soundbar, Next-Gen PS5 console, and Hi-Fi studio monitor speaker
  * - Ambilight bias lighting with zero unnatural detached ground shadows
  */
+// Singleton / Object Pool cho frame loop (Zero-Allocation Pattern)
+const _currentColor = new THREE.Color()
+
 function TVSetup(props) {
   const lightRefLeft = useRef()
   const lightRefRight = useRef()
@@ -27,33 +30,35 @@ function TVSetup(props) {
   const isNightMode = useStore((state) => state.isNightMode)
   const isNight = isNightMode || lightingPreset === 'night'
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime
+    const lerpFactor = Math.min(1, delta * 6)
 
-    // Ambilight color animation
+    // Ambilight color animation - Zero GC allocation
     const targetIntensity = !isNight && !isGameActive ? 0.0 : isGameActive ? 0.45 : 0.28
-    const currentColor = new THREE.Color()
 
     if (!isGameActive) {
       const hue = (t * 0.035) % 1
-      currentColor.setHSL(hue, 0.75, 0.55)
+      _currentColor.setHSL(hue, 0.75, 0.55)
     } else {
-      currentColor.setHex(0x4ade80)
+      _currentColor.setHex(0x4ade80)
     }
 
-    ;[lightRefLeft, lightRefRight].forEach((ref) => {
-      if (ref.current) {
-        ref.current.intensity = THREE.MathUtils.lerp(ref.current.intensity, targetIntensity, 0.1)
-        ref.current.color.lerp(currentColor, 0.1)
-      }
-    })
+    if (lightRefLeft.current) {
+      lightRefLeft.current.intensity = THREE.MathUtils.lerp(lightRefLeft.current.intensity, targetIntensity, lerpFactor)
+      lightRefLeft.current.color.lerp(_currentColor, lerpFactor)
+    }
+    if (lightRefRight.current) {
+      lightRefRight.current.intensity = THREE.MathUtils.lerp(lightRefRight.current.intensity, targetIntensity, lerpFactor)
+      lightRefRight.current.color.lerp(_currentColor, lerpFactor)
+    }
 
     if (haloRef.current) {
-      haloRef.current.material.color.lerp(currentColor, 0.1)
+      haloRef.current.material.color.lerp(_currentColor, lerpFactor)
       haloRef.current.material.opacity = THREE.MathUtils.lerp(
         haloRef.current.material.opacity,
         isNight || isGameActive ? 0.22 : 0.0,
-        0.1
+        lerpFactor
       )
     }
 

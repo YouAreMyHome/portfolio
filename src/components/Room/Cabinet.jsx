@@ -7,6 +7,15 @@ import { COLORS } from './colors'
  * Cabinet - Tủ ngăn kéo nan sóng phong cách Bắc Âu (Fluted Tambour Credenza)
  * Tinh xảo với vật liệu gỗ sồi PBR, phụ kiện bình gốm khuynh diệp, khay đá và nến thơm
  */
+// ── Flyweight Assets cho Tủ Fluted Tambour Credenza ──
+const tambourSlatGeo = new THREE.BoxGeometry(0.028, 0.225, 0.008)
+const tambourSlatMatA = new THREE.MeshStandardMaterial({ color: '#b8895b', roughness: 0.6 })
+const tambourSlatMatB = new THREE.MeshStandardMaterial({ color: '#c99b6c', roughness: 0.6 })
+const cabinetLegGeo = new THREE.CylinderGeometry(0.016, 0.026, 0.14, 10)
+const cabinetFerruleGeo = new THREE.CylinderGeometry(0.023, 0.026, 0.035, 10)
+const cabinetLegMat = new THREE.MeshStandardMaterial({ color: '#8a623c', roughness: 0.6 })
+const cabinetBrassMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.88, roughness: 0.25 })
+
 function Cabinet() {
   const oakColor = '#b38455'
   const oakDark = '#8a623c'
@@ -38,7 +47,7 @@ function Cabinet() {
         <meshStandardMaterial color={oakColor} roughness={0.55} metalness={0.05} />
       </RoundedBox>
 
-      {/* ── 2. Chân tủ côn bọc đồng (Mid-century Tapered Legs) ── */}
+      {/* ── 2. Chân tủ côn bọc đồng (Mid-century Tapered Legs - Flyweight) ── */}
       {[
         [-0.36, -0.19, 0.08, -0.08],
         [0.36, -0.19, 0.08, 0.08],
@@ -47,19 +56,13 @@ function Cabinet() {
       ].map(([x, z, rx, rz], i) => (
         <group key={i} position={[x, 0, z]}>
           {/* Chân gỗ côn */}
-          <mesh position={[0, 0.06, 0]} rotation={[rx, 0, rz]} castShadow>
-            <cylinderGeometry args={[0.016, 0.026, 0.14, 10]} />
-            <meshStandardMaterial color={oakDark} roughness={0.6} />
-          </mesh>
+          <mesh position={[0, 0.06, 0]} rotation={[rx, 0, rz]} castShadow geometry={cabinetLegGeo} material={cabinetLegMat} />
           {/* Chụp đồng đáy chân (Brass Ferrule) */}
-          <mesh position={[0, 0.015, 0]} rotation={[rx, 0, rz]} castShadow>
-            <cylinderGeometry args={[0.023, 0.026, 0.035, 10]} />
-            <meshStandardMaterial color={brassColor} metalness={0.88} roughness={0.25} />
-          </mesh>
+          <mesh position={[0, 0.015, 0]} rotation={[rx, 0, rz]} castShadow geometry={cabinetFerruleGeo} material={cabinetBrassMat} />
         </group>
       ))}
 
-      {/* ── 3. Các ngăn kéo nan sọc (Fluted Tambour Drawers) ── */}
+      {/* ── 3. Các ngăn kéo nan sọc (Fluted Tambour Drawers - Flyweight) ── */}
       {[
         { y: 0.26, h: 0.26 },
         { y: 0.56, h: 0.26 },
@@ -71,12 +74,14 @@ function Cabinet() {
             <meshStandardMaterial color="#c29465" roughness={0.65} />
           </RoundedBox>
 
-          {/* Các rãnh nan gỗ dọc (Tambour Slats) */}
+          {/* Các rãnh nan gỗ dọc (Tambour Slats - Flyweight Shared Mesh) */}
           {[...Array(17)].map((_, s) => (
-            <mesh key={s} position={[-0.38 + s * 0.0475, 0, 0.009]}>
-              <boxGeometry args={[0.028, h - 0.035, 0.008]} />
-              <meshStandardMaterial color={s % 2 === 0 ? '#b8895b' : '#c99b6c'} roughness={0.6} />
-            </mesh>
+            <mesh
+              key={s}
+              position={[-0.38 + s * 0.0475, 0, 0.009]}
+              geometry={tambourSlatGeo}
+              material={s % 2 === 0 ? tambourSlatMatA : tambourSlatMatB}
+            />
           ))}
 
           {/* Tay nắm thanh đồng thau dài sang trọng (Brushed Brass Bar Pull) */}

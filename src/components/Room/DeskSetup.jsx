@@ -391,10 +391,19 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
   )
 }
 
-/**
- * DeskSetup â€” Modern PC Corner
- * Dark walnut desk Â· VESA monitor arm Â· PC tower on floor Â· Hairpin legs
- */
+// ── Flyweight Assets cho Keyboard (Tránh tạo 52 geometries & materials lặp lại) ──
+const sharedKeyGeo = new THREE.BoxGeometry(0.024, 0.012, 0.022)
+const sharedSpacebarGeo = new THREE.BoxGeometry(0.16, 0.012, 0.022)
+const keyMatRow0 = new THREE.MeshStandardMaterial({ color: '#374151', roughness: 0.6 })
+const keyMatEven = new THREE.MeshStandardMaterial({ color: '#1e2a3a', roughness: 0.6 })
+const keyMatOdd = new THREE.MeshStandardMaterial({ color: '#263244', roughness: 0.6 })
+const spacebarMat = new THREE.MeshStandardMaterial({ color: '#1e2a3a', roughness: 0.6 })
+
+// ── Flyweight Assets cho Chân bàn Hairpin ──
+const hairpinLegGeo = new THREE.CylinderGeometry(0.009, 0.007, 0.74, 8)
+const hairpinCrossGeo = new THREE.BoxGeometry(0.007, 0.007, 0.062)
+const hairpinMat = new THREE.MeshStandardMaterial({ color: '#0f172a', metalness: 0.88, roughness: 0.14 })
+
 function DeskSetup({ onProjectClick }) {
   const pcRgbRef = useRef()
   const kbRgbRef = useRef()
@@ -581,21 +590,21 @@ function DeskSetup({ onProjectClick }) {
             { z: -0.022, count: 14 },
             { z:  0.011, count: 13 },
             { z:  0.044, count: 12 },
-          ].flatMap(({ z, count }, ri) =>
-            Array.from({ length: count }, (_, ki) => (
-              <mesh key={`r${ri}k${ki}`} position={[-0.188 + ki * 0.03, 0.02, z]} castShadow>
-                <boxGeometry args={[0.024, 0.012, 0.022]} />
-                <meshStandardMaterial color={ri === 0 ? '#374151' : ri % 2 === 0 ? '#1e2a3a' : '#263244'} />
-              </mesh>
+          ].flatMap(({ z, count }, ri) => {
+            const mat = ri === 0 ? keyMatRow0 : ri % 2 === 0 ? keyMatEven : keyMatOdd
+            return Array.from({ length: count }, (_, ki) => (
+              <mesh
+                key={`r${ri}k${ki}`}
+                position={[-0.188 + ki * 0.03, 0.02, z]}
+                geometry={sharedKeyGeo}
+                material={mat}
+              />
             ))
-          )}
+          })}
           {/* Spacebar */}
-          <mesh position={[0, 0.02, 0.064]}>
-            <boxGeometry args={[0.16, 0.012, 0.022]} />
-            <meshStandardMaterial color="#1e2a3a" />
-          </mesh>
+          <mesh position={[0, 0.02, 0.064]} geometry={sharedSpacebarGeo} material={spacebarMat} />
           {/* RGB underglow */}
-          <pointLight ref={kbRgbRef} intensity={0.2} distance={0.3} position={[0, -0.008, 0.04]} />
+          <pointLight ref={kbRgbRef} intensity={0.25} distance={0.35} position={[0, -0.008, 0.04]} />
         </group>
 
         {/* â”€â”€ MOUSE (ergonomic) â”€â”€ */}
@@ -800,19 +809,10 @@ function DeskSetup({ onProjectClick }) {
           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {[[-1.02, -0.42], [-1.02, 0.42], [1.02, -0.42], [1.02, 0.42]].map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
-          <mesh position={[0, LEG_H / 2, 0.026]} rotation={[0.05, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.009, 0.007, LEG_H, 7]} />
-            <meshStandardMaterial color="#0f172a" metalness={0.88} roughness={0.12} />
-          </mesh>
-          <mesh position={[0, LEG_H / 2, -0.026]} rotation={[-0.05, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.009, 0.007, LEG_H, 7]} />
-            <meshStandardMaterial color="#0f172a" metalness={0.88} roughness={0.12} />
-          </mesh>
-          {/* Thanh ngang ná»‘i Ä‘Ã¡y */}
-          <mesh position={[0, 0.02, 0]}>
-            <boxGeometry args={[0.007, 0.007, 0.062]} />
-            <meshStandardMaterial color="#0f172a" metalness={0.85} roughness={0.15} />
-          </mesh>
+          <mesh position={[0, LEG_H / 2, 0.026]} rotation={[0.05, 0, 0]} castShadow geometry={hairpinLegGeo} material={hairpinMat} />
+          <mesh position={[0, LEG_H / 2, -0.026]} rotation={[-0.05, 0, 0]} castShadow geometry={hairpinLegGeo} material={hairpinMat} />
+          {/* Thanh ngang nối đáy */}
+          <mesh position={[0, 0.02, 0]} geometry={hairpinCrossGeo} material={hairpinMat} />
         </group>
       ))}
 

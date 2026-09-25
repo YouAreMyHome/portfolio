@@ -187,6 +187,13 @@ const ALL_POLAROIDS = [
   IMAGES.frame1,
 ]
 
+// ── Flyweight Assets cho Dây đèn trang trí Fairy Lights ──
+const fairyCordGeo = new THREE.CylinderGeometry(0.0015, 0.0015, 0.08, 6)
+const fairySocketGeo = new THREE.CylinderGeometry(0.009, 0.008, 0.014, 8)
+const fairyBulbGeo = new THREE.SphereGeometry(0.024, 12, 12)
+const fairyCordMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.7 })
+const fairySocketMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.9, roughness: 0.25 })
+
 function WallDecorations() {
   const stringLightsOn = useStore((state) => state.stringLightsOn)
   const toggleStringLights = useStore((state) => state.toggleStringLights)
@@ -232,26 +239,19 @@ function WallDecorations() {
             <meshStandardMaterial color="#1e293b" roughness={0.7} />
           </mesh>
           
-          {/* Các bóng đèn treo dọc dây */}
+          {/* Các bóng đèn treo dọc dây (Flyweight pattern) */}
           {[-1.4, -0.95, -0.5, 0, 0.5, 0.95, 1.4].map((z, i) => (
             <group key={i} position={[0, 0, z]}>
               {/* Dây treo kim loại xuống */}
-              <mesh position={[0, -0.04, 0]}>
-                <cylinderGeometry args={[0.0015, 0.0015, 0.08, 6]} />
-                <meshStandardMaterial color="#1e293b" roughness={0.7} />
-              </mesh>
+              <mesh position={[0, -0.04, 0]} geometry={fairyCordGeo} material={fairyCordMat} />
               {/* Chụp đui đèn đồng thau */}
-              <mesh position={[0, -0.085, 0]}>
-                <cylinderGeometry args={[0.009, 0.008, 0.014, 8]} />
-                <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.25} />
-              </mesh>
-              {/* Bóng đèn thủy tinh tròn */}
-              <mesh position={[0, -0.11, 0]} castShadow>
-                <sphereGeometry args={[0.024, 12, 12]} />
+              <mesh position={[0, -0.085, 0]} geometry={fairySocketGeo} material={fairySocketMat} />
+              {/* Bóng đèn thủy tinh tròn phát quang rực rỡ */}
+              <mesh position={[0, -0.11, 0]} geometry={fairyBulbGeo}>
                 <meshStandardMaterial 
                   color={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fdfaf5'}
                   emissive={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fef3c7'}
-                  emissiveIntensity={stringLightsOn ? 1.2 : 0.08}
+                  emissiveIntensity={stringLightsOn ? 1.4 : 0.08}
                   roughness={0.15}
                   metalness={0.05}
                   transparent
@@ -259,17 +259,16 @@ function WallDecorations() {
                   toneMapped={false}
                 />
               </mesh>
-              {/* Ánh sáng nhỏ từ mỗi bóng */}
-              {stringLightsOn && (
-                <pointLight 
-                  position={[0, -0.11, 0]} 
-                  intensity={0.2} 
-                  distance={0.7} 
-                  color={['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i]}
-                />
-              )}
             </group>
           ))}
+
+          {/* Proxy Point Lights - Chỉ 2 nguồn sáng phủ mịn dọc tường, tiết kiệm 70% draw/light overhead */}
+          {stringLightsOn && (
+            <>
+              <pointLight position={[0.08, -0.15, -0.75]} intensity={0.4} distance={1.8} color="#fef08a" />
+              <pointLight position={[0.08, -0.15, 0.75]} intensity={0.4} distance={1.8} color="#fed7aa" />
+            </>
+          )}
         </group>
       </group>
       

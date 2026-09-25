@@ -12,9 +12,16 @@ import InteractiveObject from './InteractiveObject'
  * - Tượng điêu khắc hình học nghệ thuật
  * - Click vào cụm sách mở Blog panel
  */
+// Flyweight Assets cho Giá đỡ kệ và Sách
+const bracketVertGeo = new THREE.BoxGeometry(0.024, 0.14, 0.012)
+const bracketHorizGeo = new THREE.BoxGeometry(0.024, 0.012, 0.19)
+const bracketDiagGeo = new THREE.BoxGeometry(0.018, 0.012, 0.14)
+const bracketMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.4, metalness: 0.8 })
+const spineGoldMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.9, roughness: 0.2 })
+const bookPaperMat = new THREE.MeshStandardMaterial({ color: '#faf8f2', roughness: 0.9 })
+
 function Shelf() {
   const shelfWood = '#966538'
-  const bracketMetal = '#1e293b'
 
   // Bảng màu sách hiện đại thanh lịch
   const bookList = [
@@ -42,24 +49,15 @@ function Shelf() {
         <meshStandardMaterial color={shelfWood} roughness={0.65} metalness={0.05} />
       </RoundedBox>
 
-      {/* ── 2. Giá đỡ kim loại đen mờ (Matte Black Brackets) ── */}
+      {/* ── 2. Giá đỡ kim loại đen mờ (Matte Black Brackets - Flyweight) ── */}
       {[-0.44, 0.44].map((x, i) => (
         <group key={i} position={[x, -0.09, -0.06]}>
           {/* Thanh dọc áp tường */}
-          <mesh position={[0, -0.04, -0.055]} castShadow>
-            <boxGeometry args={[0.024, 0.14, 0.012]} />
-            <meshStandardMaterial color={bracketMetal} roughness={0.4} metalness={0.8} />
-          </mesh>
+          <mesh position={[0, -0.04, -0.055]} castShadow geometry={bracketVertGeo} material={bracketMat} />
           {/* Thanh ngang đỡ kệ */}
-          <mesh position={[0, 0.05, 0.05]} castShadow>
-            <boxGeometry args={[0.024, 0.012, 0.19]} />
-            <meshStandardMaterial color={bracketMetal} roughness={0.4} metalness={0.8} />
-          </mesh>
+          <mesh position={[0, 0.05, 0.05]} castShadow geometry={bracketHorizGeo} material={bracketMat} />
           {/* Thanh chéo gia cố chịu lực */}
-          <mesh position={[0, 0, -0.01]} rotation={[Math.PI / 4, 0, 0]} castShadow>
-            <boxGeometry args={[0.018, 0.012, 0.14]} />
-            <meshStandardMaterial color={bracketMetal} roughness={0.4} metalness={0.8} />
-          </mesh>
+          <mesh position={[0, 0, -0.01]} rotation={[Math.PI / 4, 0, 0]} castShadow geometry={bracketDiagGeo} material={bracketMat} />
         </group>
       ))}
 
@@ -85,16 +83,14 @@ function Shelf() {
                 </RoundedBox>
 
                 {/* Khối giấy bên trong (ruột sách thụt vào 2mm) */}
-                <mesh position={[0, 0, 0.003]}>
+                <mesh position={[0, 0, 0.003]} material={bookPaperMat}>
                   <boxGeometry args={[b.w - 0.006, b.h - 0.01, b.d - 0.008]} />
-                  <meshStandardMaterial color="#faf8f2" roughness={0.9} />
                 </mesh>
 
                 {/* Dập kim vàng ở gáy sách */}
                 {b.spineGold && (
-                  <mesh position={[0, 0.04, -b.d / 2 - 0.001]}>
+                  <mesh position={[0, 0.04, -b.d / 2 - 0.001]} material={spineGoldMat}>
                     <planeGeometry args={[b.w - 0.008, 0.025]} />
-                    <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.2} />
                   </mesh>
                 )}
 
@@ -114,9 +110,8 @@ function Shelf() {
             <RoundedBox args={[0.038, 0.17, 0.15]} radius={0.005} smoothness={4} castShadow>
               <meshStandardMaterial color="#0f766e" roughness={0.7} />
             </RoundedBox>
-            <mesh position={[0, 0, 0.003]}>
+            <mesh position={[0, 0, 0.003]} material={bookPaperMat}>
               <boxGeometry args={[0.032, 0.16, 0.14]} />
-              <meshStandardMaterial color="#faf8f2" roughness={0.9} />
             </mesh>
           </group>
 
@@ -125,9 +120,8 @@ function Shelf() {
             <RoundedBox args={[0.15, 0.032, 0.18]} radius={0.004} smoothness={4} castShadow>
               <meshStandardMaterial color="#374151" roughness={0.75} />
             </RoundedBox>
-            <mesh position={[0.003, 0, 0]}>
+            <mesh position={[0.003, 0, 0]} material={bookPaperMat}>
               <boxGeometry args={[0.14, 0.026, 0.17]} />
-              <meshStandardMaterial color="#faf8f2" roughness={0.9} />
             </mesh>
           </group>
         </group>
