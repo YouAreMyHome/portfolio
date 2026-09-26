@@ -301,47 +301,47 @@ function Window() {
       <mesh position={[0, 0.04, 0.045]}>
         <planeGeometry args={[1.18, 1.52]} />
         <meshStandardMaterial
-          color="#ffffff"
-          roughness={0.08}
-          metalness={0.1}
+          color="#e2e8f0"
+          roughness={0.4}
+          metalness={0.02}
           transparent
-          opacity={0.2}
+          opacity={0.08}
           depthWrite={false}
         />
       </mesh>
 
       {/* ── 4. KHUNG GỖ CỬA SỔ SƠN TRẮNG BẮC ÂU (Moulded Window Casement) ── */}
       {/* Khung viền ngoài - Đỉnh */}
-      <RoundedBox args={[1.34, 0.055, 0.06]} radius={0.008} smoothness={4} position={[0, 0.81, 0.065]} castShadow>
-        <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+      <RoundedBox args={[1.34, 0.055, 0.06]} radius={0.008} smoothness={4} position={[0, 0.81, 0.065]}>
+        <meshStandardMaterial color="#f8fafc" roughness={0.65} />
       </RoundedBox>
 
       {/* Khung viền ngoài - Hai bên */}
       {[-0.60, 0.60].map((wx, wi) => (
-        <RoundedBox key={wi} args={[0.055, 1.56, 0.06]} radius={0.008} smoothness={4} position={[wx, 0.04, 0.065]} castShadow>
-          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        <RoundedBox key={wi} args={[0.055, 1.56, 0.06]} radius={0.008} smoothness={4} position={[wx, 0.04, 0.065]}>
+          <meshStandardMaterial color="#f8fafc" roughness={0.65} />
         </RoundedBox>
       ))}
 
       {/* Đố chia khung giữa chữ thập (Window Mullion Cross) */}
       <mesh position={[0, 0.04, 0.062]}>
         <boxGeometry args={[0.03, 1.52, 0.028]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
       <mesh position={[0, 0.04, 0.062]}>
         <boxGeometry args={[1.18, 0.03, 0.028]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
 
       {/* ── 5. BỆ CỬA SỔ GỖ SỒI CHÂN THỰC (Oak Window Sill) ── */}
-      <RoundedBox args={[1.42, 0.045, 0.16]} radius={0.01} smoothness={4} position={[0, -0.73, 0.09]} castShadow receiveShadow>
+      <RoundedBox args={[1.42, 0.045, 0.16]} radius={0.01} smoothness={4} position={[0, -0.73, 0.09]} receiveShadow>
         <meshStandardMaterial color="#b38455" roughness={0.55} metalness={0.04} />
       </RoundedBox>
 
       {/* ── 6. CHẬU SEN ĐÁ ĐẶT KHÍT TRÊN MẶT BỆ (Top of sill = -0.7075) ── */}
       <group position={[0.36, -0.7075, 0.1]}>
         {/* Chậu đất nung Terracotta (đáy chạm chính xác mặt bệ cửa sổ) */}
-        <mesh position={[0, 0.028, 0]} castShadow>
+        <mesh position={[0, 0.028, 0]}>
           <cylinderGeometry args={[0.034, 0.024, 0.056, 16]} />
           <meshStandardMaterial color="#c26344" roughness={0.7} />
         </mesh>
@@ -356,7 +356,7 @@ function Window() {
           <meshStandardMaterial color="#2d1b10" roughness={0.95} />
         </mesh>
         {/* Cây sen đá xanh ngọc mọng nước */}
-        <mesh position={[0, 0.078, 0]} castShadow>
+        <mesh position={[0, 0.078, 0]}>
           <dodecahedronGeometry args={[0.028]} />
           <meshStandardMaterial color="#16a34a" roughness={0.4} />
         </mesh>

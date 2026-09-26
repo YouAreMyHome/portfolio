@@ -139,7 +139,7 @@ function Room({ graphics = {} }) {
 
       {/* Record Player - Music */}
       <InteractiveObject name="recordplayer" onClick={toggleRecordPlayer} hoverLift={0.05}>
-        <RecordPlayer position={[-0.3, 0.35, -3.6]} />
+        <RecordPlayer position={[-0.3, 0, -3.6]} />
       </InteractiveObject>
 
       {/* Cat - Easter Egg */}
@@ -150,28 +150,28 @@ function Room({ graphics = {} }) {
       {/* Pixel Person - Chủ phòng */}
       <PixelPerson position={[1.15, 0.007, 0.85]} rotation={[0, 0.12, 0]} />
 
-      {/* Contact shadows */}
+      {/* Contact shadows (Ground AO mềm mại, bổ trợ tiếp xúc kẽ chân đồ vật) */}
       {contactShadows && (
         <>
           <ContactShadows
             position={[0, 0.002, 0]}
-            opacity={0.55}
-            scale={20}
-            blur={2}
-            far={1.8}
+            opacity={0.28}
+            scale={18}
+            blur={1.8}
+            far={0.6}
             resolution={contactShadowResolutionMain}
-            color="#000000"
+            color="#261a12"
             frames={contactShadowFramesMain}
           />
 
           <ContactShadows
-            position={[0, 0.0075, 0]}
-            opacity={0.35}
-            scale={4}
-            blur={1.5}
-            far={0.8}
+            position={[0, 0.0072, 0.3]}
+            opacity={0.20}
+            scale={3.6}
+            blur={1.4}
+            far={0.4}
             resolution={contactShadowResolutionRug}
-            color="#1a1a1a"
+            color="#261a12"
             frames={contactShadowFramesRug}
           />
         </>

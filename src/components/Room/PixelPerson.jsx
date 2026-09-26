@@ -886,8 +886,8 @@ function PixelPerson({ position = [0, 0, 0], scale = 1, rotation = [0, 0, 0], ..
       onPointerOut={handlePointerOut}
       {...props}
     >
-      {/* ── 1. Invisible Precise Raycast Hit-Box & Unified Shadow Caster Proxy ── */}
-      <mesh position={[0, 0.65, 0.02]} castShadow>
+      {/* ── 1. Invisible Precise Raycast Hit-Box ── */}
+      <mesh position={[0, 0.65, 0.02]}>
         <cylinderGeometry args={[0.26, 0.28, 1.35, 12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>

@@ -21,7 +21,7 @@ function TaskCard({ color, columnColor, position }) {
   return (
     <group position={position}>
       {/* Card body - 3D box */}
-      <mesh castShadow>
+      <mesh>
         <boxGeometry args={[0.26, 0.09, 0.008]} />
         <meshStandardMaterial color={color} roughness={0.9} />
       </mesh>
@@ -71,7 +71,7 @@ function PlanBoard() {
     <InteractiveObject name="planboard" onClick={toggleKanbanBoard}>
       <group position={[-3.88, 1.8, 0.5]} rotation={[0, Math.PI / 2, 0]}>
         {/* Main board frame */}
-        <mesh castShadow receiveShadow>
+        <mesh receiveShadow>
           <boxGeometry args={[1.15, 0.9, 0.04]} />
           <meshStandardMaterial color="#5c3d2e" roughness={0.8} />
         </mesh>

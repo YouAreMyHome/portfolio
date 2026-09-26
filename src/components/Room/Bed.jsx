@@ -141,6 +141,7 @@ function Bed() {
             smoothness={4}
             position={[0, 0, 0]}
             castShadow
+            receiveShadow
           >
             <meshStandardMaterial color="#cf7f7f" roughness={0.85} />
           </RoundedBox>
@@ -152,6 +153,7 @@ function Bed() {
             smoothness={4}
             position={[0, 0.05, -0.62]}
             castShadow
+            receiveShadow
           >
             <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
           </RoundedBox>
@@ -159,7 +161,7 @@ function Bed() {
           {/* ── 6. DẢI CHĂN LEN TRANG TRÍ (Terracotta Waffle Throw Runner) ── */}
           <group position={[0, 0.062, 0.4]}>
             {/* Dải chăn vắt ngang đuôi giường */}
-            <RoundedBox args={[1.45, 0.035, 0.46]} radius={0.015} smoothness={4} castShadow>
+            <RoundedBox args={[1.45, 0.035, 0.46]} radius={0.015} smoothness={4} castShadow receiveShadow>
               <meshStandardMaterial color="#b85842" roughness={0.92} />
             </RoundedBox>
             {/* Vân dệt nổi nhẹ (Waffle Weave) */}

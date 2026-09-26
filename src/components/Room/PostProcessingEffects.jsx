@@ -49,11 +49,11 @@ export default function PostProcessingEffects({ graphics = {} }) {
 
       {/* 2. Bloom: Chỉ phát sáng các nguồn sáng thực tế, không gây chói bề mặt tường */}
       <Bloom
-        intensity={isNightMode || lightingPreset === 'night' ? 0.45 : 0.22}
-        luminanceThreshold={0.92}
-        luminanceSmoothing={0.9}
+        intensity={isNightMode || lightingPreset === 'night' ? 0.35 : 0.20}
+        luminanceThreshold={0.96}
+        luminanceSmoothing={0.2}
         mipmapBlur
-        radius={0.45}
+        radius={0.4}
       />
 
       {/* 3. ToneMapping: Tăng độ tương phản màu sắc sống động */}

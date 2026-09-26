@@ -1,6 +1,7 @@
 function loadImage(url, timeoutMs = 3000) {
   return new Promise((resolve, reject) => {
     const image = new Image()
+    image.crossOrigin = 'anonymous'
     let settled = false
 
     const onDone = (callback) => {

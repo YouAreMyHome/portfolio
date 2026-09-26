@@ -59,14 +59,14 @@ function GamingChair(props) {
         {/* A. Đệm ngồi công thái học (Ergonomic Seat Cushion) */}
         <group position={[0, 0.48, 0]}>
           {/* Lòng đệm chính bo viền */}
-          <RoundedBox args={[0.48, 0.08, 0.5]} radius={0.03} smoothness={4} castShadow>
+          <RoundedBox args={[0.48, 0.08, 0.5]} radius={0.03} smoothness={4} castShadow receiveShadow>
             <meshStandardMaterial color={CHAIR_COLORS.cushionInner} roughness={0.75} />
           </RoundedBox>
 
           {/* 2 cánh đệm nâng đỡ hông (Side Bolsters) */}
           {[-0.23, 0.23].map((bx, bi) => (
             <group key={bi} position={[bx, 0.035, 0]} rotation={[0, 0, bi === 0 ? 0.22 : -0.22]}>
-              <RoundedBox args={[0.08, 0.065, 0.48]} radius={0.02} smoothness={4} castShadow>
+              <RoundedBox args={[0.08, 0.065, 0.48]} radius={0.02} smoothness={4} castShadow receiveShadow>
                 <meshStandardMaterial color={CHAIR_COLORS.leather} roughness={0.65} />
               </RoundedBox>
               {/* Chỉ viền thể thao tương phản */}

@@ -40,7 +40,7 @@ const acrylicLidMat = new THREE.MeshPhysicalMaterial({
   depthWrite: false,
 })
 
-function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
+function RecordPlayer({ position = [-0.3, 0, -3.6] }) {
   const groupRef = useRef()
   const discRef = useRef()
   const armRef = useRef()
@@ -80,9 +80,9 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
   return (
     <group ref={groupRef} position={position}>
       {/* ========================================================================= */}
-      {/* 1. MID-CENTURY AUDIO CONSOLE / STAND                                       */}
+      {/* 1. MID-CENTURY AUDIO CONSOLE / STAND (Grounded on floor y=0)               */}
       {/* ========================================================================= */}
-      <group position={[0, -0.35, 0]}>
+      <group position={[0, 0.4075, 0]}>
         {/* Main console body - Walnut carcass */}
         <RoundedBox args={[0.56, 0.58, 0.42]} radius={0.015} smoothness={4} castShadow receiveShadow>
           <meshStandardMaterial color={walnutWood} roughness={0.68} metalness={0.05} />
@@ -151,7 +151,7 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
           [-0.22, 0.15, -0.15, -0.15],
           [0.22, 0.15, 0.15, -0.15],
         ].map(([x, z, rotX, rotZ], i) => (
-          <group key={i} position={[x, -0.32, z]} rotation={[rotZ * 0.5, 0, rotX * 0.5]}>
+          <group key={i} position={[x, -0.29, z]} rotation={[rotZ * 0.5, 0, rotX * 0.5]}>
             {/* Wooden leg */}
             <mesh castShadow position={[0, -0.05, 0]} geometry={sharedConsoleLegGeo} material={consoleLegMat} />
             {/* Brass foot ferrule cap */}
@@ -162,11 +162,11 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
       </group>
 
       {/* ========================================================================= */}
-      {/* 2. HI-FI TURNTABLE DECK                                                    */}
+      {/* 2. HI-FI TURNTABLE DECK (Resting flush on top of console y=0.6975)          */}
       {/* ========================================================================= */}
-      <group position={[0, 0.025, 0]}>
+      <group position={[0, 0.6975, 0]}>
         {/* Plinth (Chassis) - Walnut with beveled edges */}
-        <RoundedBox args={[0.5, 0.055, 0.38]} radius={0.012} smoothness={4} castShadow receiveShadow>
+        <RoundedBox args={[0.5, 0.055, 0.38]} radius={0.012} smoothness={4} position={[0, 0.0275, 0]} castShadow receiveShadow>
           <meshStandardMaterial color={walnutWood} roughness={0.55} metalness={0.08} />
         </RoundedBox>
 
@@ -383,7 +383,7 @@ function RecordPlayer({ position = [-0.3, 0.35, -3.6] }) {
       {/* 3. VIBRANT FLOATING MUSIC NOTES (when playing)                             */}
       {/* ========================================================================= */}
       {isPlaying && (
-        <group position={[0, 0.1, 0]}>
+        <group position={[0, 0.78, 0]}>
           <FloatingMusicNote position={[-0.12, 0.15, 0.08]} delay={0} color="#a855f7" />
           <FloatingMusicNote position={[0.08, 0.2, 0.02]} delay={0.8} color="#ec4899" />
           <FloatingMusicNote position={[0.18, 0.12, -0.06]} delay={1.6} color="#3b82f6" />

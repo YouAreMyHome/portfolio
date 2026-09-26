@@ -59,7 +59,7 @@ function Clock() {
   return (
     <group position={[0, 2.3, -3.90]} rotation={[0, 0, 0]}>
       {/* ── 1. Khung viền gỗ sồi bo vát CNC (Outer Oak Frame) ── */}
-      <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.29, 0.29, 0.045, 32]} />
         <meshStandardMaterial color={oakWood} roughness={0.55} metalness={0.06} />
       </mesh>

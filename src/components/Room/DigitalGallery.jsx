@@ -56,6 +56,7 @@ function DigitalGallery({
 
     let active = true
     const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin('anonymous')
     const loadedTextures = new Array(imageCount).fill(null)
     let settled = 0
 
@@ -66,6 +67,8 @@ function DigitalGallery({
           texture.colorSpace = THREE.SRGBColorSpace
           texture.minFilter = THREE.LinearFilter
           texture.magFilter = THREE.LinearFilter
+          texture.generateMipmaps = true
+          texture.needsUpdate = true
           loadedTextures[index] = texture
           settled += 1
 
@@ -144,7 +147,7 @@ function DigitalGallery({
     >
       <group position={position} rotation={rotation}>
         {/* Frame - Khung màu tối */}
-        <mesh ref={frameRef} castShadow>
+        <mesh ref={frameRef}>
           <boxGeometry args={[frameWidth, frameHeight, 0.04]} />
           <meshStandardMaterial 
             color="#1a1a1a" 
@@ -180,10 +183,12 @@ function DigitalGallery({
           <planeGeometry args={[screenWidth, screenHeight]} />
           {currentTexture ? (
             <meshStandardMaterial 
+              key={currentTexture.uuid}
               map={currentTexture}
               emissive="#ffffff"
               emissiveMap={currentTexture}
-              emissiveIntensity={0.3}
+              emissiveIntensity={0.15}
+              roughness={0.4}
               toneMapped={false}
             />
           ) : (

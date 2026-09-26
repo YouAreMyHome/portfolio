@@ -5,6 +5,7 @@ import InteractiveObject from './InteractiveObject'
 import DigitalGallery from './DigitalGallery'
 import useStore from '../../store/useStore'
 import { IMAGES } from '../../data/images'
+import { POLAROID_STORIES } from '../../data/polaroidData'
 
 /**
  * WallDecorations - Tranh, poster và decorations trên 2 tường hiển thị
@@ -90,21 +91,25 @@ function useSafeTexture(url) {
 
     let active = true
     const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin('anonymous')
 
     loader.load(
       url,
       (loadedTexture) => {
+        if (!active) {
+          loadedTexture.dispose()
+          return
+        }
         loadedTexture.colorSpace = THREE.SRGBColorSpace
         loadedTexture.minFilter = THREE.LinearFilter
         loadedTexture.magFilter = THREE.LinearFilter
-        if (active) {
-          setTexture(loadedTexture)
-        } else {
-          loadedTexture.dispose()
-        }
+        loadedTexture.generateMipmaps = true
+        loadedTexture.needsUpdate = true
+        setTexture(loadedTexture)
       },
       undefined,
-      () => {
+      (err) => {
+        console.warn('[WallDecorations] Failed to load polaroid texture:', url, err)
         if (active) setTexture(null)
       }
     )
@@ -127,43 +132,65 @@ function Polaroid({
   tilt = 0, 
   imagePath,
   allImages,          // full gallery array — for lightbox navigation
-  size = [0.14, 0.14],        // Kích thước ảnh [width, height]
-  frameSize = [0.18, 0.22],   // Kích thước frame [width, height]
-  frameColor = "#f5f5f0"      // Màu frame
+  size = [0.18, 0.18],        // Kích thước ảnh [width, height]
+  frameSize = [0.22, 0.26],   // Kích thước frame [width, height]
+  frameColor = "#f5f5f0",     // Màu frame
+  tapeColor = null,           // Băng dính washi tape trang trí
 }) {
   const openPolaroid = useStore((state) => state.openPolaroid)
   const texture = useSafeTexture(imagePath)
   
   const handleClick = () => {
-    const gallery = allImages ?? [imagePath]
-    const idx     = gallery.indexOf(imagePath)
+    const gallery = allImages ?? ALL_POLAROIDS
+    const idx = gallery.findIndex((item) => (typeof item === 'object' ? item.src : item) === imagePath)
     openPolaroid(gallery, idx < 0 ? 0 : idx)
   }
   
-  // Tính offset Y cho ảnh trong frame (polaroid style có phần trắng dưới)
+  // Tính offset Y cho ảnh trong frame (polaroid style có phần trắng dưới rộng hơn)
   const isPolaroidStyle = frameSize[1] > frameSize[0] * 1.1
-  const photoOffsetY = isPolaroidStyle ? 0.015 : 0
+  const photoOffsetY = isPolaroidStyle ? (frameSize[1] - size[1]) / 3 : 0
   
   return (
     <InteractiveObject name="polaroid" onClick={handleClick}>
       <group position={position} rotation={rotation}>
         <group rotation={[0, 0, tilt]}>
           {/* Frame */}
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[frameSize[0], frameSize[1], 0.012]} />
-            <meshStandardMaterial color={frameColor} roughness={0.9} />
+            <meshStandardMaterial color={frameColor} roughness={0.88} />
           </mesh>
+
+          {/* Washi tape trang trí phía trên Polaroid */}
+          {tapeColor && (
+            <mesh position={[0, frameSize[1] / 2, 0.010]} rotation={[0, 0, tilt * 0.4]}>
+              <boxGeometry args={[frameSize[0] * 0.42, 0.024, 0.003]} />
+              <meshStandardMaterial 
+                color={tapeColor} 
+                roughness={0.65} 
+                transparent 
+                opacity={0.92} 
+              />
+            </mesh>
+          )}
+          
           {/* Photo area */}
-          <mesh position={[0, photoOffsetY, 0.007]}>
+          <mesh position={[0, photoOffsetY, 0.009]}>
             <planeGeometry args={size} />
-            <meshBasicMaterial
-              map={texture || null}
-              color={texture ? '#ffffff' : '#f5ebe0'}
-            />
+            {texture ? (
+              <meshBasicMaterial
+                key={texture.uuid}
+                map={texture}
+                toneMapped={false}
+                side={THREE.DoubleSide}
+              />
+            ) : (
+              <meshBasicMaterial color="#e2e8f0" />
+            )}
           </mesh>
+
           {/* Minimalist modern art graphic if texture is loading or absent */}
           {!texture && (
-            <group position={[0, photoOffsetY, 0.008]}>
+            <group position={[0, photoOffsetY, 0.01]}>
               <mesh position={[0, 0.025, 0]}>
                 <circleGeometry args={[size[0] * 0.28, 24]} />
                 <meshBasicMaterial color="#e76f51" />
@@ -180,12 +207,8 @@ function Polaroid({
   )
 }
 
-// Tất cả ảnh polaroid trong phòng — lightbox có thể di chuyển giữa các ảnh
-const ALL_POLAROIDS = [
-  IMAGES.polaroid1,
-  IMAGES.polaroid2,
-  IMAGES.frame1,
-]
+// Tất cả ảnh polaroid & gallery trong phòng — lightbox có thể di chuyển giữa các ảnh
+const ALL_POLAROIDS = POLAROID_STORIES
 
 // ── Flyweight Assets cho Dây đèn trang trí Fairy Lights ──
 const fairyCordGeo = new THREE.CylinderGeometry(0.0015, 0.0015, 0.08, 6)
@@ -284,20 +307,22 @@ function WallDecorations() {
       
       {/* Polaroid 1 - Ảnh từ /assets/img/polaroid1.jpg */}
       <Polaroid 
-        position={[-3.88, 2.2, -1.8]}
+        position={[-3.88, 2.22, -1.8]}
         rotation={[0, Math.PI / 2, 0]}
-        tilt={0.08}
+        tilt={0.06}
         imagePath={IMAGES.polaroid1}
         allImages={ALL_POLAROIDS}
+        tapeColor="#f6bd60"
       />
       
       {/* Polaroid 2 - Ảnh từ /assets/img/polaroid2.jpg */}
       <Polaroid 
-        position={[-3.88, 2.0, -1.5]}
+        position={[-3.88, 1.96, -1.45]}
         rotation={[0, Math.PI / 2, 0]}
-        tilt={-0.1}
+        tilt={-0.08}
         imagePath={IMAGES.polaroid2}
         allImages={ALL_POLAROIDS}
+        tapeColor="#84a59d"
       />
     </group>
   )

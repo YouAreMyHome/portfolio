@@ -43,7 +43,6 @@ function Shelf() {
         radius={0.008}
         smoothness={4}
         position={[0, 0, 0]}
-        castShadow
         receiveShadow
       >
         <meshStandardMaterial color={shelfWood} roughness={0.65} metalness={0.05} />
@@ -53,17 +52,17 @@ function Shelf() {
       {[-0.44, 0.44].map((x, i) => (
         <group key={i} position={[x, -0.09, -0.06]}>
           {/* Thanh dọc áp tường */}
-          <mesh position={[0, -0.04, -0.055]} castShadow geometry={bracketVertGeo} material={bracketMat} />
+          <mesh position={[0, -0.04, -0.055]} geometry={bracketVertGeo} material={bracketMat} />
           {/* Thanh ngang đỡ kệ */}
-          <mesh position={[0, 0.05, 0.05]} castShadow geometry={bracketHorizGeo} material={bracketMat} />
+          <mesh position={[0, 0.05, 0.05]} geometry={bracketHorizGeo} material={bracketMat} />
           {/* Thanh chéo gia cố chịu lực */}
-          <mesh position={[0, 0, -0.01]} rotation={[Math.PI / 4, 0, 0]} castShadow geometry={bracketDiagGeo} material={bracketMat} />
+          <mesh position={[0, 0, -0.01]} rotation={[Math.PI / 4, 0, 0]} geometry={bracketDiagGeo} material={bracketMat} />
         </group>
       ))}
 
       {/* ── 3. Chặn sách đá cẩm thạch bên trái ── */}
       <group position={[-0.34, 0.05, 0]}>
-        <mesh rotation={[0, 0, -0.1]} castShadow>
+        <mesh rotation={[0, 0, -0.1]}>
           <coneGeometry args={[0.05, 0.11, 4]} />
           <meshStandardMaterial color="#f1f5f9" roughness={0.25} metalness={0.15} />
         </mesh>
@@ -78,7 +77,7 @@ function Shelf() {
             return (
               <group key={idx} position={[posX, 0.019 + b.h / 2, 0]}>
                 {/* Bìa cứng ngoài */}
-                <RoundedBox args={[b.w, b.h, b.d]} radius={0.006} smoothness={4} castShadow>
+                <RoundedBox args={[b.w, b.h, b.d]} radius={0.006} smoothness={4}>
                   <meshStandardMaterial color={b.color} roughness={0.72} />
                 </RoundedBox>
 
@@ -107,7 +106,7 @@ function Shelf() {
 
           {/* Cuốn sách tựa nghiêng tự nhiên (Leaning Book) */}
           <group position={[curX + 0.04, 0.075, 0.01]} rotation={[0, 0, -0.22]}>
-            <RoundedBox args={[0.038, 0.17, 0.15]} radius={0.005} smoothness={4} castShadow>
+            <RoundedBox args={[0.038, 0.17, 0.15]} radius={0.005} smoothness={4}>
               <meshStandardMaterial color="#0f766e" roughness={0.7} />
             </RoundedBox>
             <mesh position={[0, 0, 0.003]} material={bookPaperMat}>
@@ -117,7 +116,7 @@ function Shelf() {
 
           {/* Cuốn sách nằm bẹp phía dưới */}
           <group position={[curX + 0.13, 0.035, 0.01]}>
-            <RoundedBox args={[0.15, 0.032, 0.18]} radius={0.004} smoothness={4} castShadow>
+            <RoundedBox args={[0.15, 0.032, 0.18]} radius={0.004} smoothness={4}>
               <meshStandardMaterial color="#374151" roughness={0.75} />
             </RoundedBox>
             <mesh position={[0.003, 0, 0]} material={bookPaperMat}>
@@ -130,11 +129,11 @@ function Shelf() {
       {/* ── 5. Cây thường xuân rủ mép kệ (Trailing Ivy Plant) ── */}
       <group position={[-0.47, 0.019, 0.04]}>
         {/* Chậu gốm nung Terracotta có viền */}
-        <mesh position={[0, 0.045, 0]} castShadow>
+        <mesh position={[0, 0.045, 0]}>
           <cylinderGeometry args={[0.045, 0.035, 0.09, 16]} />
           <meshStandardMaterial color="#c27d66" roughness={0.7} />
         </mesh>
-        <mesh position={[0, 0.088, 0]} castShadow>
+        <mesh position={[0, 0.088, 0]}>
           <torusGeometry args={[0.045, 0.006, 8, 16]} rotation={[Math.PI / 2, 0, 0]} />
           <meshStandardMaterial color="#d48c77" roughness={0.65} />
         </mesh>
@@ -163,7 +162,6 @@ function Shelf() {
                   key={lIdx}
                   position={[lIdx % 2 === 0 ? 0.018 : -0.018, -ly, 0.01]}
                   rotation={[0.35, 0, lIdx * 0.5]}
-                  castShadow
                 >
                   <circleGeometry args={[0.026, 8]} />
                   <meshStandardMaterial
@@ -181,11 +179,11 @@ function Shelf() {
       {/* ── 6. Tượng điêu khắc nghệ thuật hình học (Polyhedron Art Piece) ── */}
       <group position={[0.42, 0.02, 0]}>
         {/* Bệ đỡ bằng đá hoa cương đen */}
-        <RoundedBox args={[0.08, 0.025, 0.08]} radius={0.004} position={[0, 0.012, 0]} castShadow>
+        <RoundedBox args={[0.08, 0.025, 0.08]} radius={0.004} position={[0, 0.012, 0]}>
           <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.4} />
         </RoundedBox>
         {/* Khối đa diện 12 mặt bằng đồng vàng */}
-        <mesh position={[0, 0.06, 0]} rotation={[0.4, 0.6, 0.2]} castShadow>
+        <mesh position={[0, 0.06, 0]} rotation={[0.4, 0.6, 0.2]}>
           <dodecahedronGeometry args={[0.035, 0]} />
           <meshStandardMaterial color="#eab308" metalness={0.92} roughness={0.22} />
         </mesh>
