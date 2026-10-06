@@ -23,6 +23,7 @@ function Bed() {
   const duvetRef = useRef()
   const bodyMoundRef = useRef()
   const pillowLeftRef = useRef()
+  const pillowIndentRef = useRef()
   const pillowRightRef = useRef()
   const cushionLeftRef = useRef()
   const mattressRef = useRef()
@@ -31,6 +32,7 @@ function Bed() {
   const lightingPreset = useStore((state) => state.lightingPreset)
   const isCharacterSleeping = useStore((state) => state.isCharacterSleeping)
   const characterAction = useStore((state) => state.characterAction)
+  const bedStage = useStore((state) => state.bedStage)
   const isNight = isNightMode || lightingPreset === 'night'
 
   const oakWood = '#b08053'
@@ -43,6 +45,12 @@ function Bed() {
     const isSitting = characterAction === 'sitting_bed'
     const isSleeping = isCharacterSleeping || characterAction === 'sleeping'
 
+    const isSittingStage = bedStage === 'sit_at_bed' || isSitting
+    const isSwingingStage = bedStage === 'swing_legs_in'
+    const isRecliningStage = bedStage === 'recline_to_pillow'
+    const isSleepingStage = isSleeping || bedStage === 'sleeping'
+    const isOccupied = isSittingStage || isSwingingStage || isRecliningStage || isSleepingStage
+
     if (phoneRef.current) {
       if (isNight) {
         const pulse = Math.sin(t * 2.4) * 0.5 + 0.5
@@ -54,55 +62,90 @@ function Bed() {
       }
     }
 
-    // Dynamic Mattress Indentation under sitting / lying body weight
+    // Dynamic Mattress Indentation under sitting / lying body weight & hands pressing
     if (mattressRef.current) {
-      const targetMattressY = isSleeping ? 0.275 : isSitting ? 0.278 : 0.29
-      const targetMattressRotX = isSitting ? 0.018 : 0
-      mattressRef.current.position.y = THREE.MathUtils.lerp(mattressRef.current.position.y, targetMattressY, delta * 4)
-      mattressRef.current.rotation.x = THREE.MathUtils.lerp(mattressRef.current.rotation.x, targetMattressRotX, delta * 4)
+      let targetMattressY = 0.29
+      let targetMattressRotX = 0
+      let targetMattressRotZ = 0
+
+      if (isSleepingStage) {
+        targetMattressY = 0.275
+        targetMattressRotX = 0.0
+        targetMattressRotZ = -0.012 // Nhẹ nhàng lún nghiêng bên trái theo vị trí người nằm
+      } else if (isRecliningStage) {
+        targetMattressY = 0.275
+        targetMattressRotX = 0.006
+        targetMattressRotZ = -0.014
+      } else if (isSwingingStage) {
+        targetMattressY = 0.274
+        targetMattressRotX = 0.014
+        targetMattressRotZ = -0.018 // Chống tay và kéo chân lên nệm làm lún rõ rệt
+      } else if (isSittingStage) {
+        targetMattressY = 0.276
+        targetMattressRotX = 0.024 // Ngồi mép đuôi giường làm nệm chúi nhẹ về phía chân
+        targetMattressRotZ = -0.016 // Lún góc trái nơi hông và tay đặt xuống
+      }
+
+      mattressRef.current.position.y = THREE.MathUtils.lerp(mattressRef.current.position.y, targetMattressY, delta * 4.5)
+      mattressRef.current.rotation.x = THREE.MathUtils.lerp(mattressRef.current.rotation.x, targetMattressRotX, delta * 4.5)
+      mattressRef.current.rotation.z = THREE.MathUtils.lerp(mattressRef.current.rotation.z, targetMattressRotZ, delta * 4.5)
     }
 
-    // Dynamic Bed Reaction when Character is Sleeping (Harmonic breathing & Duvet tuck)
+    // Dynamic Bed Reaction when Character is Sleeping / Reclining (Harmonic breathing & Duvet tuck)
     if (duvetRef.current) {
-      // When sleeping: duvet pulls up neatly over body up to chest at z = 0.20, leaves head on pillow
-      // When awake: duvet folds back down neatly towards the foot of the bed at z = 0.34
-      const targetZ = isSleeping ? 0.20 : 0.34
-      const targetScaleZ = isSleeping ? 1.12 : 0.98
-      const targetY = isSleeping
+      // Reclining: chăn kéo lên đồng bộ với tay nhân vật
+      // Sleeping: chăn phủ kín ngực tại z = 0.20, thở nhịp nhàng
+      // Awake / Sitting: chăn gập phẳng về đuôi giường tại z = 0.34
+      const isDuvetUp = isSleepingStage || isRecliningStage
+      const targetZ = isDuvetUp ? 0.20 : 0.34
+      const targetScaleZ = isDuvetUp ? 1.12 : 0.98
+      const targetY = isSleepingStage
         ? 0.468 + Math.sin(t * 1.4) * 0.005 // Synchronous harmonic breathing with character
         : 0.44
 
-      duvetRef.current.position.z = THREE.MathUtils.lerp(duvetRef.current.position.z, targetZ, delta * 3.5)
-      duvetRef.current.position.y = THREE.MathUtils.lerp(duvetRef.current.position.y, targetY, delta * 3.5)
-      duvetRef.current.scale.z = THREE.MathUtils.lerp(duvetRef.current.scale.z, targetScaleZ, delta * 3.5)
+      const duvetLerpSpeed = isRecliningStage ? 3.0 : 3.8
+      duvetRef.current.position.z = THREE.MathUtils.lerp(duvetRef.current.position.z, targetZ, delta * duvetLerpSpeed)
+      duvetRef.current.position.y = THREE.MathUtils.lerp(duvetRef.current.position.y, targetY, delta * 3.8)
+      duvetRef.current.scale.z = THREE.MathUtils.lerp(duvetRef.current.scale.z, targetScaleZ, delta * 3.8)
     }
 
     // Dynamic 3D body mound under duvet (chăn phồng tự nhiên theo dáng người nằm bên dưới)
     if (bodyMoundRef.current) {
-      const targetMoundScaleY = isSleeping ? 1.0 : 0.001
-      bodyMoundRef.current.scale.y = THREE.MathUtils.lerp(bodyMoundRef.current.scale.y, targetMoundScaleY, delta * 3.5)
+      const targetMoundScaleY = (isSleepingStage || isRecliningStage) ? 1.0 : 0.001
+      const moundSpeed = isRecliningStage ? 2.8 : 3.8
+      bodyMoundRef.current.scale.y = THREE.MathUtils.lerp(bodyMoundRef.current.scale.y, targetMoundScaleY, delta * moundSpeed)
       bodyMoundRef.current.visible = bodyMoundRef.current.scale.y > 0.01
     }
 
-    // Pillow indents smoothly under character's head on left side when sleeping
-    const targetLeftPillowScaleY = isSleeping ? 0.68 : 1.0
-    const targetLeftPillowY = isSleeping ? 0.425 : 0.45
+    // Pillow indents smoothly under character's head on left side when reclining or sleeping
+    const isHeadOnPillow = isSleepingStage || isRecliningStage
+    const targetLeftPillowScaleY = isHeadOnPillow ? 0.68 : 1.0
+    const targetLeftPillowY = isHeadOnPillow ? 0.425 : 0.45
     if (pillowLeftRef.current) {
-      pillowLeftRef.current.scale.y = THREE.MathUtils.lerp(pillowLeftRef.current.scale.y, targetLeftPillowScaleY, delta * 4.0)
-      pillowLeftRef.current.position.y = THREE.MathUtils.lerp(pillowLeftRef.current.position.y, targetLeftPillowY, delta * 4.0)
+      pillowLeftRef.current.scale.y = THREE.MathUtils.lerp(pillowLeftRef.current.scale.y, targetLeftPillowScaleY, delta * 4.2)
+      pillowLeftRef.current.position.y = THREE.MathUtils.lerp(pillowLeftRef.current.position.y, targetLeftPillowY, delta * 4.2)
     }
+
+    // Memory foam depression circle visual cue
+    if (pillowIndentRef.current) {
+      const targetIndentOpacity = isHeadOnPillow ? 0.55 : 0.18
+      const targetIndentScale = isHeadOnPillow ? 1.35 : 0.9
+      pillowIndentRef.current.material.opacity = THREE.MathUtils.lerp(pillowIndentRef.current.material.opacity, targetIndentOpacity, delta * 4)
+      pillowIndentRef.current.scale.setScalar(THREE.MathUtils.lerp(pillowIndentRef.current.scale.x, targetIndentScale, delta * 4))
+    }
+
     // Right pillow stays fluffy and uncompressed
     if (pillowRightRef.current) {
       pillowRightRef.current.scale.y = THREE.MathUtils.lerp(pillowRightRef.current.scale.y, 1.0, delta * 4.0)
       pillowRightRef.current.position.y = THREE.MathUtils.lerp(pillowRightRef.current.position.y, 0.45, delta * 4.0)
     }
 
-    // Left decorative cushion neatly shifts back against headboard when sleeping so it doesn't crowd sleeper
+    // Left decorative cushion neatly shifts back against headboard when sitting/sleeping so it doesn't crowd sleeper
     if (cushionLeftRef.current) {
-      const targetCushionZ = isSleeping ? -0.78 : -0.48
-      const targetCushionX = isSleeping ? -0.58 : -0.32
-      const targetCushionY = isSleeping ? 0.52 : 0.49
-      const targetCushionRotX = isSleeping ? -0.12 : -0.3
+      const targetCushionZ = isOccupied ? -0.78 : -0.48
+      const targetCushionX = isOccupied ? -0.58 : -0.32
+      const targetCushionY = isOccupied ? 0.52 : 0.49
+      const targetCushionRotX = isOccupied ? -0.12 : -0.3
       cushionLeftRef.current.position.z = THREE.MathUtils.lerp(cushionLeftRef.current.position.z, targetCushionZ, delta * 3.5)
       cushionLeftRef.current.position.x = THREE.MathUtils.lerp(cushionLeftRef.current.position.x, targetCushionX, delta * 3.5)
       cushionLeftRef.current.position.y = THREE.MathUtils.lerp(cushionLeftRef.current.position.y, targetCushionY, delta * 3.5)
@@ -200,9 +243,9 @@ function Bed() {
             <meshStandardMaterial color="#ffffff" roughness={0.9} />
           </RoundedBox>
           {/* Lõm nhẹ ở giữa gối do trọng lượng */}
-          <mesh position={[0, 0.065, 0]}>
+          <mesh ref={pillowIndentRef} position={[0, 0.065, 0]}>
             <circleGeometry args={[0.1, 16]} rotation={[-Math.PI / 2, 0, 0]} />
-            <meshBasicMaterial color="#f1eee7" opacity={0.3} transparent />
+            <meshBasicMaterial color="#e5ded2" opacity={0.18} transparent />
           </mesh>
         </group>
 

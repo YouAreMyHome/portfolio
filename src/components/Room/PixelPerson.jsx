@@ -102,7 +102,7 @@ const SCENARIOS = {
     expression: 'neutral',
   },
   night: {
-    bedsidePos: [-2.05, 0.007, 1.55],
+    bedsidePos: [-1.62, 0.007, 1.86],
     bedsideRotY: Math.PI * 0.5,
     bedSleepPos: [-2.585, 0.455, 1.86],
     bedSleepRot: [-Math.PI / 2, 0, Math.PI / 2],
@@ -808,7 +808,7 @@ function FloatingZzz({ headPosRef }) {
 // ─── Room Obstacle-Free Waypoint Navigation Graph ──────────────────────────────
 const ROOM_WAYPOINTS = {
   bedSleep:    [-2.585, 0.455, 1.86],
-  bedside:     [-2.05, 0.007, 1.55],
+  bedside:     [-1.62, 0.007, 1.86],
   hallwayWest: [-1.15, 0.007, 0.70], // Safe corridor between bed corner & desk
   centerRug:   [ 0.15, 0.007, 0.60], // Central living area on rug
   morning:     [ 0.75, 0.007, 0.65], // Sunny morning spot
@@ -906,6 +906,7 @@ function PixelPerson({ scale = 1, ...props }) {
   const setLightingPreset = useStore((state) => state.setLightingPreset)
   const setCharacterAction = useStore((state) => state.setCharacterAction)
   const setIsCharacterSleeping = useStore((state) => state.setIsCharacterSleeping)
+  const setBedStage = useStore((state) => state.setBedStage)
   const wakeUpTrigger = useStore((state) => state.wakeUpTrigger)
   const activePreset = isNightMode ? 'night' : lightingPreset || 'morning'
 
@@ -922,12 +923,12 @@ function PixelPerson({ scale = 1, ...props }) {
   const gaitPhaseRef        = useRef(0)
   const dialogueIndexRef    = useRef(-1)
 
-  // Night State Sub-stages: 'idle' | 'night_yawn' | 'walk_to_bed' | 'sit_at_bed' | 'lie_down' | 'sleeping'
+  // Night State Sub-stages: 'idle' | 'night_yawn' | 'walk_to_bed' | 'settle_at_bedside' | 'sit_at_bed' | 'swing_legs_in' | 'recline_to_pillow' | 'sleeping'
   const nightStageRef       = useRef(activePreset === 'night' ? 'sleeping' : 'idle')
   const nightTimerRef       = useRef(0)
   const isLyingInBedRef     = useRef(activePreset === 'night')
 
-  // Wake Up Sub-stages: 'idle' | 'wake_stir' | 'wake_sit' | 'wake_stand'
+  // Wake Up Sub-stages: 'idle' | 'wake_stir' | 'wake_sit' | 'wake_swing_legs' | 'wake_stand'
   const wakeTimerRef        = useRef(0)
 
   const dismissTimer        = useRef(null)
@@ -950,12 +951,14 @@ function PixelPerson({ scale = 1, ...props }) {
         isLyingInBedRef.current = true
         setIsCharacterSleeping(true)
         setCharacterAction('sleeping')
+        setBedStage('sleeping')
       } else {
         groupRef.current.position.set(...cfg.position)
         groupRef.current.rotation.set(0, cfg.rotationY, 0)
         isLyingInBedRef.current = false
         setIsCharacterSleeping(false)
         setCharacterAction('walking')
+        setBedStage('none')
       }
     }
 
@@ -999,6 +1002,7 @@ function PixelPerson({ scale = 1, ...props }) {
         nightTimerRef.current = 0
         targetRotYRef.current = cfg.bedsideRotY
         setIsCharacterSleeping(false)
+        setBedStage('none')
       } else {
         // Daytime / Evening target
         targetRotYRef.current = cfg.rotationY
@@ -1008,12 +1012,13 @@ function PixelPerson({ scale = 1, ...props }) {
         if (!isLyingInBedRef.current && groupRef.current) {
           const curPos = groupRef.current.position
           navQueueRef.current = computeNavPath([curPos.x, curPos.y, curPos.z], activePreset)
+          setBedStage('none')
         }
       }
 
       if (cfg.sound) playSound(cfg.sound)
     }
-  }, [activePreset, playSound, setIsCharacterSleeping])
+  }, [activePreset, playSound, setIsCharacterSleeping, setBedStage])
 
   // Welcome popup on initial visit after 2 seconds
   useEffect(() => {
@@ -1122,12 +1127,14 @@ function PixelPerson({ scale = 1, ...props }) {
 
       if (wt < 0.8) {
         // Giai đoạn 1: Cựa mình mở mắt, mỉm cười chào ngày mới
+        setBedStage('wake_stir')
         setExpression('happy')
         if (headGroupRef.current) {
           headGroupRef.current.rotation.x = 0.08 + Math.sin(wt * 6) * 0.04
         }
       } else if (wt < 2.4) {
         // Giai đoạn 2: Nâng người ngồi dậy trên nệm (Quaternions slerp mượt mà từ nằm -> ngồi thẳng)
+        setBedStage('wake_sit')
         const p = Math.min(1, (wt - 0.8) / 1.6)
         const s = p * p * (3 - 2 * p)
 
@@ -1154,10 +1161,11 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else if (wt < 4.0) {
         // Giai đoạn 3: Trượt ra mép giường và đung đưa chân qua mép nệm (ngồi thõng chân bên mép giường)
+        setBedStage('wake_swing_legs')
         const p = Math.min(1, (wt - 2.4) / 1.6)
         const s = p * p * (3 - 2 * p)
 
-        curPos.x = THREE.MathUtils.lerp(-2.585, -2.22, s)
+        curPos.x = THREE.MathUtils.lerp(-2.585, -2.12, s)
         curPos.y = 0.007
         curPos.z = 1.86
         groupRef.current.rotation.set(0, Math.PI * 0.5, 0)
@@ -1177,13 +1185,14 @@ function PixelPerson({ scale = 1, ...props }) {
         if (leftForearmRef.current) leftForearmRef.current.rotation.x = forearmAngle
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else if (wt < 5.2) {
-        // Giai đoạn 4: Chống tay, dồn trọng tâm đứng vững xuống sàn gỗ
+        // Giai đoạn 4: Chống tay, dồn trọng tâm đứng vững xuống sàn gỗ ngay trước giường
+        setBedStage('wake_stand')
         const p = Math.min(1, (wt - 4.0) / 1.2)
         const s = p * p * (3 - 2 * p)
 
-        curPos.x = THREE.MathUtils.lerp(-2.22, -2.05, s)
+        curPos.x = THREE.MathUtils.lerp(-2.12, -1.62, s)
         curPos.y = 0.007
-        curPos.z = THREE.MathUtils.lerp(1.86, 1.55, s)
+        curPos.z = 1.86
 
         const rotY = THREE.MathUtils.lerp(Math.PI * 0.5, 0.15, s)
         groupRef.current.rotation.set(0, rotY, 0)
@@ -1204,6 +1213,7 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else {
         // Đã đứng vững trên sàn phòng
+        setBedStage('none')
         isLyingInBedRef.current = false
         wakeTimerRef.current = 0
         groupRef.current.rotation.set(0, 0.15, 0)
@@ -1219,7 +1229,7 @@ function PixelPerson({ scale = 1, ...props }) {
       return
     }
 
-    // ── CASE B: NIGHT SEQUENCE (Yawn -> Walk to Bed -> Sit -> Swing Legs -> Recline -> Sleeping) ──
+    // ── CASE B: NIGHT SEQUENCE (Yawn -> Walk -> Settle -> Sit -> Swing Legs -> Recline -> Sleeping) ──
     if (activePreset === 'night') {
       const stage = nightStageRef.current
 
@@ -1228,6 +1238,7 @@ function PixelPerson({ scale = 1, ...props }) {
         setCharacterAction('idle')
         setExpression('tired')
 
+        // Ngáp dài mệt mỏi — tay phải đưa lên miệng, đầu ngửa ra sau
         if (rightArmRef.current) {
           rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -1.25, delta * 6)
           rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.42, delta * 6)
@@ -1235,8 +1246,28 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) {
           rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, -1.55, delta * 6)
         }
+        // Tay trái buông lơi tự nhiên
+        if (leftArmRef.current) {
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, 0.05, delta * 4)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.04, delta * 4)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0, delta * 4)
+        }
+        if (leftForearmRef.current) {
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, 0, delta * 4)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0, delta * 4)
+        }
         if (headGroupRef.current) {
           headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.18, delta * 4)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, 0, delta * 4)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 4)
+        }
+        // Thân trên thả lỏng
+        if (upperBodyRef.current) {
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0.04, delta * 4)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 4)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 4)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 4)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 4)
         }
 
         if (nightTimerRef.current > 1.8) {
@@ -1259,7 +1290,9 @@ function PixelPerson({ scale = 1, ...props }) {
 
           if (dist > 0.08) {
             isMovingRef.current = true
-            const moveSpeed = 1.25 // Bước chân chậm rãi, ngái ngủ về đêm
+            // Tốc độ giảm dần khi gần đích — mô phỏng bước chân ngái ngủ chậm lại tự nhiên
+            const proximityFactor = Math.min(1, dist / 0.5)
+            const moveSpeed = 1.25 * (0.5 + 0.5 * proximityFactor)
             const stepDist = Math.min(dist, moveSpeed * delta)
             curPos.x += (dx / dist) * stepDist
             curPos.z += (dz / dist) * stepDist
@@ -1271,16 +1304,18 @@ function PixelPerson({ scale = 1, ...props }) {
             groupRef.current.rotation.y += angleDiff * Math.min(1, delta * 12)
 
             const strideLength = 0.54
+            // Biên độ bước chân giảm khi gần đích
+            const gaitAmp = 0.5 + 0.5 * proximityFactor
             gaitPhaseRef.current = (gaitPhaseRef.current + (stepDist / strideLength) * Math.PI * 2) % (Math.PI * 2)
             const phi = gaitPhaseRef.current
 
             const computeLeg = (phase) => {
               const sinP = Math.sin(phase)
               if (sinP > 0) {
-                return { rotX: sinP * 0.44, kneeX: 0.08 }
+                return { rotX: sinP * 0.44 * gaitAmp, kneeX: 0.08 * gaitAmp }
               } else {
                 const swingT = -sinP
-                return { rotX: -swingT * 0.46, kneeX: swingT * 0.52 }
+                return { rotX: -swingT * 0.46 * gaitAmp, kneeX: swingT * 0.52 * gaitAmp }
               }
             }
 
@@ -1292,22 +1327,108 @@ function PixelPerson({ scale = 1, ...props }) {
             if (leftKneeRef.current) leftKneeRef.current.rotation.x = leftLegKine.kneeX
             if (rightKneeRef.current) rightKneeRef.current.rotation.x = rightLegKine.kneeX
 
-            curPos.y = 0.007 + Math.abs(Math.sin(phi)) * 0.024
+            curPos.y = 0.007 + Math.abs(Math.sin(phi)) * 0.024 * gaitAmp
             if (upperBodyRef.current) {
               upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0.08, delta * 4)
-              upperBodyRef.current.position.x = Math.sin(phi) * 0.014
+              upperBodyRef.current.position.x = Math.sin(phi) * 0.014 * gaitAmp
             }
             if (headGroupRef.current) {
-              headGroupRef.current.rotation.x = 0.12 + Math.abs(Math.sin(phi)) * 0.02
+              headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.12 + Math.abs(Math.sin(phi)) * 0.02, delta * 6)
+            }
+
+            // Tay ngáp dần hạ xuống mượt mà khi đi
+            if (rightArmRef.current) {
+              rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, Math.sin(phi) * 0.30, delta * 5)
+              rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.04, delta * 5)
+            }
+            if (rightForearmRef.current) {
+              rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, 0, delta * 5)
+            }
+            if (leftArmRef.current) {
+              leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -Math.sin(phi) * 0.30, delta * 5)
+              leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.04, delta * 5)
             }
           } else {
             navQueueRef.current.shift()
           }
         } else {
-          // Đến cạnh giường -> Bắt đầu ngồi xuống êm ái
-          nightStageRef.current = 'sit_at_bed'
+          // Đến cạnh giường -> Chuyển sang giai đoạn dừng lại ổn định trước khi ngồi
+          nightStageRef.current = 'settle_at_bedside'
           nightTimerRef.current = 0
           isMovingRef.current = false
+        }
+        return
+      }
+
+      // ── GIAI ĐOẠN 3: Dừng lại ổn định bên cạnh đuôi giường (0.8s) ──
+      // Nhân vật dừng tại điểm [-1.62, 0.007, 1.86] trên sàn gỗ ngay trước giường (không clip nệm/khung giường)
+      if (stage === 'settle_at_bedside') {
+        setCharacterAction('idle')
+        setIsCharacterSleeping(false)
+        setBedStage('settle_bedside')
+        nightTimerRef.current += delta
+        const p = Math.min(1, nightTimerRef.current / 0.8)
+        const s = p * p * (3 - 2 * p)
+
+        // Ổn định vị trí tại điểm bedside trên sàn phòng, căn thẳng trục nằm Z = 1.86
+        curPos.x = THREE.MathUtils.lerp(curPos.x, -1.62, delta * 8)
+        curPos.y = THREE.MathUtils.lerp(curPos.y, 0.007, delta * 10)
+        curPos.z = THREE.MathUtils.lerp(curPos.z, 1.86, delta * 8)
+
+        // Xoay người từ từ hướng ra ngoài phòng (+X), lưng hướng về đầu giường
+        const targetRotY = Math.PI * 0.5
+        let rotDiff = (targetRotY - groupRef.current.rotation.y) % (Math.PI * 2)
+        if (rotDiff > Math.PI) rotDiff -= Math.PI * 2
+        if (rotDiff < -Math.PI) rotDiff += Math.PI * 2
+        groupRef.current.rotation.y += rotDiff * Math.min(1, delta * 6)
+
+        // Chân duỗi thẳng đứng vững trên sàn phòng
+        if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, delta * 6)
+        if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, delta * 6)
+        if (leftKneeRef.current) leftKneeRef.current.rotation.x = THREE.MathUtils.lerp(leftKneeRef.current.rotation.x, 0, delta * 6)
+        if (rightKneeRef.current) rightKneeRef.current.rotation.x = THREE.MathUtils.lerp(rightKneeRef.current.rotation.x, 0, delta * 6)
+
+        // Thân trên ổn định, thở nhẹ nhõm
+        if (upperBodyRef.current) {
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0.03, delta * 5)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 5)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 5)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 6)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 6)
+        }
+
+        // Tay buông tự nhiên hai bên hông
+        if (leftArmRef.current) {
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, 0.03, delta * 5)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0, delta * 5)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.04, delta * 5)
+        }
+        if (rightArmRef.current) {
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0.03, delta * 5)
+          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, 0, delta * 5)
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.04, delta * 5)
+        }
+        if (leftForearmRef.current) {
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, 0, delta * 5)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0, delta * 5)
+        }
+        if (rightForearmRef.current) {
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, 0, delta * 5)
+          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, 0, delta * 5)
+        }
+
+        // Đầu nhìn hơi cúi mệt mỏi
+        if (headGroupRef.current) {
+          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.10, delta * 5)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, 0, delta * 5)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 5)
+        }
+
+        setExpression('tired')
+
+        if (nightTimerRef.current > 0.8) {
+          nightStageRef.current = 'sit_at_bed'
+          nightTimerRef.current = 0
           isLyingInBedRef.current = true
           setCurrentMessage(t('scenario.night.greet'))
           setBubbleVisible(true)
@@ -1318,194 +1439,306 @@ function PixelPerson({ scale = 1, ...props }) {
         return
       }
 
+      // ── GIAI ĐOẠN 4: Ngồi xuống mép nệm & Tay chống mặt nệm (sit_at_bed — 2.0s) ──
       if (stage === 'sit_at_bed') {
         isLyingInBedRef.current = true
         setCharacterAction('sitting_bed')
         setIsCharacterSleeping(false)
+        setBedStage('sit_at_bed')
         nightTimerRef.current += delta
-        const p = Math.min(1, nightTimerRef.current / 1.6)
+        const p = Math.min(1, nightTimerRef.current / 2.0)
         const s = p * p * (3 - 2 * p) // Hermite smoothstep
 
-        // Ngồi êm ái xuống mép nệm: trượt từ vị trí cạnh giường tới mép nệm [-2.05, 0.007, 1.55] -> [-2.22, 0.007, 1.86]
-        curPos.x = THREE.MathUtils.lerp(-2.05, -2.22, s)
-        curPos.y = 0.007
-        curPos.z = THREE.MathUtils.lerp(1.55, 1.86, s)
+        // Trượt hông từ vị trí đứng sàn [-1.62] vào mép nệm [-2.12], giữ trục Z = 1.86 chuẩn
+        curPos.x = THREE.MathUtils.lerp(-1.62, -2.12, s)
+        curPos.z = 1.86
+        // Khi hông chạm nệm (s > 0.45): nệm nhún nhẹ sitBounce
+        const sitBounce = s < 0.45 ? 0 : Math.sin((s - 0.45) / 0.55 * Math.PI) * 0.010
+        curPos.y = THREE.MathUtils.lerp(0.007, 0.007 - sitBounce, 1)
 
-        const rotY = THREE.MathUtils.lerp(groupRef.current.rotation.y, Math.PI * 0.5, s)
-        groupRef.current.rotation.set(0, rotY, 0)
+        const targetSitRotY = Math.PI * 0.5
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetSitRotY, delta * 5)
+        groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, delta * 5)
+        groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, delta * 5)
 
-        // Hông gập -1.45, đầu gối gập +1.45: bắp chân và giày thõng tự nhiên xuống mép giường
-        const sitHipAngle = THREE.MathUtils.lerp(0, -1.45, s)
-        const sitKneeAngle = THREE.MathUtils.lerp(0, 1.45, s)
-        if (leftLegRef.current) leftLegRef.current.rotation.x = sitHipAngle
-        if (rightLegRef.current) rightLegRef.current.rotation.x = sitHipAngle
-        if (leftKneeRef.current) leftKneeRef.current.rotation.x = sitKneeAngle
-        if (rightKneeRef.current) rightKneeRef.current.rotation.x = sitKneeAngle
+        // Hông gập -1.45 (đùi phẳng trên mặt nệm), đầu gối gập +1.45 (bắp chân thõng xuống mép giường)
+        const hipEase = Math.min(1, s * 1.35)
+        const kneeEase = Math.max(0, (s - 0.12) / 0.88)
+        const hipS = hipEase * hipEase * (3 - 2 * hipEase)
+        const kneeS = kneeEase * kneeEase * (3 - 2 * kneeEase)
 
-        // Hai tay buông nghỉ trên đầu gối, thở dài buồn ngủ
-        const armAngle = THREE.MathUtils.lerp(0, -0.35, s)
-        const forearmAngle = THREE.MathUtils.lerp(0, -0.28, s)
-        if (leftArmRef.current) leftArmRef.current.rotation.x = armAngle
-        if (rightArmRef.current) rightArmRef.current.rotation.x = armAngle
-        if (leftForearmRef.current) leftForearmRef.current.rotation.x = forearmAngle
-        if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
+        if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.45 * hipS, delta * 6)
+        if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.45 * hipS, delta * 6)
+        if (leftKneeRef.current) leftKneeRef.current.rotation.x = THREE.MathUtils.lerp(leftKneeRef.current.rotation.x, 1.45 * kneeS, delta * 6)
+        if (rightKneeRef.current) rightKneeRef.current.rotation.x = THREE.MathUtils.lerp(rightKneeRef.current.rotation.x, 1.45 * kneeS, delta * 6)
 
-        if (upperBodyRef.current) upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(0, 0.10, s)
-        if (headGroupRef.current) headGroupRef.current.rotation.x = 0.16 + Math.sin(clockTime * 1.5) * 0.04
+        // Hai tay hạ xuống và CHỐNG TRỰC TIẾP LÊN MẶT NỆM bên cạnh hông (Y = 0.378 mặt nệm lò xo)
+        const handContactEase = Math.max(0, (s - 0.3) / 0.7)
+        const hcS = handContactEase * handContactEase * (3 - 2 * handContactEase)
+        const targetArmX = THREE.MathUtils.lerp(0.03, -0.25, hcS)
+        const targetArmZ = THREE.MathUtils.lerp(0.04, 0.12, hcS)
+        const targetForearmX = THREE.MathUtils.lerp(0, -0.38, hcS)
+
+        if (leftArmRef.current) {
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, targetArmX, delta * 5)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0, delta * 5)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, targetArmZ, delta * 5)
+        }
+        if (rightArmRef.current) {
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, targetArmX, delta * 5)
+          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, 0, delta * 5)
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -targetArmZ, delta * 5)
+        }
+        if (leftForearmRef.current) {
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, targetForearmX, delta * 5)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0, delta * 5)
+        }
+        if (rightForearmRef.current) {
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, targetForearmX, delta * 5)
+          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, 0, delta * 5)
+        }
+
+        // Thân trên ngả nhẹ về trước với micro-sway thở ngái ngủ
+        if (upperBodyRef.current) {
+          const breathSway = Math.sin(clockTime * 1.2) * 0.008
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0.10 + breathSway, delta * 4)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 4)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 4)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 5)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 5)
+        }
+
+        // Đầu gật nhẹ — ngái ngủ
+        if (headGroupRef.current) {
+          const headNod = Math.sin(clockTime * 1.5) * 0.04
+          const headSway = Math.sin(clockTime * 0.8) * 0.02
+          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.16 + headNod, delta * 4)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, headSway, delta * 3)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 4)
+        }
         setExpression('tired')
 
-        if (nightTimerRef.current > 1.6) {
+        if (nightTimerRef.current > 2.0) {
           nightStageRef.current = 'swing_legs_in'
           nightTimerRef.current = 0
         }
         return
       }
 
+      // ── GIAI ĐOẠN 5: Đưa hai chân lên nệm & Với tay tới mép chăn (swing_legs_in — 2.2s) ──
       if (stage === 'swing_legs_in') {
         isLyingInBedRef.current = true
         setCharacterAction('sitting_bed')
+        setBedStage('swing_legs_in')
         nightTimerRef.current += delta
-        const p = Math.min(1, nightTimerRef.current / 1.8)
-        const s = p * p * (3 - 2 * p) // Hermite smoothstep
+        const p = Math.min(1, nightTimerRef.current / 2.2)
+        const s = p * p * (3 - 2 * p)
 
-        // Dịch chuyển êm vào vị trí nằm trên nệm: [-2.22, 0.007, 1.86] -> [-2.585, 0.007, 1.86]
-        curPos.x = THREE.MathUtils.lerp(-2.22, -2.585, s)
+        // Hông dịch chuyển từ mép nệm [-2.12] về vị trí nằm ngửa [-2.585]
+        curPos.x = THREE.MathUtils.lerp(-2.12, -2.585, s)
         curPos.y = 0.007
         curPos.z = 1.86
-        groupRef.current.rotation.set(0, Math.PI * 0.5, 0)
 
-        // Hai chân duỗi thẳng ra nệm: đầu gối mở từ 1.45 -> 0.0
-        const kneeAngle = THREE.MathUtils.lerp(1.45, 0, s)
-        if (leftLegRef.current) leftLegRef.current.rotation.x = -1.45
-        if (rightLegRef.current) rightLegRef.current.rotation.x = -1.45
-        if (leftKneeRef.current) leftKneeRef.current.rotation.x = kneeAngle
-        if (rightKneeRef.current) rightKneeRef.current.rotation.x = kneeAngle
+        groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, delta * 6)
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, Math.PI * 0.5, delta * 6)
+        groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, delta * 6)
 
-        // Hai tay chống xuống nệm bên cạnh hông để giữ thăng bằng
-        const armAngle = THREE.MathUtils.lerp(-0.35, 0.22, s)
-        const armZ = THREE.MathUtils.lerp(0, 0.15, s)
+        // Hai chân duỗi thẳng ra nệm: đầu gối mở từ 1.45 -> 0.0 (gót và bắp chân tiếp xúc phẳng mặt nệm)
+        // Chân trái nâng lên trước, chân phải nối tiếp tạo bất đối xứng tự nhiên
+        const leftKneeEase = Math.min(1, s * 1.2)
+        const rightKneeEase = Math.min(1, Math.max(0, (s - 0.10) * 1.25))
+        const lkS = leftKneeEase * leftKneeEase * (3 - 2 * leftKneeEase)
+        const rkS = rightKneeEase * rightKneeEase * (3 - 2 * rightKneeEase)
+
+        if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.45, delta * 5)
+        if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.45, delta * 5)
+        if (leftKneeRef.current) leftKneeRef.current.rotation.x = THREE.MathUtils.lerp(1.45, 0, lkS)
+        if (rightKneeRef.current) rightKneeRef.current.rotation.x = THREE.MathUtils.lerp(1.45, 0, rkS)
+
+        // Tay: Nửa đầu chống mặt nệm đẩy hông lùi; Nửa sau với tay về phía trước nắm mép chăn gập
+        let targetArmX, targetArmZ, targetForearmX
+        if (s < 0.55) {
+          // Chống tay xuống nệm bên cạnh/phía sau hông để tạo đòn bẩy
+          const pushPhase = s / 0.55
+          targetArmX = THREE.MathUtils.lerp(-0.25, 0.18, pushPhase)
+          targetArmZ = THREE.MathUtils.lerp(0.12, 0.15, pushPhase)
+          targetForearmX = THREE.MathUtils.lerp(-0.38, -0.15, pushPhase)
+        } else {
+          // Nhấc tay khỏi nệm và vươn tay về phía trước mép chăn bông
+          const reachPhase = (s - 0.55) / 0.45
+          const reachS = reachPhase * reachPhase * (3 - 2 * reachPhase)
+          targetArmX = THREE.MathUtils.lerp(0.18, -0.55, reachS)
+          targetArmZ = THREE.MathUtils.lerp(0.15, 0.08, reachS)
+          targetForearmX = THREE.MathUtils.lerp(-0.15, -0.40, reachS)
+        }
+
         if (leftArmRef.current) {
-          leftArmRef.current.rotation.x = armAngle
-          leftArmRef.current.rotation.z = armZ
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, targetArmX, delta * 5)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, targetArmZ, delta * 5)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0, delta * 5)
         }
         if (rightArmRef.current) {
-          rightArmRef.current.rotation.x = armAngle
-          rightArmRef.current.rotation.z = -armZ
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, targetArmX, delta * 5)
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -targetArmZ, delta * 5)
+          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, 0, delta * 5)
         }
-        if (leftForearmRef.current) leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.28, 0, s)
-        if (rightForearmRef.current) rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.28, 0, s)
+        if (leftForearmRef.current) {
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, targetForearmX, delta * 5)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0, delta * 5)
+        }
+        if (rightForearmRef.current) {
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, targetForearmX, delta * 5)
+          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, 0, delta * 5)
+        }
 
-        if (upperBodyRef.current) upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(0.10, 0.08, s)
+        // Thân trên ngả nhẹ ra sau cân bằng trọng tâm khi chân nhấc lên (lean-back)
+        if (upperBodyRef.current) {
+          const leanBack = Math.sin(s * Math.PI) * 0.10
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0.08 - leanBack, delta * 4)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 4)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 4)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 5)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 5)
+        }
 
-        if (nightTimerRef.current > 1.8) {
+        // Đầu nhìn xuống theo dõi chân và tay với mép chăn
+        if (headGroupRef.current) {
+          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.14, delta * 4)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, 0, delta * 4)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 4)
+        }
+
+        if (nightTimerRef.current > 2.2) {
           nightStageRef.current = 'recline_to_pillow'
           nightTimerRef.current = 0
         }
         return
       }
 
+      // ── GIAI ĐOẠN 6: Ngả lưng xuống gối & Kéo chăn bông phủ kín ngực (recline_to_pillow — 3.0s) ──
       if (stage === 'recline_to_pillow') {
         isLyingInBedRef.current = true
+        setBedStage('recline_to_pillow')
         nightTimerRef.current += delta
-        const p = Math.min(1, nightTimerRef.current / 2.2)
+        const p = Math.min(1, nightTimerRef.current / 3.0)
         const s = p * p * (3 - 2 * p)
 
         curPos.x = -2.585
         curPos.z = 1.86
         curPos.y = THREE.MathUtils.lerp(0.007, 0.455, s)
 
-        // Slerp Quaternion 3D ngả lưng phẳng phiu về phía gối
+        // Slerp Quaternion ngả lưng êm ái từ ngồi -> nằm ngửa
         _qTemp.slerpQuaternions(_qSitBed, _qSleep, s)
         groupRef.current.quaternion.copy(_qTemp)
 
         // Khớp hông mở từ -1.45 -> 0.0 đồng tốc với độ ngả lưng: hai chân giữ nguyên trên mặt nệm
         const hipAngle = -1.45 * (1 - s)
-        if (leftLegRef.current) leftLegRef.current.rotation.x = hipAngle
-        if (rightLegRef.current) rightLegRef.current.rotation.x = hipAngle
-        if (leftKneeRef.current) leftKneeRef.current.rotation.x = 0
-        if (rightKneeRef.current) rightKneeRef.current.rotation.x = 0
+        if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, hipAngle, delta * 5)
+        if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, hipAngle, delta * 5)
+        if (leftKneeRef.current) leftKneeRef.current.rotation.x = THREE.MathUtils.lerp(leftKneeRef.current.rotation.x, 0, delta * 5)
+        if (rightKneeRef.current) rightKneeRef.current.rotation.x = THREE.MathUtils.lerp(rightKneeRef.current.rotation.x, 0, delta * 5)
 
-        // Hai tay trượt dần từ mặt nệm lên trước ngực / mép chăn gập ngược
-        const armAngle = THREE.MathUtils.lerp(0.22, -0.15, s)
-        const forearmAngle = THREE.MathUtils.lerp(0, -0.78, s)
+        // Hai tay giữ mép chăn bông kéo lên qua ngực, rồi buông nhẹ lên dải lụa gập
+        const armAngle = THREE.MathUtils.lerp(-0.55, -0.15, s)
+        const forearmAngle = THREE.MathUtils.lerp(-0.40, -0.78, s)
         if (leftArmRef.current) {
-          leftArmRef.current.rotation.x = armAngle
-          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(0.15, 0.25, s)
-          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(0, 0.08, s)
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, armAngle, delta * 4)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, THREE.MathUtils.lerp(0.08, 0.25, s), delta * 3.5)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, THREE.MathUtils.lerp(0, 0.08, s), delta * 3.5)
         }
         if (rightArmRef.current) {
-          rightArmRef.current.rotation.x = armAngle
-          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(-0.15, -0.25, s)
-          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(0, -0.08, s)
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, armAngle * 0.96, delta * 3.8)
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, THREE.MathUtils.lerp(-0.08, -0.25, s), delta * 3.5)
+          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, THREE.MathUtils.lerp(0, -0.08, s), delta * 3.5)
         }
         if (leftForearmRef.current) {
-          leftForearmRef.current.rotation.x = forearmAngle
-          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(0, 0.15, s)
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, forearmAngle, delta * 3.5)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, THREE.MathUtils.lerp(0, 0.15, s), delta * 3)
         }
         if (rightForearmRef.current) {
-          rightForearmRef.current.rotation.x = forearmAngle
-          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(0, -0.15, s)
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, forearmAngle * 0.96, delta * 3.5)
+          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, THREE.MathUtils.lerp(0, -0.15, s), delta * 3)
         }
 
-        if (upperBodyRef.current) upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(0.08, 0, s)
+        // Thân trên duỗi phẳng dần
+        if (upperBodyRef.current) {
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, THREE.MathUtils.lerp(0.08, 0, s), delta * 3.5)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 4)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 4)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 5)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 5)
+        }
 
-        // Đầu tiếp xúc với gối êm
+        // Đầu tiếp xúc với gối ngủ — nghiêng nhẹ sang má, thư giãn
         if (headGroupRef.current) {
-          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(0.12, 0.08, s)
-          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(0, 0.06, s)
+          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, THREE.MathUtils.lerp(0.14, 0.08, s), delta * 3.5)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, THREE.MathUtils.lerp(0, 0.06, s), delta * 3)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, THREE.MathUtils.lerp(0, 0.03, s), delta * 2.5)
         }
 
-        // Chăn bông kéo lên và phồng dần ôm lấy thân người
-        if (s > 0.4) {
+        // Kích hoạt chăn kéo lên và gối nén lún khi đầu và thân hạ xuống
+        if (s > 0.25) {
           setIsCharacterSleeping(true)
         }
-        if (s > 0.75) {
+        // Mắt nhắm dần chuyển sang sleeping
+        if (s > 0.55) {
           setExpression('sleeping')
         }
 
-        if (nightTimerRef.current > 2.2) {
+        if (nightTimerRef.current > 3.0) {
           nightStageRef.current = 'sleeping'
         }
         return
       }
 
+      // ── GIAI ĐOẠN 7: Giấc ngủ sâu bình yên & Nhịp thở đồng bộ với chăn (sleeping) ──
       if (stage === 'sleeping') {
         isLyingInBedRef.current = true
+        setBedStage('sleeping')
         curPos.x = -2.585
-        curPos.y = 0.455 + Math.sin(clockTime * 1.4) * 0.005 // Nhịp thở êm ái cùng chăn bông
+        curPos.y = 0.455 + Math.sin(clockTime * 1.4) * 0.005 // Nhịp thở êm ái cùng chăn bông Bed.jsx
         curPos.z = 1.86
         groupRef.current.quaternion.copy(_qSleep)
 
-        if (leftLegRef.current) leftLegRef.current.rotation.x = 0
-        if (rightLegRef.current) rightLegRef.current.rotation.x = 0
-        if (leftKneeRef.current) leftKneeRef.current.rotation.x = 0
-        if (rightKneeRef.current) rightKneeRef.current.rotation.x = 0
+        if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, delta * 4)
+        if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, delta * 4)
+        if (leftKneeRef.current) leftKneeRef.current.rotation.x = THREE.MathUtils.lerp(leftKneeRef.current.rotation.x, 0, delta * 4)
+        if (rightKneeRef.current) rightKneeRef.current.rotation.x = THREE.MathUtils.lerp(rightKneeRef.current.rotation.x, 0, delta * 4)
 
-        // Hai tay buông lơi tự nhiên, đặt nhẹ nhàng trên mép chăn gập ngược màu trắng ngà
+        // Hai tay buông lơi tự nhiên, đặt êm trên mép chăn gập ngược
         if (leftArmRef.current) {
-          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.15, delta * 6)
-          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0.08, delta * 6)
-          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.25, delta * 6)
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.15, delta * 3)
+          leftArmRef.current.rotation.y = THREE.MathUtils.lerp(leftArmRef.current.rotation.y, 0.08, delta * 3)
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.25, delta * 3)
         }
         if (leftForearmRef.current) {
-          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, -0.78, delta * 6)
-          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0.15, delta * 6)
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, -0.78, delta * 3)
+          leftForearmRef.current.rotation.z = THREE.MathUtils.lerp(leftForearmRef.current.rotation.z, 0.15, delta * 3)
         }
         if (rightArmRef.current) {
-          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.15, delta * 6)
-          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, -0.08, delta * 6)
-          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.25, delta * 6)
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.15, delta * 3)
+          rightArmRef.current.rotation.y = THREE.MathUtils.lerp(rightArmRef.current.rotation.y, -0.08, delta * 3)
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.25, delta * 3)
         }
         if (rightForearmRef.current) {
-          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, -0.78, delta * 6)
-          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, -0.15, delta * 6)
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, -0.78, delta * 3)
+          rightForearmRef.current.rotation.z = THREE.MathUtils.lerp(rightForearmRef.current.rotation.z, -0.15, delta * 3)
         }
 
-        // Đầu gối êm ái trên gối trắng, nghiêng nhẹ bình yên
+        // Thân trên phẳng, nhịp thở nhẹ nhàng
+        if (upperBodyRef.current) {
+          upperBodyRef.current.rotation.x = THREE.MathUtils.lerp(upperBodyRef.current.rotation.x, 0, delta * 3)
+          upperBodyRef.current.rotation.y = THREE.MathUtils.lerp(upperBodyRef.current.rotation.y, 0, delta * 3)
+          upperBodyRef.current.rotation.z = THREE.MathUtils.lerp(upperBodyRef.current.rotation.z, 0, delta * 3)
+          upperBodyRef.current.position.x = THREE.MathUtils.lerp(upperBodyRef.current.position.x, 0, delta * 3)
+          upperBodyRef.current.position.y = THREE.MathUtils.lerp(upperBodyRef.current.position.y, 0, delta * 3)
+        }
+
+        // Đầu nghiêng nhẹ bình yên trên gối êm
         if (headGroupRef.current) {
-          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.08, delta * 4)
-          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, 0.06, delta * 4)
-          headGroupRef.current.rotation.z = 0
+          headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.08, delta * 3)
+          headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, 0.06, delta * 3)
+          headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0.03, delta * 3)
         }
 
         setIsCharacterSleeping(true)
