@@ -156,5 +156,47 @@
     "m5": "I'm tired... can you\nstop clicking?",
     "m6": "Oh my!!!\nSo many clicks!!!",
     "m7": "Sorry... I'm calm now.\nNot mad at you at all"
+  },
+  "scenario": {
+    "title": "Character Scenario",
+    "autoplay": "Auto Play",
+    "pause": "Pause",
+    "current": "Acting:",
+    "morning": {
+      "label": "Morning",
+      "action": "Stretch & Energize",
+      "greet": "Good morning! The sunlight today is wonderful ☀️\nTime for a morning stretch and a fresh start!",
+      "m0": "Good morning! The sunlight is gorgeous today ☀️",
+      "m1": "A good stretch feels amazing, let's make today productive!",
+      "m2": "A fresh drink to energize, then ready to write great code 🚀",
+      "m3": "Today's goal: build meaningful & beautiful things!"
+    },
+    "sunset": {
+      "label": "Sunset",
+      "action": "Pet Kitty & Chill",
+      "greet": "Sunset is here... 🌇\nTime to take a break and pet the kitty!",
+      "m0": "Golden hour is painting the room in warm amber 🌇",
+      "m1": "Petting my sweet cat, hearing that soft purr warms my heart 🐾",
+      "m2": "Playing some cozy lofi beats to wind down the afternoon~",
+      "m3": "Thank you for visiting my room on this lovely evening! ❤️"
+    },
+    "rainy": {
+      "label": "Rainy",
+      "action": "Hot Coffee & Rain Watching",
+      "greet": "It's raining outside... 🌧️\nNothing beats a hot cup of coffee while watching the rain.",
+      "m0": "The gentle pitter-patter against the window is so soothing 🌧️",
+      "m1": "A freshly brewed hot mug of coffee in this chilly rain is perfection ☕",
+      "m2": "Rainy days are the best for deep focus and mellow tunes.",
+      "m3": "The rain slows everything down just enough to appreciate the moment."
+    },
+    "night": {
+      "label": "Night",
+      "action": "Tuck In & Sleep",
+      "greet": "Yaaawn... Time for bed... 🌙😴\nTucked under the warm blanket, ready for a restful sleep.",
+      "m0": "Yawn... Late night already, eyelids are dropping fast 🥱",
+      "m1": "Finished today's coding sprint, nodding off already...",
+      "m2": "Time to rest! Don't stay up too late, health comes first!",
+      "m3": "Wishing you sweet dreams and a restful night! Zzz... 💤"
+    }
   }
 }

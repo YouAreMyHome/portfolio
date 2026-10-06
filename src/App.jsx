@@ -10,6 +10,8 @@ import SceneLighting from './components/Room/SceneLighting'
 import CameraController from './components/Room/CameraController'
 import PostProcessingEffects from './components/Room/PostProcessingEffects'
 import HUD from './components/UI/HUD'
+import ScenarioBar from './components/UI/ScenarioBar'
+import SleepHUD from './components/UI/SleepHUD'
 import LoadingScreen from './components/UI/LoadingScreen'
 import WelcomeScreen from './components/UI/WelcomeScreen'
 import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
@@ -310,6 +312,12 @@ function AppContent() {
       
       {/* HUD */}
       <HUD isTouchDevice={isTouchDevice} />
+
+      {/* Character Scenario Timeline Bar */}
+      <ScenarioBar />
+
+      {/* Sleep Mode Interactive Interface */}
+      <SleepHUD />
       
       <Suspense fallback={<OverlayFallback />}>
         {/* Music Player - Spotify style, background playback */}

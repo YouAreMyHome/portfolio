@@ -20,19 +20,93 @@ const headboardTuftMat = new THREE.MeshStandardMaterial({ color: '#ece5db', roug
 
 function Bed() {
   const phoneRef = useRef()
+  const duvetRef = useRef()
+  const bodyMoundRef = useRef()
+  const pillowLeftRef = useRef()
+  const pillowRightRef = useRef()
+  const cushionLeftRef = useRef()
+  const mattressRef = useRef()
+
   const isNightMode = useStore((state) => state.isNightMode)
   const lightingPreset = useStore((state) => state.lightingPreset)
+  const isCharacterSleeping = useStore((state) => state.isCharacterSleeping)
+  const characterAction = useStore((state) => state.characterAction)
   const isNight = isNightMode || lightingPreset === 'night'
 
   const oakWood = '#b08053'
   const oakDark = '#8a5e38'
   const brassColor = '#d4af37'
 
-  // Phone notification pulse
-  useFrame((state) => {
+  // Phone notification pulse & Bed Duvet / Mattress / Pillow Dynamic Reactivity
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime
+    const isSitting = characterAction === 'sitting_bed'
+    const isSleeping = isCharacterSleeping || characterAction === 'sleeping'
+
     if (phoneRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * 3) * 0.5 + 0.5
-      phoneRef.current.material.emissiveIntensity = pulse * 0.8
+      if (isNight) {
+        const pulse = Math.sin(t * 2.4) * 0.5 + 0.5
+        phoneRef.current.material.emissive = new THREE.Color('#38bdf8')
+        phoneRef.current.material.emissiveIntensity = 0.2 + pulse * 0.8
+      } else {
+        phoneRef.current.material.emissive = new THREE.Color('#22c55e')
+        phoneRef.current.material.emissiveIntensity = 0.25
+      }
+    }
+
+    // Dynamic Mattress Indentation under sitting / lying body weight
+    if (mattressRef.current) {
+      const targetMattressY = isSleeping ? 0.275 : isSitting ? 0.278 : 0.29
+      const targetMattressRotX = isSitting ? 0.018 : 0
+      mattressRef.current.position.y = THREE.MathUtils.lerp(mattressRef.current.position.y, targetMattressY, delta * 4)
+      mattressRef.current.rotation.x = THREE.MathUtils.lerp(mattressRef.current.rotation.x, targetMattressRotX, delta * 4)
+    }
+
+    // Dynamic Bed Reaction when Character is Sleeping (Harmonic breathing & Duvet tuck)
+    if (duvetRef.current) {
+      // When sleeping: duvet pulls up neatly over body up to chest at z = 0.20, leaves head on pillow
+      // When awake: duvet folds back down neatly towards the foot of the bed at z = 0.34
+      const targetZ = isSleeping ? 0.20 : 0.34
+      const targetScaleZ = isSleeping ? 1.12 : 0.98
+      const targetY = isSleeping
+        ? 0.468 + Math.sin(t * 1.4) * 0.005 // Synchronous harmonic breathing with character
+        : 0.44
+
+      duvetRef.current.position.z = THREE.MathUtils.lerp(duvetRef.current.position.z, targetZ, delta * 3.5)
+      duvetRef.current.position.y = THREE.MathUtils.lerp(duvetRef.current.position.y, targetY, delta * 3.5)
+      duvetRef.current.scale.z = THREE.MathUtils.lerp(duvetRef.current.scale.z, targetScaleZ, delta * 3.5)
+    }
+
+    // Dynamic 3D body mound under duvet (chăn phồng tự nhiên theo dáng người nằm bên dưới)
+    if (bodyMoundRef.current) {
+      const targetMoundScaleY = isSleeping ? 1.0 : 0.001
+      bodyMoundRef.current.scale.y = THREE.MathUtils.lerp(bodyMoundRef.current.scale.y, targetMoundScaleY, delta * 3.5)
+      bodyMoundRef.current.visible = bodyMoundRef.current.scale.y > 0.01
+    }
+
+    // Pillow indents smoothly under character's head on left side when sleeping
+    const targetLeftPillowScaleY = isSleeping ? 0.68 : 1.0
+    const targetLeftPillowY = isSleeping ? 0.425 : 0.45
+    if (pillowLeftRef.current) {
+      pillowLeftRef.current.scale.y = THREE.MathUtils.lerp(pillowLeftRef.current.scale.y, targetLeftPillowScaleY, delta * 4.0)
+      pillowLeftRef.current.position.y = THREE.MathUtils.lerp(pillowLeftRef.current.position.y, targetLeftPillowY, delta * 4.0)
+    }
+    // Right pillow stays fluffy and uncompressed
+    if (pillowRightRef.current) {
+      pillowRightRef.current.scale.y = THREE.MathUtils.lerp(pillowRightRef.current.scale.y, 1.0, delta * 4.0)
+      pillowRightRef.current.position.y = THREE.MathUtils.lerp(pillowRightRef.current.position.y, 0.45, delta * 4.0)
+    }
+
+    // Left decorative cushion neatly shifts back against headboard when sleeping so it doesn't crowd sleeper
+    if (cushionLeftRef.current) {
+      const targetCushionZ = isSleeping ? -0.78 : -0.48
+      const targetCushionX = isSleeping ? -0.58 : -0.32
+      const targetCushionY = isSleeping ? 0.52 : 0.49
+      const targetCushionRotX = isSleeping ? -0.12 : -0.3
+      cushionLeftRef.current.position.z = THREE.MathUtils.lerp(cushionLeftRef.current.position.z, targetCushionZ, delta * 3.5)
+      cushionLeftRef.current.position.x = THREE.MathUtils.lerp(cushionLeftRef.current.position.x, targetCushionX, delta * 3.5)
+      cushionLeftRef.current.position.y = THREE.MathUtils.lerp(cushionLeftRef.current.position.y, targetCushionY, delta * 3.5)
+      cushionLeftRef.current.rotation.x = THREE.MathUtils.lerp(cushionLeftRef.current.rotation.x, targetCushionRotX, delta * 3.5)
     }
   })
 
@@ -65,6 +139,15 @@ function Bed() {
           </group>
         ))}
 
+        {/* ── Floating Bed Japandi LED Underglow (Dải sáng hắt chân giường) ── */}
+        <pointLight
+          position={[0, 0.04, 0]}
+          intensity={isNight ? 0.75 : lightingPreset === 'sunset' ? 0.35 : 0}
+          color="#fbbf24"
+          distance={2.8}
+          decay={1.8}
+        />
+
         {/* ── 2. ĐẦU GIƯỜNG BỌC NỆM MÚI DỌC (Upholstered Slatted Headboard) ── */}
         <group position={[0, 0.72, -1.04]}>
           {/* Khung gỗ viền đầu giường */}
@@ -86,54 +169,68 @@ function Bed() {
           ))}
         </group>
 
-        {/* ── 3. NỆM LÒ XO DÀY DẶN (Plush Mattress) ── */}
-        <RoundedBox
-          args={[1.52, 0.2, 1.98]}
-          radius={0.04}
-          smoothness={4}
-          position={[0, 0.29, 0.04]}
-          castShadow
-          receiveShadow
-        >
-          <meshStandardMaterial color="#f7f5f0" roughness={0.92} />
-        </RoundedBox>
+        {/* ── 3. NỆM LÒ XO DÀY DẶN (Plush Mattress có phản ứng đệm lún) ── */}
+        <group ref={mattressRef} position={[0, 0.29, 0.04]}>
+          <RoundedBox
+            args={[1.52, 0.2, 1.98]}
+            radius={0.04}
+            smoothness={4}
+            position={[0, 0, 0]}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial color="#f7f5f0" roughness={0.92} />
+          </RoundedBox>
 
-        {/* Drap nệm chun ôm khít viền */}
-        <RoundedBox
-          args={[1.53, 0.08, 1.99]}
-          radius={0.03}
-          smoothness={4}
-          position={[0, 0.23, 0.04]}
-        >
-          <meshStandardMaterial color="#eae4d8" roughness={0.9} />
-        </RoundedBox>
+          {/* Drap nệm chun ôm khít viền */}
+          <RoundedBox
+            args={[1.53, 0.08, 1.99]}
+            radius={0.03}
+            smoothness={4}
+            position={[0, -0.06, 0]}
+          >
+            <meshStandardMaterial color="#eae4d8" roughness={0.9} />
+          </RoundedBox>
+        </group>
 
         {/* ── 4. BỘ GỐI PHÂN TẦNG (Layered Cushions) ── */}
         {/* 2 gối ngủ chính có độ phồng êm */}
-        {[-0.38, 0.38].map((x, idx) => (
-          <group key={idx} position={[x, 0.45, -0.68]} rotation={[-0.15, 0, 0]}>
-            <RoundedBox args={[0.54, 0.13, 0.38]} radius={0.045} smoothness={4} castShadow>
-              <meshStandardMaterial color="#ffffff" roughness={0.9} />
-            </RoundedBox>
-            {/* Lõm nhẹ ở giữa gối do trọng lượng */}
-            <mesh position={[0, 0.065, 0]}>
-              <circleGeometry args={[0.1, 16]} rotation={[-Math.PI / 2, 0, 0]} />
-              <meshBasicMaterial color="#f1eee7" opacity={0.3} transparent />
-            </mesh>
-          </group>
-        ))}
+        <group ref={pillowLeftRef} position={[-0.38, 0.45, -0.68]} rotation={[-0.15, 0, 0]}>
+          <RoundedBox args={[0.54, 0.13, 0.38]} radius={0.045} smoothness={4} castShadow>
+            <meshStandardMaterial color="#ffffff" roughness={0.9} />
+          </RoundedBox>
+          {/* Lõm nhẹ ở giữa gối do trọng lượng */}
+          <mesh position={[0, 0.065, 0]}>
+            <circleGeometry args={[0.1, 16]} rotation={[-Math.PI / 2, 0, 0]} />
+            <meshBasicMaterial color="#f1eee7" opacity={0.3} transparent />
+          </mesh>
+        </group>
+
+        <group ref={pillowRightRef} position={[0.38, 0.45, -0.68]} rotation={[-0.15, 0, 0]}>
+          <RoundedBox args={[0.54, 0.13, 0.38]} radius={0.045} smoothness={4} castShadow>
+            <meshStandardMaterial color="#ffffff" roughness={0.9} />
+          </RoundedBox>
+          {/* Lõm nhẹ ở giữa gối do trọng lượng */}
+          <mesh position={[0, 0.065, 0]}>
+            <circleGeometry args={[0.1, 16]} rotation={[-Math.PI / 2, 0, 0]} />
+            <meshBasicMaterial color="#f1eee7" opacity={0.3} transparent />
+          </mesh>
+        </group>
 
         {/* 2 gối tựa trang trí nhỏ hơn màu xám ấm phía trước */}
-        {[-0.32, 0.32].map((x, idx) => (
-          <group key={idx} position={[x, 0.49, -0.48]} rotation={[-0.3, 0, idx === 0 ? 0.08 : -0.08]}>
-            <RoundedBox args={[0.42, 0.1, 0.28]} radius={0.035} smoothness={4} castShadow>
-              <meshStandardMaterial color={idx === 0 ? '#d4cbbe' : '#c9beb0'} roughness={0.88} />
-            </RoundedBox>
-          </group>
-        ))}
+        <group ref={cushionLeftRef} position={[-0.32, 0.49, -0.48]} rotation={[-0.3, 0, 0.08]}>
+          <RoundedBox args={[0.42, 0.1, 0.28]} radius={0.035} smoothness={4} castShadow>
+            <meshStandardMaterial color="#d4cbbe" roughness={0.88} />
+          </RoundedBox>
+        </group>
+        <group position={[0.32, 0.49, -0.48]} rotation={[-0.3, 0, -0.08]}>
+          <RoundedBox args={[0.42, 0.1, 0.28]} radius={0.035} smoothness={4} castShadow>
+            <meshStandardMaterial color="#c9beb0" roughness={0.88} />
+          </RoundedBox>
+        </group>
 
-        {/* ── 5. CHĂN BÔNG CHÍNH (Fluffy Duvet with Folds) ── */}
-        <group position={[0, 0.44, 0.34]}>
+        {/* ── 5. CHĂN BÔNG CHÍNH (Fluffy Duvet with Dynamic Tuck & Body Mound) ── */}
+        <group ref={duvetRef} position={[0, 0.44, 0.34]}>
           {/* Thân chăn chính phủ dày có nếp gấp */}
           <RoundedBox
             args={[1.44, 0.12, 1.34]}
@@ -157,6 +254,40 @@ function Bed() {
           >
             <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
           </RoundedBox>
+
+          {/* Khối chăn phồng tự nhiên theo dáng người đang ngủ (Body Mound) */}
+          <group ref={bodyMoundRef} position={[0, 0, 0]} scale={[1, 0.001, 1]}>
+            {/* Phồng ngực & thân trên */}
+            <RoundedBox
+              args={[0.52, 0.11, 0.62]}
+              radius={0.045}
+              smoothness={4}
+              position={[-0.38, 0.065, -0.30]}
+              castShadow
+            >
+              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
+            </RoundedBox>
+            {/* Phồng hông & chân bao trọn vẹn đôi chân và gấu quần */}
+            <RoundedBox
+              args={[0.48, 0.095, 0.72]}
+              radius={0.038}
+              smoothness={4}
+              position={[-0.38, 0.048, 0.28]}
+              castShadow
+            >
+              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
+            </RoundedBox>
+            {/* Mép chăn lụa gấp ngược phồng uốn lượn ôm qua ngực người nằm */}
+            <RoundedBox
+              args={[0.54, 0.085, 0.26]}
+              radius={0.03}
+              smoothness={4}
+              position={[-0.38, 0.088, -0.60]}
+              castShadow
+            >
+              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
+            </RoundedBox>
+          </group>
 
           {/* ── 6. DẢI CHĂN LEN TRANG TRÍ (Terracotta Waffle Throw Runner) ── */}
           <group position={[0, 0.062, 0.4]}>
@@ -238,13 +369,14 @@ function Bed() {
             <cylinderGeometry args={[0.008, 0.008, 0.18, 10]} />
             <meshStandardMaterial color={brassColor} metalness={0.9} roughness={0.22} />
           </mesh>
-          {/* Chao đèn vải linen hình côn cụt */}
+          {/* Chao đèn vải linen hình côn cụt - Tỏa sáng ấm cúng chuẩn Bloom */}
           <mesh position={[0, 0.24, 0]}>
             <cylinderGeometry args={[0.085, 0.13, 0.17, 24, 1, true]} />
             <meshStandardMaterial
               color={isNight ? '#fef3c7' : '#f8fafc'}
-              emissive={isNight ? '#fde68a' : '#000000'}
-              emissiveIntensity={isNight ? 0.35 : 0}
+              emissive={isNight ? '#fde68a' : lightingPreset === 'sunset' ? '#f59e0b' : '#000000'}
+              emissiveIntensity={isNight ? 1.4 : lightingPreset === 'sunset' ? 0.75 : 0}
+              toneMapped={false}
               side={2}
               roughness={0.7}
             />
@@ -255,25 +387,13 @@ function Bed() {
             <meshStandardMaterial color={brassColor} metalness={0.9} roughness={0.2} />
           </mesh>
 
-          {/* Chiếu sáng vật lý IES: Hắt xuống mặt bàn và hắt nhẹ lên trần */}
-          <spotLight
-            position={[0, 0.18, 0]}
-            angle={Math.PI / 2.5}
-            penumbra={0.85}
-            intensity={isNight ? 0.8 : 0}
-            color="#fed7aa"
-            distance={1.4}
-            decay={2}
-          />
-          <spotLight
-            position={[0, 0.28, 0]}
-            rotation={[-Math.PI, 0, 0]}
-            angle={Math.PI / 3.2}
-            penumbra={0.9}
-            intensity={isNight ? 0.3 : 0}
-            color="#fef08a"
-            distance={1.8}
-            decay={2}
+          {/* Chiếu sáng 2700K tỏa ấm cúng quanh góc ngủ */}
+          <pointLight
+            position={[0, 0.24, 0]}
+            intensity={isNight ? 1.15 : lightingPreset === 'sunset' ? 0.55 : lightingPreset === 'rainy' ? 0.45 : 0.1}
+            color="#fde68a"
+            distance={3.6}
+            decay={1.8}
           />
         </group>
 

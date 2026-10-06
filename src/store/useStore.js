@@ -286,6 +286,27 @@ const useStore = create(
     })
   },
 
+  // Auto Scenario Tour (24h Day-Night Cycle)
+  isAutoScenarioRunning: false,
+  toggleAutoScenario: () => {
+    const { isAutoScenarioRunning, onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('click')
+    set({ isAutoScenarioRunning: !isAutoScenarioRunning })
+  },
+  setAutoScenarioRunning: (running) => set({ isAutoScenarioRunning: running }),
+
+  // Character & Environment Interactivity System
+  characterAction: 'walking', // 'walking' | 'stretching' | 'petting_cat' | 'drinking_coffee' | 'sitting_bed' | 'sleeping' | 'idle'
+  setCharacterAction: (action) => set({ characterAction: action }),
+  isCharacterSleeping: false,
+  setIsCharacterSleeping: (sleeping) => set({ isCharacterSleeping: sleeping }),
+  wakeUpTrigger: 0,
+  wakeUpCharacter: () => {
+    const { onSoundTrigger } = get()
+    if (onSoundTrigger) onSoundTrigger('charHappy')
+    set((state) => ({ wakeUpTrigger: state.wakeUpTrigger + 1 }))
+  },
+
   // Retro Pixel Shader filter toggle
   toggleRetroPixelMode: () => {
     const { onSoundTrigger, retroPixelMode } = get()

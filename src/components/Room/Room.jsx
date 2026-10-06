@@ -147,8 +147,8 @@ function Room({ graphics = {} }) {
         <Cat position={[0.3, 0.007, 0.5]} scale={0.8} />
       </InteractiveObject>
 
-      {/* Pixel Person - Chủ phòng */}
-      <PixelPerson position={[1.15, 0.007, 0.85]} rotation={[0, 0.12, 0]} />
+      {/* Pixel Person - Chủ phòng (Tự động di chuyển và diễn hoạt theo kịch bản Sáng, Chiều, Mưa, Đêm) */}
+      <PixelPerson />
 
       {/* Contact shadows (Ground AO mềm mại, bổ trợ tiếp xúc kẽ chân đồ vật) */}
       {contactShadows && (

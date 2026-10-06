@@ -35,25 +35,27 @@ export default function PostProcessingEffects({ graphics = {} }) {
     ? 0.35
     : bloomIntensity
 
+  const isNight = isNightMode || lightingPreset === 'night'
+
   return (
     <EffectComposer multisampling={composerMultisampling} disableNormalPass={false}>
       {/* 1. N8AO: Ambient Occlusion tính toán halfRes + bilateral filter (nhanh gấp 4 lần, chất lượng sắc sảo) */}
       <N8AO
         aoRadius={0.35}
         distanceFalloff={2.0}
-        intensity={0.75}
-        color="#16121a"
+        intensity={isNight ? 0.55 : 0.75}
+        color="#0d0f1a"
         halfRes={true}
         quality="medium"
       />
 
-      {/* 2. Bloom: Chỉ phát sáng các nguồn sáng thực tế, không gây chói bề mặt tường */}
+      {/* 2. Bloom: Phát sáng nịnh mắt cho đèn LED, đèn ngủ, TV và ánh trăng */}
       <Bloom
-        intensity={isNightMode || lightingPreset === 'night' ? 0.35 : 0.20}
-        luminanceThreshold={0.96}
-        luminanceSmoothing={0.2}
+        intensity={isNight ? 0.45 : lightingPreset === 'sunset' ? 0.35 : 0.22}
+        luminanceThreshold={0.92}
+        luminanceSmoothing={0.25}
         mipmapBlur
-        radius={0.4}
+        radius={0.45}
       />
 
       {/* 3. ToneMapping: Tăng độ tương phản màu sắc sống động */}
@@ -62,7 +64,7 @@ export default function PostProcessingEffects({ graphics = {} }) {
       {/* 4. Vignette: Viền tối điện ảnh nhẹ nhàng, không bóp nghẹt ánh sáng ban đêm */}
       <Vignette
         offset={0.3}
-        darkness={isNightMode ? 0.24 : 0.18}
+        darkness={isNight ? 0.18 : 0.15}
       />
 
       {/* 5. Tùy chọn Retro Pixelation: Biến đổi căn phòng thành phong cách game 16-bit */}

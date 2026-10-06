@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import React, { useRef, useMemo } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 import useStore from '../../store/useStore'
@@ -267,10 +268,55 @@ function createSceneryTexture(preset) {
   return texture
 }
 
+// ─── Animated Raindrops on Glass Pane (Rainy Preset) ─────────────────────────
+function RainGlassDrops() {
+  const dropsRef = useRef()
+  const drops = useMemo(() => {
+    return Array.from({ length: 28 }, (_, i) => ({
+      x: (((i * 37) % 100 - 50) / 100) * 1.08,
+      speed: 0.35 + ((i * 19) % 50) / 70,
+      offset: (i * 0.23) % 2.0,
+      length: 0.04 + ((i * 13) % 40) / 500,
+      width: 0.0035 + (i % 3) * 0.0012,
+      opacity: 0.35 + ((i * 7) % 40) / 100,
+    }))
+  }, [])
+
+  useFrame((state) => {
+    if (!dropsRef.current) return
+    const t = state.clock.elapsedTime
+    dropsRef.current.children.forEach((mesh, i) => {
+      const d = drops[i]
+      if (!d) return
+      const cycle = (t * d.speed + d.offset) % 2.2
+      // Slides down from top of window Y=0.76 to bottom Y=-0.72
+      mesh.position.y = 0.76 - cycle * 0.68
+      mesh.material.opacity =
+        cycle < 0.2
+          ? (cycle / 0.2) * d.opacity
+          : cycle > 1.9
+          ? ((2.2 - cycle) / 0.3) * d.opacity
+          : d.opacity
+    })
+  })
+
+  return (
+    <group ref={dropsRef} position={[0, 0.04, 0.046]}>
+      {drops.map((d, i) => (
+        <mesh key={i} position={[d.x, 0, 0]}>
+          <planeGeometry args={[d.width, d.length]} />
+          <meshBasicMaterial color="#bae6fd" transparent opacity={0.4} depthWrite={false} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 /**
  * Window - Scandinavian Casement Window with Atmospheric Scenic Vista
  * - 100% contained canvas scenery texture that can never bleed onto the room walls
  * - Realistic double-hung glass with reflection
+ * - Dynamic animated raindrops and condensation mist in rainy weather
  * - Natural oak window sill with potted jade succulent resting flush on the surface
  */
 function Window() {
@@ -309,6 +355,18 @@ function Window() {
           depthWrite={false}
         />
       </mesh>
+
+      {/* ── 3B. VẾT NƯỚC MƯA CHẢY TRÊN KÍNH & HƠI NƯỚC CÀ PHÊ (Rainy Weather Dynamics) ── */}
+      {activePreset === 'rainy' && (
+        <>
+          <RainGlassDrops />
+          {/* Mảng sương mờ ngưng tụ nơi nhân vật đứng ngắm mưa cầm tách cà phê nóng */}
+          <mesh position={[-0.18, -0.28, 0.047]}>
+            <planeGeometry args={[0.52, 0.38]} />
+            <meshBasicMaterial color="#e0f2fe" transparent opacity={0.14} depthWrite={false} />
+          </mesh>
+        </>
+      )}
 
       {/* ── 4. KHUNG GỖ CỬA SỔ SƠN TRẮNG BẮC ÂU (Moulded Window Casement) ── */}
       {/* Khung viền ngoài - Đỉnh */}

@@ -220,6 +220,10 @@ const fairySocketMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metaln
 function WallDecorations() {
   const stringLightsOn = useStore((state) => state.stringLightsOn)
   const toggleStringLights = useStore((state) => state.toggleStringLights)
+  const isNightMode = useStore((state) => state.isNightMode)
+  const lightingPreset = useStore((state) => state.lightingPreset)
+  const isNight = isNightMode || lightingPreset === 'night'
+  const isLit = stringLightsOn || isNight || lightingPreset === 'sunset'
   return (
     <group>
       {/* ========================================= */}
@@ -272,9 +276,9 @@ function WallDecorations() {
               {/* Bóng đèn thủy tinh tròn phát quang rực rỡ */}
               <mesh position={[0, -0.11, 0]} geometry={fairyBulbGeo}>
                 <meshStandardMaterial 
-                  color={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fdfaf5'}
-                  emissive={stringLightsOn ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fef3c7'}
-                  emissiveIntensity={stringLightsOn ? 1.4 : 0.08}
+                  color={isLit ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fdfaf5'}
+                  emissive={isLit ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fef3c7'}
+                  emissiveIntensity={stringLightsOn ? 1.6 : isNight ? 1.15 : lightingPreset === 'sunset' ? 0.8 : 0.08}
                   roughness={0.15}
                   metalness={0.05}
                   transparent
@@ -286,10 +290,10 @@ function WallDecorations() {
           ))}
 
           {/* Proxy Point Lights - Chỉ 2 nguồn sáng phủ mịn dọc tường, tiết kiệm 70% draw/light overhead */}
-          {stringLightsOn && (
+          {isLit && (
             <>
-              <pointLight position={[0.08, -0.15, -0.75]} intensity={0.4} distance={1.8} color="#fef08a" />
-              <pointLight position={[0.08, -0.15, 0.75]} intensity={0.4} distance={1.8} color="#fed7aa" />
+              <pointLight position={[0.08, -0.15, -0.75]} intensity={stringLightsOn ? 0.65 : 0.4} distance={2.5} decay={1.8} color="#fef08a" />
+              <pointLight position={[0.08, -0.15, 0.75]} intensity={stringLightsOn ? 0.65 : 0.4} distance={2.5} decay={1.8} color="#fed7aa" />
             </>
           )}
         </group>

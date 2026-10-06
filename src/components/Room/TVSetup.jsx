@@ -35,7 +35,7 @@ function TVSetup(props) {
     const lerpFactor = Math.min(1, delta * 6)
 
     // Ambilight color animation - Zero GC allocation
-    const targetIntensity = !isNight && !isGameActive ? 0.0 : isGameActive ? 0.45 : 0.28
+    const targetIntensity = !isNight && !isGameActive ? 0.0 : isGameActive ? 0.75 : 0.65
 
     if (!isGameActive) {
       const hue = (t * 0.035) % 1
@@ -57,7 +57,7 @@ function TVSetup(props) {
       haloRef.current.material.color.lerp(_currentColor, lerpFactor)
       haloRef.current.material.opacity = THREE.MathUtils.lerp(
         haloRef.current.material.opacity,
-        isNight || isGameActive ? 0.22 : 0.0,
+        isNight || isGameActive ? 0.38 : 0.0,
         lerpFactor
       )
     }
@@ -215,8 +215,8 @@ function TVSetup(props) {
       {/* ── 6. TV SET (Gắn chắc trên chân đế, tâm tại y = 0.96) ── */}
       <group position={[0, 0.96, 0]}>
         {/* Ambilight vật lý: Dải sáng ngang 16:9 tạo quầng sáng chữ nhật theo khung TV */}
-        <pointLight ref={lightRefLeft} position={[-0.38, 0, -0.05]} intensity={0} distance={1.4} decay={2} />
-        <pointLight ref={lightRefRight} position={[0.38, 0, -0.05]} intensity={0} distance={1.4} decay={2} />
+        <pointLight ref={lightRefLeft} position={[-0.38, 0, -0.05]} intensity={0} distance={2.8} decay={1.6} />
+        <pointLight ref={lightRefRight} position={[0.38, 0, -0.05]} intensity={0} distance={2.8} decay={1.6} />
 
         {/* Quầng sáng tản mờ chữ nhật (Bias Lighting Glow Halo) */}
         <mesh ref={haloRef} position={[0, 0, -0.046]}>

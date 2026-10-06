@@ -156,5 +156,47 @@
     "m5": "Mệt rồi... bạn có thể\nnghỉ click không?",
     "m6": "Trời ơi!!!\nClick nhiều vậy!!!",
     "m7": "Xin lỗi... bình tĩnh rồi.\nKhông giận bạn đâu"
+  },
+  "scenario": {
+    "title": "Kịch Bản Nhân Vật",
+    "autoplay": "Tự động phát",
+    "pause": "Dừng",
+    "current": "Đang diễn:",
+    "morning": {
+      "label": "Sáng",
+      "action": "Vươn vai đón nắng",
+      "greet": "Chào buổi sáng! Ánh nắng hôm nay đẹp quá ☀️\nVươn vai khởi động ngày mới tràn đầy năng lượng nào!",
+      "m0": "Chào buổi sáng! Ánh nắng hôm nay tuyệt thật đấy ☀️",
+      "m1": "Vươn vai một cái thật đã, hôm nay sẽ làm việc hết mình!",
+      "m2": "Một ngụm nước ấm nạp năng lượng rồi bắt tay vào code thôi 🚀",
+      "m3": "Mục tiêu hôm nay: hoàn thành các tính năng thật mượt mà!"
+    },
+    "sunset": {
+      "label": "Chiều",
+      "action": "Vuốt ve mèo cưng",
+      "greet": "Hoàng hôn buông xuống rồi... 🌇\nNghỉ tay một chút vuốt ve bé mèo cưng thôi nào!",
+      "m0": "Hoàng hôn vàng rực cả căn phòng rồi, màu nắng ấm ghê 🌇",
+      "m1": "Ghé vuốt ve bé mèo cưng xíu, nghe tiếng 'gừ gừ' mà tan chảy 🐾",
+      "m2": "Bật một bản nhạc lofi nhẹ nhàng thư giãn cuối ngày thôi~",
+      "m3": "Cảm ơn bạn đã ghé thăm phòng mình vào buổi chiều đẹp này nhé! ❤️"
+    },
+    "rainy": {
+      "label": "Mưa",
+      "action": "Cà phê ngắm mưa",
+      "greet": "Trời đổ mưa rồi... 🌧️\nMột tách cà phê nóng và ngắm mưa rơi qua cửa kính là tuyệt nhất.",
+      "m0": "Tiếng mưa rơi tí tách ngoài cửa sổ nghe êm tai và bình yên lạ 🌧️",
+      "m1": "Một tách cà phê thơm nóng hổi giữa tiết trời se lạnh này là chuẩn bài ☕",
+      "m2": "Thời tiết này chỉ muốn cuộn tròn nghe nhạc và gõ vài dòng code thôi.",
+      "m3": "Mưa làm cho nhịp sống chậm lại một chút, thật thư thái."
+    },
+    "night": {
+      "label": "Đêm",
+      "action": "Đắp chăn ngủ say",
+      "greet": "Oáp... Đã đến giờ đi ngủ rồi... 🌙😴\nĐắp chăn ấm và chìm vào giấc ngủ thật êm đềm thôi.",
+      "m0": "Oáp... Đêm muộn rồi, mắt mình bắt đầu díp lại rồi nè 🥱",
+      "m1": "Vừa cày xong mớ code hôm nay, đầu gật gù buồn ngủ quá chừng...",
+      "m2": "Nghỉ ngơi thôi, thức khuya nhiều không tốt cho sức khỏe đâu nha!",
+      "m3": "Chúc bạn ngủ thật ngon và mơ những giấc mơ thật đẹp nhé! Zzz... 💤"
+    }
   }
 }
