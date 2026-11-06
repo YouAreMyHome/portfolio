@@ -38,7 +38,33 @@ function HUD({ isTouchDevice = false }) {
   const { t, i18n } = useTranslation()
 
   const [presetOpen, setPresetOpen] = useState(false)
+  const [showHints, setShowHints] = useState(true)
+  const [hintsFaded, setHintsFaded] = useState(false)
   const presetRef = useRef(null)
+
+  // Auto fade desktop hints after 4.5s or on first user activity
+  useEffect(() => {
+    if (!hasEnteredRoom || showWelcome) return
+
+    const fadeTimer = setTimeout(() => {
+      setHintsFaded(true)
+      setTimeout(() => setShowHints(false), 700)
+    }, 4500)
+
+    const handleUserActivity = () => {
+      setHintsFaded(true)
+      setTimeout(() => setShowHints(false), 700)
+    }
+
+    window.addEventListener('mousedown', handleUserActivity, { once: true })
+    window.addEventListener('wheel', handleUserActivity, { once: true, passive: true })
+
+    return () => {
+      clearTimeout(fadeTimer)
+      window.removeEventListener('mousedown', handleUserActivity)
+      window.removeEventListener('wheel', handleUserActivity)
+    }
+  }, [hasEnteredRoom, showWelcome])
 
   const currentLang = (i18n.language || 'vi').startsWith('vi') ? 'vi' : 'en'
   const isVI = currentLang === 'vi'
@@ -205,9 +231,9 @@ function HUD({ isTouchDevice = false }) {
         </button>
       </div>
 
-      {/* Bottom-left instructions — desktop only */}
-      {!isTouchDevice && (
-        <div className={`hud-hints ${isDark ? 'dark' : ''}`}>
+      {/* Bottom-left instructions — desktop only, auto-fades */}
+      {!isTouchDevice && showHints && (
+        <div className={`hud-hints ${isDark ? 'dark' : ''} ${hintsFaded ? 'fade-out' : ''}`}>
           <div className="hud-hint">
             <Move size={12} />
             <span>{t('hud.instructions.drag')}</span>

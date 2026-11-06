@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
@@ -22,9 +22,8 @@ function TVSetup(props) {
   const haloRef = useRef()
   const consoleLedRef = useRef()
 
-  // Check if game is active
-  const activePanel = useStore((state) => state.activePanel)
-  const isGameActive = activePanel === 'playground'
+  // Check if game is active - subscribe to boolean only
+  const isGameActive = useStore((state) => state.activePanel === 'playground')
 
   const lightingPreset = useStore((state) => state.lightingPreset)
   const isNightMode = useStore((state) => state.isNightMode)
@@ -244,4 +243,4 @@ function TVSetup(props) {
   )
 }
 
-export default TVSetup
+export default memo(TVSetup)

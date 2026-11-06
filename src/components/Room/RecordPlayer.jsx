@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
@@ -448,4 +448,4 @@ function FloatingMusicNote({ position, delay, color }) {
   )
 }
 
-export default RecordPlayer
+export default memo(RecordPlayer)

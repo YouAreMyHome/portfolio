@@ -1,85 +1,112 @@
-/* Clock Time Display */
+/* Clock Time Display — Minimal Floating Capsule */
 
 .clock-time-overlay {
   position: fixed;
-  top: 50%;
+  top: 84px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
+  transform: translateX(-50%);
+  z-index: 60;
   pointer-events: none;
-  animation: fadeInScale 0.3s ease-out;
+  animation: clockSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeInScale {
+@keyframes clockSlideDown {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
+    transform: translate(-50%, -12px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, 0) scale(1);
   }
 }
 
-.clock-time-card {
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 24px 40px;
+.clock-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 18px;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(168, 85, 247, 0.15);
-  text-align: center;
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(168, 85, 247, 0.18);
+  color: #f8fafc;
 }
 
-.clock-time-main {
+.clock-time-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.clock-time-digits {
   display: flex;
   align-items: baseline;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 1px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .clock-hours,
 .clock-minutes {
-  font-size: 64px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
+  color: #f1f5f9;
 }
 
 .clock-separator {
-  font-size: 56px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.5);
-  animation: blink 1s step-end infinite;
-  line-height: 1;
+  color: #c084fc;
+  animation: clockBlink 1s step-end infinite;
 }
 
-@keyframes blink {
+@keyframes clockBlink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0.3; }
 }
 
 .clock-seconds {
-  font-size: 28px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-left: 2px;
   font-weight: 500;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  color: rgba(255, 255, 255, 0.5);
-  margin-left: 8px;
-  line-height: 1;
-  align-self: flex-end;
-  padding-bottom: 8px;
+}
+
+.clock-divider {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
 }
 
 .clock-date {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .clock-time-overlay {
+    top: 72px;
+    width: max-content;
+    max-width: 90vw;
+  }
+
+  .clock-time-badge {
+    padding: 6px 14px;
+    gap: 8px;
+  }
+
+  .clock-time-digits {
+    font-size: 14px;
+  }
+
+  .clock-seconds {
+    display: none;
+  }
+
+  .clock-date {
+    font-size: 11px;
+  }
 }

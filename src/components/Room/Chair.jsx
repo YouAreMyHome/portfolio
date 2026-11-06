@@ -185,4 +185,4 @@ function GamingChair(props) {
   )
 }
 
-export default GamingChair
+export default React.memo(GamingChair)

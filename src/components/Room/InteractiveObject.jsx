@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import useStore from '../../store/useStore'
 
@@ -24,10 +24,10 @@ function InteractiveObject({
   const baseY = useRef(0)
   const setHoveredObject = useStore((state) => state.setHoveredObject)
   const setActivePanel = useStore((state) => state.setActivePanel)
-  const activePanel = useStore((state) => state.activePanel)
+  const isPanelActive = useStore((state) => state.activePanel !== null)
   
   // Vô hiệu hóa tất cả khi có bất kỳ panel nào đang active
-  const isDisabled = activePanel !== null
+  const isDisabled = isPanelActive
   
   // Store original Y position
   useEffect(() => {
@@ -98,4 +98,4 @@ function InteractiveObject({
   )
 }
 
-export default InteractiveObject
+export default memo(InteractiveObject)

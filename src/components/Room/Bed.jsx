@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
@@ -17,6 +17,10 @@ const bedFerruleGeo = new THREE.CylinderGeometry(0.034, 0.038, 0.024, 12)
 const bedLegMat = new THREE.MeshStandardMaterial({ color: '#8a5e38', roughness: 0.6 })
 const bedBrassMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.88, roughness: 0.25 })
 const headboardTuftMat = new THREE.MeshStandardMaterial({ color: '#ece5db', roughness: 0.88 })
+
+// Reusable Color instances for phone glow (Zero GC in useFrame)
+const _phoneNightColor = new THREE.Color('#38bdf8')
+const _phoneDayColor = new THREE.Color('#22c55e')
 
 function Bed() {
   const phoneRef = useRef()
@@ -54,10 +58,10 @@ function Bed() {
     if (phoneRef.current) {
       if (isNight) {
         const pulse = Math.sin(t * 2.4) * 0.5 + 0.5
-        phoneRef.current.material.emissive = new THREE.Color('#38bdf8')
+        phoneRef.current.material.emissive.copy(_phoneNightColor)
         phoneRef.current.material.emissiveIntensity = 0.2 + pulse * 0.8
       } else {
-        phoneRef.current.material.emissive = new THREE.Color('#22c55e')
+        phoneRef.current.material.emissive.copy(_phoneDayColor)
         phoneRef.current.material.emissiveIntensity = 0.25
       }
     }
@@ -503,4 +507,4 @@ function Bed() {
   )
 }
 
-export default Bed
+export default memo(Bed)

@@ -226,4 +226,4 @@ function Plant({ variant = 'tropical', ...props }) {
   )
 }
 
-export default Plant
+export default React.memo(Plant)

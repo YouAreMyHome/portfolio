@@ -64,9 +64,11 @@ function Cat(props) {
   const lastMeowRef = useRef(0)
 
   const characterAction = useStore((state) => state.characterAction)
+  const hoveredObject = useStore((state) => state.hoveredObject)
   const { playSound } = useSounds()
 
   const isBeingPet = characterAction === 'petting_cat'
+  const isHovered = hoveredObject === 'cat'
 
   // Vật liệu tối ưu
   const materials = useMemo(() => ({
@@ -144,13 +146,17 @@ function Cat(props) {
     } else {
       // ─── TRẠNG THÁI NẰM NGỦ BÌNH YÊN (Resting / Sleeping) ───
       if (headRef.current) {
-        headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, 0.08, delta * 4)
-        headRef.current.rotation.z = THREE.MathUtils.lerp(headRef.current.rotation.z, 0, delta * 4)
-        headRef.current.rotation.y = THREE.MathUtils.lerp(headRef.current.rotation.y, 0, delta * 4)
+        const targetHeadX = isHovered ? -0.16 - state.pointer.y * 0.18 : 0.08
+        const targetHeadY = isHovered ? state.pointer.x * 0.45 : 0
+        const targetHeadZ = isHovered ? -state.pointer.x * 0.12 : 0
+        headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, targetHeadX, delta * 5)
+        headRef.current.rotation.z = THREE.MathUtils.lerp(headRef.current.rotation.z, targetHeadZ, delta * 5)
+        headRef.current.rotation.y = THREE.MathUtils.lerp(headRef.current.rotation.y, targetHeadY, delta * 5)
       }
       if (leftEarRef.current && rightEarRef.current) {
-        leftEarRef.current.rotation.z = THREE.MathUtils.lerp(leftEarRef.current.rotation.z, 0, delta * 4)
-        rightEarRef.current.rotation.z = THREE.MathUtils.lerp(rightEarRef.current.rotation.z, 0, delta * 4)
+        const earTarget = isHovered ? -0.14 : 0
+        leftEarRef.current.rotation.z = THREE.MathUtils.lerp(leftEarRef.current.rotation.z, earTarget, delta * 6)
+        rightEarRef.current.rotation.z = THREE.MathUtils.lerp(rightEarRef.current.rotation.z, -earTarget, delta * 6)
       }
       if (spineRef.current) {
         spineRef.current.position.y = THREE.MathUtils.lerp(spineRef.current.position.y, 0, delta * 5)
@@ -216,6 +222,11 @@ function Cat(props) {
                 <Voxel position={[-0.07, 0.025, 0.126]} args={[0.055, 0.015, 0.01]} rotation={[0, 0, 0.25]} material={materials.happyEye} />
                 <Voxel position={[ 0.07, 0.025, 0.126]} args={[0.055, 0.015, 0.01]} rotation={[0, 0, -0.25]} material={materials.happyEye} />
               </>
+            ) : isHovered ? (
+              <>
+                <Voxel position={[-0.07, 0.025, 0.126]} args={[0.04, 0.04, 0.01]} material={materials.eye} />
+                <Voxel position={[ 0.07, 0.025, 0.126]} args={[0.04, 0.04, 0.01]} material={materials.eye} />
+              </>
             ) : (
               <>
                 <Voxel position={[-0.07, 0.02, 0.125]} args={[0.06, 0.01, 0.01]} rotation={[0, 0, 0.1]} material={materials.eye} />
@@ -262,13 +273,13 @@ function Cat(props) {
         <group position={[0.05, 0.42, 0.2]}>
           <PurrFloatingEffects />
         </group>
-      ) : (
+      ) : !isHovered ? (
         <group position={[0.15, 0.35, 0.25]}>
           <ZzzBubble delay={0} basePosition={[0, 0, 0]} />
           <ZzzBubble delay={1} basePosition={[0.08, 0.05, 0]} />
           <ZzzBubble delay={2} basePosition={[0.16, 0.1, 0]} />
         </group>
-      )}
+      ) : null}
     </group>
   )
 }
@@ -322,4 +333,4 @@ function PurrFloatingEffects() {
   )
 }
 
-export default Cat
+export default React.memo(Cat)

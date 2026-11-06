@@ -233,4 +233,4 @@ function Cabinet() {
   )
 }
 
-export default Cabinet
+export default React.memo(Cabinet)

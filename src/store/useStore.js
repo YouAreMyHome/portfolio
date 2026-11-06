@@ -18,6 +18,20 @@ import { track } from '@vercel/analytics'
  * - stringLightsOn : ghi nhớ trạng thái đèn dây
  */
 
+// Tự động nhận diện kịch bản môi trường phù hợp với múi giờ thực tế địa phương của người dùng
+const getInitialAmbientPreset = () => {
+  try {
+    const hour = new Date().getHours()
+    if (hour >= 5 && hour < 16) return 'morning'
+    if (hour >= 16 && hour < 19) return 'sunset'
+    return 'night'
+  } catch {
+    return 'morning'
+  }
+}
+
+const defaultAmbientPreset = getInitialAmbientPreset()
+
 const useStore = create(
   persist(
     (set, get) => ({
@@ -43,10 +57,10 @@ const useStore = create(
   transitionTarget: 'night', // 'night' | 'day' — hướng chuyển đổi
   
   // Theme & Lighting Presets ('morning' | 'sunset' | 'rainy' | 'night')
-  isNightMode: false,
-  lightingPreset: 'morning', // 'morning' | 'sunset' | 'rainy' | 'night'
+  isNightMode: defaultAmbientPreset === 'night',
+  lightingPreset: defaultAmbientPreset, // Tự động đồng bộ theo giờ thực tế địa phương
   retroPixelMode: false,     // Bộ lọc retro pixel art shader
-  deskLampOn: false,         // Đèn bàn làm việc
+  deskLampOn: defaultAmbientPreset === 'night', // Ban đêm thắp sáng đèn bàn
   
   // Interactive Overlays
   showGuestbook: false,

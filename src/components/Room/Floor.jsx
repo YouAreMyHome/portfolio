@@ -61,6 +61,8 @@ const rugFringeMat = new THREE.MeshStandardMaterial({
 })
 
 // Shared Geometries (Flyweight Pattern - Giảm GPU geometry allocations)
+const plinthGeo = new THREE.BoxGeometry(8.04, 0.36, 8.04)
+const plinthMat = new THREE.MeshStandardMaterial({ color: '#2d2218', roughness: 0.8, metalness: 0.05 })
 const baseFloorGeo = new THREE.PlaneGeometry(8.02, 8.02)
 const plankGeo = new THREE.PlaneGeometry(8, 0.48)
 const grooveGeo = new THREE.PlaneGeometry(8, 0.015)
@@ -79,6 +81,9 @@ const FRINGE_OFFSETS = [
 function Floor() {
   return (
     <group>
+      {/* ── 0. Bệ đỡ Diorama vững chãi (Diorama Solid Foundation Plinth) ── */}
+      <mesh position={[0, -0.19, 0]} receiveShadow geometry={plinthGeo} material={plinthMat} />
+
       {/* ── 1. Nền sàn gỗ bóng bẩy (Varnished Parquet Floor) ── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]} receiveShadow material={mainFloorMat} geometry={baseFloorGeo} />
 
@@ -165,4 +170,4 @@ function Floor() {
   )
 }
 
-export default Floor
+export default React.memo(Floor)

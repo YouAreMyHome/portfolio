@@ -240,4 +240,4 @@ function FloorDetails() {
   )
 }
 
-export default FloorDetails
+export default React.memo(FloorDetails)

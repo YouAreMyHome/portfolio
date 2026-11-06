@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useRef, useState, useCallback, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
@@ -136,8 +136,23 @@ function getVoxelMaterial(color, roughness = 0.65, metalness = 0.04, transparent
   return mat
 }
 
+// ─── BoxGeometry Flyweight Cache (Zero GPU duplication for identical voxel shapes) ───
+const _voxelBoxGeoCache = new Map()
+function getVoxelBoxGeo(args) {
+  const w = args ? args[0] : 0.1
+  const h = args ? args[1] : 0.1
+  const d = args ? args[2] : 0.1
+  const key = `${w}_${h}_${d}`
+  let geo = _voxelBoxGeoCache.get(key)
+  if (!geo) {
+    geo = new THREE.BoxGeometry(w, h, d)
+    _voxelBoxGeoCache.set(key, geo)
+  }
+  return geo
+}
+
 // ─── Reusable Optimized Voxel Helper ──────────────────────────────────────────
-function Voxel({
+const Voxel = memo(function Voxel({
   position = [0, 0, 0],
   args = [0.1, 0.1, 0.1],
   color = '#FFFFFF',
@@ -175,11 +190,10 @@ function Voxel({
       castShadow={castShadow}
       receiveShadow={receiveShadow}
       material={material}
-    >
-      <boxGeometry args={args} />
-    </mesh>
+      geometry={getVoxelBoxGeo(args)}
+    />
   )
-}
+})
 
 // ─── Intelligent Speech Bubble (Auto Camera-Oriented via Billboard) ────────────
 function SpeechBubble({ visible, message }) {
@@ -424,7 +438,7 @@ function MouthAndFeatures({ expression }) {
 }
 
 // ─── Nose & 3D Ears ────────────────────────────────────────────────────────────
-function NoseAndEars() {
+const NoseAndEars = memo(function NoseAndEars() {
   return (
     <group>
       <Voxel position={[0, 0.874, 0.117]} args={[0.022, 0.028, 0.014]} color={C.skinShadow} radius={0.005} />
@@ -443,7 +457,7 @@ function NoseAndEars() {
       </group>
     </group>
   )
-}
+})
 
 // ─── Head Component ────────────────────────────────────────────────────────────
 function Head({ expression = 'neutral', isBlinking = false }) {
@@ -464,7 +478,7 @@ function Head({ expression = 'neutral', isBlinking = false }) {
 }
 
 // ─── Layered Aesthetic Haircut ─────────────────────────────────────────────────
-function Hair() {
+const Hair = memo(function Hair() {
   return (
     <group>
       <Voxel position={[0, 1.012, 0.008]} args={[0.234, 0.068, 0.220]} color={C.hairDeep} radius={0.02} />
@@ -486,10 +500,10 @@ function Hair() {
       <Voxel position={[0, 0.875, -0.098]} args={[0.182, 0.065, 0.028]} color={C.hairBase} radius={0.01} />
     </group>
   )
-}
+})
 
 // ─── Torso (Layered Flannel Overshirt + Ribbed Tee + Lapel Collar) ──────────────
-function Torso() {
+const Torso = memo(function Torso() {
   return (
     <group>
       <Voxel position={[0, 0.582, 0.002]} args={[0.198, 0.245, 0.134]} color={C.shirtCream} radius={0.012} />
@@ -535,7 +549,7 @@ function Torso() {
       <Voxel position={[0, 0.386, 0.002]} args={[0.188, 0.032, 0.124]} color={C.pantsDark} radius={0.008} />
     </group>
   )
-}
+})
 
 // ─── Arms with Shoulder Joints, Articulated Elbows & Rolled Cuffs ─────────────
 function Arm({ side, activePreset, forearmRef }) {
@@ -582,17 +596,17 @@ function Arm({ side, activePreset, forearmRef }) {
 }
 
 // ─── Articulated Upper Leg (Thigh: Hip to Knee Joint) ─────────────────────────
-function Thigh() {
+const Thigh = memo(function Thigh() {
   return (
     <group position={[0, 0, 0]}>
       {/* Upper Thigh Denim - seamlessly connects with Torso pelvis */}
       <Voxel position={[0, -0.073, 0]} args={[0.096, 0.145, 0.118]} color={C.pantsDenim} radius={0.014} />
     </group>
   )
-}
+})
 
 // ─── Articulated Lower Leg (Knee Joint Pivot: Calf, Rolled Cuff & Retro High-Tops) ──
-function CalfAndShoe({ side }) {
+const CalfAndShoe = memo(function CalfAndShoe({ side }) {
   const isLeft = side === 'left'
 
   return (
@@ -632,7 +646,7 @@ function CalfAndShoe({ side }) {
       <Voxel position={[0, -0.198, 0.040]} args={[0.064, 0.010, 0.014]} color={C.shoeLace} radius={0.003} />
     </group>
   )
-}
+})
 
 // ─── Scenario Hand Props ────────────────────────────────────────────────────────
 function CoffeeMugHand() {
@@ -915,6 +929,40 @@ function PixelPerson({ scale = 1, ...props }) {
   const [expression, setExpression] = useState('happy')
   const [isBlinking, setIsBlinking] = useState(false)
 
+  // Cached state tracking to eliminate 60 FPS Zustand/React re-render overhead in useFrame
+  const curActionRef = useRef(useStore.getState().characterAction)
+  const curSleepingRef = useRef(useStore.getState().isCharacterSleeping)
+  const curBedStageRef = useRef(useStore.getState().bedStage)
+  const curExpressionRef = useRef('happy')
+
+  const safeSetCharacterAction = useCallback((act) => {
+    if (curActionRef.current !== act) {
+      curActionRef.current = act
+      setCharacterAction(act)
+    }
+  }, [setCharacterAction])
+
+  const safeSetIsCharacterSleeping = useCallback((sleeping) => {
+    if (curSleepingRef.current !== sleeping) {
+      curSleepingRef.current = sleeping
+      setIsCharacterSleeping(sleeping)
+    }
+  }, [setIsCharacterSleeping])
+
+  const safeSetBedStage = useCallback((stage) => {
+    if (curBedStageRef.current !== stage) {
+      curBedStageRef.current = stage
+      setBedStage(stage)
+    }
+  }, [setBedStage])
+
+  const safeSetExpression = useCallback((exp) => {
+    if (curExpressionRef.current !== exp) {
+      curExpressionRef.current = exp
+      setExpression(exp)
+    }
+  }, [])
+
   // Motion & Systematized Waypoint State Machine
   const currentPresetRef    = useRef(activePreset)
   const navQueueRef         = useRef([])
@@ -1120,21 +1168,21 @@ function PixelPerson({ scale = 1, ...props }) {
     // ── CASE A: WAKING UP FROM BED (Smooth 4-Stage Biomechanical Awakening) ──
     if (isLyingInBedRef.current && activePreset !== 'night') {
       isMovingRef.current = false
-      setIsCharacterSleeping(false)
+      safeSetIsCharacterSleeping(false)
       wakeTimerRef.current += delta
       const wt = wakeTimerRef.current
-      setCharacterAction('sitting_bed')
+      safeSetCharacterAction('sitting_bed')
 
       if (wt < 0.8) {
         // Giai đoạn 1: Cựa mình mở mắt, mỉm cười chào ngày mới
-        setBedStage('wake_stir')
-        setExpression('happy')
+        safeSetBedStage('wake_stir')
+        safeSetExpression('happy')
         if (headGroupRef.current) {
           headGroupRef.current.rotation.x = 0.08 + Math.sin(wt * 6) * 0.04
         }
       } else if (wt < 2.4) {
         // Giai đoạn 2: Nâng người ngồi dậy trên nệm (Quaternions slerp mượt mà từ nằm -> ngồi thẳng)
-        setBedStage('wake_sit')
+        safeSetBedStage('wake_sit')
         const p = Math.min(1, (wt - 0.8) / 1.6)
         const s = p * p * (3 - 2 * p)
 
@@ -1161,7 +1209,7 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else if (wt < 4.0) {
         // Giai đoạn 3: Trượt ra mép giường và đung đưa chân qua mép nệm (ngồi thõng chân bên mép giường)
-        setBedStage('wake_swing_legs')
+        safeSetBedStage('wake_swing_legs')
         const p = Math.min(1, (wt - 2.4) / 1.6)
         const s = p * p * (3 - 2 * p)
 
@@ -1186,7 +1234,7 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else if (wt < 5.2) {
         // Giai đoạn 4: Chống tay, dồn trọng tâm đứng vững xuống sàn gỗ ngay trước giường
-        setBedStage('wake_stand')
+        safeSetBedStage('wake_stand')
         const p = Math.min(1, (wt - 4.0) / 1.2)
         const s = p * p * (3 - 2 * p)
 
@@ -1213,7 +1261,7 @@ function PixelPerson({ scale = 1, ...props }) {
         if (rightForearmRef.current) rightForearmRef.current.rotation.x = forearmAngle
       } else {
         // Đã đứng vững trên sàn phòng
-        setBedStage('none')
+        safeSetBedStage('none')
         isLyingInBedRef.current = false
         wakeTimerRef.current = 0
         groupRef.current.rotation.set(0, 0.15, 0)
@@ -1235,8 +1283,8 @@ function PixelPerson({ scale = 1, ...props }) {
 
       if (stage === 'night_yawn') {
         nightTimerRef.current += delta
-        setCharacterAction('idle')
-        setExpression('tired')
+        safeSetCharacterAction('idle')
+        safeSetExpression('tired')
 
         // Ngáp dài mệt mỏi — tay phải đưa lên miệng, đầu ngửa ra sau
         if (rightArmRef.current) {
@@ -1279,8 +1327,8 @@ function PixelPerson({ scale = 1, ...props }) {
       }
 
       if (stage === 'walk_to_bed') {
-        setCharacterAction('walking')
-        setIsCharacterSleeping(false)
+        safeSetCharacterAction('walking')
+        safeSetIsCharacterSleeping(false)
 
         if (navQueueRef.current.length > 0) {
           const currentWaypoint = navQueueRef.current[0]
@@ -1363,9 +1411,9 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── GIAI ĐOẠN 3: Dừng lại ổn định bên cạnh đuôi giường (0.8s) ──
       // Nhân vật dừng tại điểm [-1.62, 0.007, 1.86] trên sàn gỗ ngay trước giường (không clip nệm/khung giường)
       if (stage === 'settle_at_bedside') {
-        setCharacterAction('idle')
-        setIsCharacterSleeping(false)
-        setBedStage('settle_bedside')
+        safeSetCharacterAction('idle')
+        safeSetIsCharacterSleeping(false)
+        safeSetBedStage('settle_bedside')
         nightTimerRef.current += delta
         const p = Math.min(1, nightTimerRef.current / 0.8)
         const s = p * p * (3 - 2 * p)
@@ -1424,7 +1472,7 @@ function PixelPerson({ scale = 1, ...props }) {
           headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 5)
         }
 
-        setExpression('tired')
+        safeSetExpression('tired')
 
         if (nightTimerRef.current > 0.8) {
           nightStageRef.current = 'sit_at_bed'
@@ -1442,9 +1490,9 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── GIAI ĐOẠN 4: Ngồi xuống mép nệm & Tay chống mặt nệm (sit_at_bed — 2.0s) ──
       if (stage === 'sit_at_bed') {
         isLyingInBedRef.current = true
-        setCharacterAction('sitting_bed')
-        setIsCharacterSleeping(false)
-        setBedStage('sit_at_bed')
+        safeSetCharacterAction('sitting_bed')
+        safeSetIsCharacterSleeping(false)
+        safeSetBedStage('sit_at_bed')
         nightTimerRef.current += delta
         const p = Math.min(1, nightTimerRef.current / 2.0)
         const s = p * p * (3 - 2 * p) // Hermite smoothstep
@@ -1516,7 +1564,7 @@ function PixelPerson({ scale = 1, ...props }) {
           headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, headSway, delta * 3)
           headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0, delta * 4)
         }
-        setExpression('tired')
+        safeSetExpression('tired')
 
         if (nightTimerRef.current > 2.0) {
           nightStageRef.current = 'swing_legs_in'
@@ -1528,8 +1576,8 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── GIAI ĐOẠN 5: Đưa hai chân lên nệm & Với tay tới mép chăn (swing_legs_in — 2.2s) ──
       if (stage === 'swing_legs_in') {
         isLyingInBedRef.current = true
-        setCharacterAction('sitting_bed')
-        setBedStage('swing_legs_in')
+        safeSetCharacterAction('sitting_bed')
+        safeSetBedStage('swing_legs_in')
         nightTimerRef.current += delta
         const p = Math.min(1, nightTimerRef.current / 2.2)
         const s = p * p * (3 - 2 * p)
@@ -1618,7 +1666,7 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── GIAI ĐOẠN 6: Ngả lưng xuống gối & Kéo chăn bông phủ kín ngực (recline_to_pillow — 3.0s) ──
       if (stage === 'recline_to_pillow') {
         isLyingInBedRef.current = true
-        setBedStage('recline_to_pillow')
+        safeSetBedStage('recline_to_pillow')
         nightTimerRef.current += delta
         const p = Math.min(1, nightTimerRef.current / 3.0)
         const s = p * p * (3 - 2 * p)
@@ -1678,11 +1726,11 @@ function PixelPerson({ scale = 1, ...props }) {
 
         // Kích hoạt chăn kéo lên và gối nén lún khi đầu và thân hạ xuống
         if (s > 0.25) {
-          setIsCharacterSleeping(true)
+          safeSetIsCharacterSleeping(true)
         }
         // Mắt nhắm dần chuyển sang sleeping
         if (s > 0.55) {
-          setExpression('sleeping')
+          safeSetExpression('sleeping')
         }
 
         if (nightTimerRef.current > 3.0) {
@@ -1694,7 +1742,7 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── GIAI ĐOẠN 7: Giấc ngủ sâu bình yên & Nhịp thở đồng bộ với chăn (sleeping) ──
       if (stage === 'sleeping') {
         isLyingInBedRef.current = true
-        setBedStage('sleeping')
+        safeSetBedStage('sleeping')
         curPos.x = -2.585
         curPos.y = 0.455 + Math.sin(clockTime * 1.4) * 0.005 // Nhịp thở êm ái cùng chăn bông Bed.jsx
         curPos.z = 1.86
@@ -1741,9 +1789,9 @@ function PixelPerson({ scale = 1, ...props }) {
           headGroupRef.current.rotation.z = THREE.MathUtils.lerp(headGroupRef.current.rotation.z, 0.03, delta * 3)
         }
 
-        setIsCharacterSleeping(true)
-        setCharacterAction('sleeping')
-        setExpression('sleeping')
+        safeSetIsCharacterSleeping(true)
+        safeSetCharacterAction('sleeping')
+        safeSetExpression('sleeping')
         return
       }
     }
@@ -1758,8 +1806,8 @@ function PixelPerson({ scale = 1, ...props }) {
 
       if (dist > 0.08) {
         isMovingRef.current = true
-        setCharacterAction('walking')
-        setIsCharacterSleeping(false)
+        safeSetCharacterAction('walking')
+        safeSetIsCharacterSleeping(false)
         if (leftLegRef.current) leftLegRef.current.visible = true
         if (rightLegRef.current) rightLegRef.current.visible = true
 
@@ -1865,8 +1913,8 @@ function PixelPerson({ scale = 1, ...props }) {
 
       // ── SCENARIO 1: CHIỀU (Sunset - Petting Cat with Reciprocal Interaction) ──
       if (activePreset === 'sunset') {
-        setCharacterAction('petting_cat')
-        setExpression('happy')
+        safeSetCharacterAction('petting_cat')
+        safeSetExpression('happy')
 
         // Ergonomic kneeling down on rug
         groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, 0.007, delta * 4)
@@ -1934,7 +1982,7 @@ function PixelPerson({ scale = 1, ...props }) {
 
       // ── SCENARIO 2: MƯA (Rainy - 5-Phase Coffee Ritual by the Window) ──
       } else if (activePreset === 'rainy') {
-        setCharacterAction('drinking_coffee')
+        safeSetCharacterAction('drinking_coffee')
 
         // Stand upright facing rainy window with gentle contrapposto stance
         groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, 0.007, delta * 6)
@@ -1955,7 +2003,7 @@ function PixelPerson({ scale = 1, ...props }) {
 
         if (cycle < 3.2) {
           // Phase 1: Gazing out at raindrops, holding mug comfortably at chest
-          setExpression('neutral')
+          safeSetExpression('neutral')
           if (headGroupRef.current) {
             headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, -0.22, delta * 4)
             headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, -0.06, delta * 4)
@@ -2000,7 +2048,7 @@ function PixelPerson({ scale = 1, ...props }) {
           }
         } else if (cycle < 9.2) {
           // Phase 4: Lowering mug, exhaling warm breath, calm happy smile
-          setExpression('happy')
+          safeSetExpression('happy')
           if (headGroupRef.current) {
             headGroupRef.current.rotation.x = THREE.MathUtils.lerp(headGroupRef.current.rotation.x, 0.02, delta * 4)
             headGroupRef.current.rotation.y = THREE.MathUtils.lerp(headGroupRef.current.rotation.y, -0.15, delta * 4)
@@ -2024,7 +2072,7 @@ function PixelPerson({ scale = 1, ...props }) {
 
       // ── SCENARIO 3: SÁNG (Morning - Full-Body Stretch & Water Hydration) ──
       } else {
-        setCharacterAction('stretching')
+        safeSetCharacterAction('stretching')
 
         groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, 0.007, delta * 6)
         if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, delta * 6)
@@ -2037,7 +2085,7 @@ function PixelPerson({ scale = 1, ...props }) {
 
         if (cycle < 3.5) {
           // Stretch Phase: Deep inhalation, heels elevate 0.02m (calf stretch), spine arches back, arms reach high
-          setExpression('happy')
+          safeSetExpression('happy')
           const stretchT = cycle / 3.5
           const stretchPeak = Math.sin(stretchT * Math.PI)
           const microTremor = Math.sin(clockTime * 25.0) * 0.002 * (stretchT > 0.4 ? 1 : 0)
@@ -2177,4 +2225,4 @@ function PixelPerson({ scale = 1, ...props }) {
   )
 }
 
-export default PixelPerson
+export default memo(PixelPerson)

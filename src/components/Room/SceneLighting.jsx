@@ -309,7 +309,7 @@ function SceneLighting() {
     }
   })
 
-  const shadowMapResolution = isMobile ? [1024, 1024] : [2048, 2048]
+  const shadowMapResolution = isMobile ? [512, 512] : [1024, 1024]
 
   return (
     <>

@@ -5,7 +5,7 @@
  * Adding a new game only requires updating gameRegistry.js
  */
 
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
+import { useRef, useEffect, useState, useCallback, useMemo, memo } from 'react'
 import { track } from '@vercel/analytics'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -561,4 +561,4 @@ function TVScreen({ isActive }) {
   )
 }
 
-export default TVScreen
+export default memo(TVScreen)

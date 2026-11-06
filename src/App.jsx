@@ -10,8 +10,6 @@ import SceneLighting from './components/Room/SceneLighting'
 import CameraController from './components/Room/CameraController'
 import PostProcessingEffects from './components/Room/PostProcessingEffects'
 import HUD from './components/UI/HUD'
-import ScenarioBar from './components/UI/ScenarioBar'
-import SleepHUD from './components/UI/SleepHUD'
 import LoadingScreen from './components/UI/LoadingScreen'
 import WelcomeScreen from './components/UI/WelcomeScreen'
 import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
@@ -35,33 +33,29 @@ const PhotoMode = lazy(() => import('./components/UI/PhotoMode'))
 const AdminIndex = lazy(() => import('./components/Admin/index'))
 
 /**
- * THE DEV'S PIXEL ROOM - Phase 4: Polish
+ * THE DEV'S PIXEL ROOM
  * 
  * Portfolio cá nhân dạng Isometric 3D Room
- * - Click objects để mở panels
- * - Window toggle day/night với smooth transition
- * - Cat easter egg
- * - Sound effects
+ * - Bảng màu nền thống nhất 100% giữa HTML Body, Container Div và Three.js Canvas
  */
+const AMBIENT_BG_COLORS = {
+  morning: '#e8edf4',
+  sunset: '#2a110a',
+  rainy: '#18202d',
+  night: '#090d16',
+}
 
 // Background color controller component
 function BackgroundController() {
   const isNightMode = useStore((state) => state.isNightMode)
   const lightingPreset = useStore((state) => state.lightingPreset)
-  
+
   useEffect(() => {
-    // Smooth transition cho body background
     document.body.style.transition = 'background-color 0.6s ease'
-    const colors = {
-      morning: '#f1f5f9',
-      sunset: '#2a110a',
-      rainy: '#1e293b',
-      night: '#090d16',
-    }
     const preset = isNightMode ? 'night' : (lightingPreset || 'morning')
-    document.body.style.backgroundColor = colors[preset] || '#f1f5f9'
+    document.body.style.backgroundColor = AMBIENT_BG_COLORS[preset] || AMBIENT_BG_COLORS.morning
   }, [isNightMode, lightingPreset])
-  
+
   return null
 }
 
@@ -69,18 +63,19 @@ function BackgroundController() {
 function SoundSystem() {
   const setSoundTrigger = useStore((state) => state.setSoundTrigger)
   const { playSound } = useSounds()
-  
+
   useEffect(() => {
     setSoundTrigger(playSound)
   }, [setSoundTrigger, playSound])
-  
+
   return null
 }
 
 // Scene component - chứa tất cả 3D elements
 function Scene({ isNightMode, graphics = {} }) {
   const controlsRef = useRef()
-  const activePanel = useStore((state) => state.activePanel)
+  // Disable controls when viewing TV (boolean selector prevents re-rendering Scene on other panels)
+  const controlsEnabled = useStore((state) => state.activePanel !== 'playground')
   const isSceneReady = useStore((state) => state.isSceneReady)
   const setSceneReady = useStore((state) => state.setSceneReady)
   const lightingPreset = useStore((state) => state.lightingPreset)
@@ -92,43 +87,34 @@ function Scene({ isNightMode, graphics = {} }) {
       setSceneReady()
     }
   })
-  
-  // Disable controls when viewing TV
-  const controlsEnabled = activePanel !== 'playground'
-  
-  // Default graphics settings
+
   const {
     softShadows = true,
     postProcessing = true,
     shadowSamples = 16,
     shadowSize = 25,
   } = graphics
-  
-  const sceneBgColor = isNightMode
-    ? '#0B0F19'
-    : lightingPreset === 'sunset'
-    ? '#2A130C'
-    : lightingPreset === 'rainy'
-    ? '#1E2530'
-    : '#EFEBE4'
+
+  const activePreset = isNightMode ? 'night' : (lightingPreset || 'morning')
+  const sceneBgColor = AMBIENT_BG_COLORS[activePreset] || AMBIENT_BG_COLORS.morning
 
   return (
     <>
-      {/* Dynamic scene background */}
+      {/* Dynamic scene background đồng bộ 100% với body */}
       <color attach="background" args={[sceneBgColor]} />
-      
+
       <Suspense fallback={null}>
         {/* Dynamic Lighting */}
         <SceneLighting />
-        
+
         {/* Room */}
         <Room graphics={graphics} />
-        
+
         {/* Camera Controller - animate camera for TV view */}
         <CameraController controlsRef={controlsRef} />
-        
+
         {/* OrbitControls - giới hạn góc xoay */}
-        <OrbitControls 
+        <OrbitControls
           ref={controlsRef}
           enableDamping
           dampingFactor={0.05}
@@ -148,8 +134,8 @@ function Scene({ isNightMode, graphics = {} }) {
             TWO: 2  // DOLLY_PAN
           }}
         />
-        
-        {/* Post-processing Effects - N8AO, Bloom, ToneMapping, Vignette, Pixelation */}
+
+        {/* Post-processing Effects */}
         {postProcessing && (
           <PostProcessingEffects graphics={graphics} />
         )}
@@ -160,6 +146,7 @@ function Scene({ isNightMode, graphics = {} }) {
 
 function AppContent() {
   const isNightMode = useStore((state) => state.isNightMode)
+  const lightingPreset = useStore((state) => state.lightingPreset)
   const isSceneReady = useStore((state) => state.isSceneReady)
   const isCriticalAssetsReady = useStore((state) => state.isCriticalAssetsReady)
   const startLoadingSession = useStore((state) => state.startLoadingSession)
@@ -170,6 +157,17 @@ function AppContent() {
   const setLoadingMetrics = useStore((state) => state.setLoadingMetrics)
   const { isMobile, isTablet, isTouchDevice } = useMobile()
   const graphics = getGraphicsSettings(isMobile, isTablet)
+
+  // Smart idle: dừng render loop khi tab trình duyệt bị ẩn
+  const [isTabHidden, setIsTabHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsTabHidden(document.hidden)
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
 
   useEffect(() => {
     const connectionType = navigator.connection?.effectiveType || '4g'
@@ -253,47 +251,51 @@ function AppContent() {
     import('./components/UI/MusicPlayer')
     import('./components/UI/PolaroidLightbox')
   }, [isSceneReady, isCriticalAssetsReady])
-  
+
+  const activePreset = isNightMode ? 'night' : (lightingPreset || 'morning')
+  const currentBgColor = AMBIENT_BG_COLORS[activePreset] || AMBIENT_BG_COLORS.morning
+
   return (
-    <div className="w-full h-full" style={{ 
-      backgroundColor: isNightMode ? '#0f172a' : '#f0f0f0',
-      transition: 'background-color 0.5s ease'
+    <div className="w-full h-full" style={{
+      backgroundColor: currentBgColor,
+      transition: 'background-color 0.6s ease'
     }}>
       <BackgroundController />
       <SoundSystem />
       <WebGLErrorBoundary>
-      <Canvas
-        orthographic
-        camera={{ 
-          position: [10, 10, 10], 
-          zoom: graphics.zoom,
-          near: 0.1,
-          far: 100
-        }}
-        shadows={graphics.shadows ? "soft" : false}
-        gl={{ 
-          antialias: graphics.antialias,
-          powerPreference: isMobile ? "low-power" : "high-performance",
-          alpha: false,
-          stencil: false,
-          depth: true
-        }}
-        dpr={graphics.pixelRatio}
-        onCreated={({ gl, camera }) => {
-          camera.lookAt(0, 0, 0)
-        }}
-      >
-        <Scene isNightMode={isNightMode} graphics={graphics} />
-      </Canvas>
+        <Canvas
+          frameloop={isTabHidden ? 'never' : 'always'}
+          orthographic
+          camera={{
+            position: [10, 10, 10],
+            zoom: graphics.zoom,
+            near: 0.1,
+            far: 100
+          }}
+          shadows={graphics.shadows ? "soft" : false}
+          gl={{
+            antialias: graphics.antialias,
+            powerPreference: isMobile ? "low-power" : "high-performance",
+            alpha: false,
+            stencil: false,
+            depth: true
+          }}
+          dpr={graphics.pixelRatio}
+          onCreated={({ gl, camera }) => {
+            camera.lookAt(0, 0, 0)
+          }}
+        >
+          <Scene isNightMode={isNightMode} graphics={graphics} />
+        </Canvas>
       </WebGLErrorBoundary>
-      
+
       <Suspense fallback={<OverlayFallback />}>
         {/* HTML Overlay Panels */}
         <PanelOverlay />
-        
+
         {/* TV Game Overlay - Retro game console */}
         <TVGameOverlay />
-        
+
         {/* Kanban Board Overlay */}
         <KanbanOverlay />
 
@@ -309,41 +311,35 @@ function AppContent() {
         {/* Admin CMS Portal */}
         <AdminIndex />
       </Suspense>
-      
+
       {/* HUD */}
       <HUD isTouchDevice={isTouchDevice} />
 
-      {/* Character Scenario Timeline Bar */}
-      <ScenarioBar />
-
-      {/* Sleep Mode Interactive Interface */}
-      <SleepHUD />
-      
       <Suspense fallback={<OverlayFallback />}>
         {/* Music Player - Spotify style, background playback */}
         <MusicPlayer />
       </Suspense>
-      
+
       {/* Clock Time Display */}
       <ClockTimeDisplay />
-      
+
       {/* Scene Transition Overlay — chạy khi toggle day/night */}
       <TransitionOverlay />
 
       {/* Loading Screen */}
       <LoadingScreen />
-      
+
       {/* Welcome Screen - Game Main Menu Style */}
       <WelcomeScreen />
-      
+
       <Suspense fallback={<OverlayFallback />}>
         {/* Polaroid Lightbox */}
         <PolaroidLightbox />
       </Suspense>
-      
+
       {/* Mobile touch hint */}
       {isTouchDevice && <MobileTouchHint />}
-      
+
       {/* Vercel Analytics */}
       <Analytics />
     </div>
@@ -378,15 +374,15 @@ function MobileTouchHint() {
   const hasEnteredRoom = useStore((state) => state.hasEnteredRoom)
   const showWelcome = useStore((state) => state.showWelcome)
   const { t } = useTranslation()
-  
+
   useEffect(() => {
     if (!hasEnteredRoom || showWelcome) return
     const timer = setTimeout(() => setShow(false), 4000)
     return () => clearTimeout(timer)
   }, [hasEnteredRoom, showWelcome])
-  
+
   if (!show || !hasEnteredRoom || showWelcome) return null
-  
+
   return (
     <div className="mobile-touch-hint">
       <div className="touch-hint-content">

@@ -265,7 +265,18 @@ function createSceneryTexture(preset) {
   texture.colorSpace = THREE.SRGBColorSpace
   texture.minFilter = THREE.LinearFilter
   texture.magFilter = THREE.LinearFilter
+  texture.generateMipmaps = false
   return texture
+}
+
+// Module-level cache to eliminate GPU memory leaks and texture recreations on preset changes
+const _sceneryTextureCache = new Map()
+
+function getSceneryTexture(preset) {
+  if (!_sceneryTextureCache.has(preset)) {
+    _sceneryTextureCache.set(preset, createSceneryTexture(preset))
+  }
+  return _sceneryTextureCache.get(preset)
 }
 
 // ─── Animated Raindrops on Glass Pane (Rainy Preset) ─────────────────────────
@@ -324,9 +335,9 @@ function Window() {
   const lightingPreset = useStore((state) => state.lightingPreset)
   const activePreset = isNightMode ? 'night' : lightingPreset || 'morning'
 
-  // Procedural scenic vista texture
+  // Procedural scenic vista texture (zero re-allocation via module cache)
   const sceneryTexture = useMemo(() => {
-    return createSceneryTexture(activePreset)
+    return getSceneryTexture(activePreset)
   }, [activePreset])
 
   return (
@@ -423,4 +434,4 @@ function Window() {
   )
 }
 
-export default Window
+export default React.memo(Window)

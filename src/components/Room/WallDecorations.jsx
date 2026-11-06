@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import * as THREE from 'three'
 import { COLORS } from './colors'
 import InteractiveObject from './InteractiveObject'
@@ -80,8 +80,12 @@ function LightSwitch({ position, isOn, onToggle }) {
   )
 }
 
+const _sharedTextureLoader = new THREE.TextureLoader()
+_sharedTextureLoader.setCrossOrigin('anonymous')
+const _polaroidTextureCache = new Map()
+
 function useSafeTexture(url) {
-  const [texture, setTexture] = useState(null)
+  const [texture, setTexture] = useState(() => (url ? _polaroidTextureCache.get(url) || null : null))
 
   useEffect(() => {
     if (!url) {
@@ -90,10 +94,13 @@ function useSafeTexture(url) {
     }
 
     let active = true
-    const loader = new THREE.TextureLoader()
-    loader.setCrossOrigin('anonymous')
+    if (_polaroidTextureCache.has(url)) {
+      setTexture(_polaroidTextureCache.get(url))
+      return
+    }
 
-    loader.load(
+
+    _sharedTextureLoader.load(
       url,
       (loadedTexture) => {
         if (!active) {
@@ -103,7 +110,8 @@ function useSafeTexture(url) {
         loadedTexture.colorSpace = THREE.SRGBColorSpace
         loadedTexture.minFilter = THREE.LinearFilter
         loadedTexture.magFilter = THREE.LinearFilter
-        loadedTexture.generateMipmaps = true
+        loadedTexture.generateMipmaps = false
+        _polaroidTextureCache.set(url, loadedTexture)
         loadedTexture.needsUpdate = true
         setTexture(loadedTexture)
       },
@@ -332,4 +340,4 @@ function WallDecorations() {
   )
 }
 
-export default WallDecorations
+export default memo(WallDecorations)

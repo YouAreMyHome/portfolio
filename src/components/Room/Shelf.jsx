@@ -192,4 +192,4 @@ function Shelf() {
   )
 }
 
-export default Shelf
+export default React.memo(Shelf)

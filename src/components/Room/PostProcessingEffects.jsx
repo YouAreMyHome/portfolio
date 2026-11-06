@@ -28,13 +28,6 @@ export default function PostProcessingEffects({ graphics = {} }) {
     bloomIntensity = 0.35,
   } = graphics
 
-  // Tính toán cường độ bloom theo preset
-  const calculatedBloom = isNightMode || lightingPreset === 'night'
-    ? 0.45
-    : lightingPreset === 'sunset'
-    ? 0.35
-    : bloomIntensity
-
   const isNight = isNightMode || lightingPreset === 'night'
 
   return (

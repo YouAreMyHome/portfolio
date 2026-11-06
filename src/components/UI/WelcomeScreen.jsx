@@ -617,19 +617,19 @@ export default function WelcomeScreen() {
     // Phase 2: Warm golden light flares up from window and blankets viewport
     const flareTimer = setTimeout(() => {
       setExitPhase('flaring')
-    }, 450)
+    }, 300)
 
     // Phase 3: At peak flare, activate 3D room underneath
     const enterRoomTimer = setTimeout(() => {
       enterRoom()
       // Phase 4: Dissolve the flare over the 3D room
       setExitPhase('dissolving')
-    }, 750)
+    }, 550)
 
     // Phase 5: Clean unmount after flare has completely dissolved into the room
     const cleanupTimer = setTimeout(() => {
       completeWelcomeExit()
-    }, 1350)
+    }, 950)
 
     return () => {
       clearTimeout(flareTimer)

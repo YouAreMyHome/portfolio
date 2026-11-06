@@ -33,7 +33,7 @@ const CAMERA_VIEWS = {
 
 function CameraController({ controlsRef }) {
   const { camera } = useThree()
-  const activePanel = useStore((state) => state.activePanel)
+  const isPlayground = useStore((state) => state.activePanel === 'playground')
   
   // Animation state
   const animationRef = useRef({
@@ -65,7 +65,7 @@ function CameraController({ controlsRef }) {
       anim.startTarget.copy(controlsRef.current.target)
     }
     
-    if (activePanel === 'playground') {
+    if (isPlayground) {
       // Save current state before moving
       savedCameraState.current = {
         position: camera.position.clone(),
@@ -89,7 +89,7 @@ function CameraController({ controlsRef }) {
     // Start animation
     anim.startTime = performance.now()
     anim.isAnimating = true
-  }, [activePanel, camera, controlsRef])
+  }, [isPlayground, camera, controlsRef])
   
   // Animate camera
   useFrame(() => {

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import InteractiveObject from './InteractiveObject'
@@ -67,7 +67,7 @@ function DigitalGallery({
           texture.colorSpace = THREE.SRGBColorSpace
           texture.minFilter = THREE.LinearFilter
           texture.magFilter = THREE.LinearFilter
-          texture.generateMipmaps = true
+          texture.generateMipmaps = false
           texture.needsUpdate = true
           loadedTextures[index] = texture
           settled += 1
@@ -241,4 +241,4 @@ function DigitalGallery({
   )
 }
 
-export default DigitalGallery
+export default memo(DigitalGallery)
