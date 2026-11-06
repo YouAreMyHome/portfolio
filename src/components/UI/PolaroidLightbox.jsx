@@ -54,7 +54,7 @@ function PolaroidLightbox() {
   const [zoomLevel, setZoomLevel] = useState(1) // 1x, 1.6x, 2.4x
   const [rotationDeg, setRotationDeg] = useState(0) // 0, 90, 180, 270
   const [showInfo, setShowInfo] = useState(false)
-  const [showFilmstrip, setShowFilmstrip] = useState(true)
+  const [showFilmstrip] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [toastMsg, setToastMsg] = useState(null)
   
@@ -126,36 +126,36 @@ function PolaroidLightbox() {
   }, [closePolaroid, play, resetTransforms])
 
   // Zoom controls
-  const handleZoomIn = () => {
+  const handleZoomIn = useCallback(() => {
     play('click')
     setZoomLevel((z) => Math.min(2.5, Number((z + 0.5).toFixed(1))))
-  }
+  }, [play])
 
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     play('click')
     setZoomLevel((z) => {
       const next = Math.max(1, Number((z - 0.5).toFixed(1)))
       if (next === 1) setPan({ x: 0, y: 0 })
       return next
     })
-  }
+  }, [play])
 
-  const handleResetZoom = () => {
+  const handleResetZoom = useCallback(() => {
     play('click')
     resetTransforms()
-  }
+  }, [play, resetTransforms])
 
-  const handleRotate = () => {
+  const handleRotate = useCallback(() => {
     play('click')
     setRotationDeg((r) => (r + 90) % 360)
-  }
+  }, [play])
 
-  const toggleInfo = () => {
+  const toggleInfo = useCallback(() => {
     play('click')
     setShowInfo((prev) => !prev)
-  }
+  }, [play])
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     play('click')
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen?.().catch(() => {})
@@ -164,7 +164,7 @@ function PolaroidLightbox() {
       document.exitFullscreen?.().catch(() => {})
       setIsFullscreen(false)
     }
-  }
+  }, [play])
 
   // Tải ảnh về máy
   const handleDownload = async () => {
@@ -291,7 +291,18 @@ function PolaroidLightbox() {
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen, showInfo, handlePrev, handleNext, handleClose])
+  }, [
+    isOpen,
+    showInfo,
+    handlePrev,
+    handleNext,
+    handleClose,
+    handleRotate,
+    handleZoomIn,
+    handleZoomOut,
+    toggleFullscreen,
+    toggleInfo,
+  ])
 
   // Tự động cuộn thumbnail filmstrip tới ảnh đang active
   useEffect(() => {

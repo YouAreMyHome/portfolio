@@ -12,7 +12,6 @@ import './MusicPlayer.css'
  */
 function MusicPlayer() {
   const showMusicPlayer = useStore((state) => state.showMusicPlayer)
-  const setShowMusicPlayer = useStore((state) => state.setShowMusicPlayer)
   const setRecordPlaying = useStore((state) => state.setRecordPlaying)
   const activePanel = useStore((state) => state.activePanel)
   const showKanbanBoard = useStore((state) => state.showKanbanBoard)

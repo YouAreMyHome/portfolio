@@ -33,12 +33,14 @@ function TVSetup(props) {
     const t = state.clock.elapsedTime
     const lerpFactor = Math.min(1, delta * 6)
 
-    // Ambilight color animation - Zero GC allocation
-    const targetIntensity = !isNight && !isGameActive ? 0.0 : isGameActive ? 0.75 : 0.65
+    // Ambilight color animation - Tinh chỉnh dải màu điện ảnh sang trọng (Cinematic Twilight Palette)
+    const targetIntensity = !isNight && !isGameActive ? 0.0 : isGameActive ? 0.55 : 0.32
 
     if (!isGameActive) {
-      const hue = (t * 0.035) % 1
-      _currentColor.setHSL(hue, 0.75, 0.55)
+      // Chuyển động màu êm ái giữa xanh sapphire và chàm twilight nhung, độ bão hòa dịu mắt
+      const cycle = Math.sin(t * 0.06) * 0.5 + 0.5
+      const hue = 0.58 + cycle * 0.13 // 0.58 (Sapphire Blue) -> 0.71 (Deep Indigo)
+      _currentColor.setHSL(hue, 0.50, 0.48)
     } else {
       _currentColor.setHex(0x4ade80)
     }
@@ -56,7 +58,7 @@ function TVSetup(props) {
       haloRef.current.material.color.lerp(_currentColor, lerpFactor)
       haloRef.current.material.opacity = THREE.MathUtils.lerp(
         haloRef.current.material.opacity,
-        isNight || isGameActive ? 0.38 : 0.0,
+        isNight || isGameActive ? 0.16 : 0.0,
         lerpFactor
       )
     }
@@ -214,8 +216,8 @@ function TVSetup(props) {
       {/* ── 6. TV SET (Gắn chắc trên chân đế, tâm tại y = 0.96) ── */}
       <group position={[0, 0.96, 0]}>
         {/* Ambilight vật lý: Dải sáng ngang 16:9 tạo quầng sáng chữ nhật theo khung TV */}
-        <pointLight ref={lightRefLeft} position={[-0.38, 0, -0.05]} intensity={0} distance={2.8} decay={1.6} />
-        <pointLight ref={lightRefRight} position={[0.38, 0, -0.05]} intensity={0} distance={2.8} decay={1.6} />
+        <pointLight ref={lightRefLeft} position={[-0.38, 0, -0.05]} intensity={0} distance={2.4} decay={2.0} />
+        <pointLight ref={lightRefRight} position={[0.38, 0, -0.05]} intensity={0} distance={2.4} decay={2.0} />
 
         {/* Quầng sáng tản mờ chữ nhật (Bias Lighting Glow Halo) */}
         <mesh ref={haloRef} position={[0, 0, -0.046]}>

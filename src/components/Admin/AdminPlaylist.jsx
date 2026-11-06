@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Save, Play, Pause, Music2, ExternalLink } from 'lucide-react'
 import dataService from '../../services/dataService'
 import { useSounds } from '../../utils/useSounds'
@@ -8,7 +8,7 @@ export default function AdminPlaylist() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [playingId, setPlayingId] = useState(null)
-  const [audioObj, setAudioObj] = useState(null)
+  const audioRef = useRef(null)
 
   const [newTitle, setNewTitle] = useState('')
   const [newArtist, setNewArtist] = useState('')
@@ -27,22 +27,25 @@ export default function AdminPlaylist() {
   useEffect(() => {
     loadPlaylist()
     return () => {
-      if (audioObj) audioObj.pause()
+      if (audioRef.current) audioRef.current.pause()
     }
   }, [])
 
   const handleTogglePreview = (song) => {
     playClick()
     if (playingId === song.id) {
-      if (audioObj) audioObj.pause()
+      if (audioRef.current) audioRef.current.pause()
+      audioRef.current = null
       setPlayingId(null)
-      setAudioObj(null)
     } else {
-      if (audioObj) audioObj.pause()
+      if (audioRef.current) audioRef.current.pause()
       const a = new Audio(song.src)
+      audioRef.current = a
       a.play().catch((e) => console.warn('Audio play error:', e))
-      a.onended = () => setPlayingId(null)
-      setAudioObj(a)
+      a.onended = () => {
+        audioRef.current = null
+        setPlayingId(null)
+      }
       setPlayingId(song.id)
     }
   }

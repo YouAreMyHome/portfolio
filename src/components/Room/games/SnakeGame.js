@@ -10,9 +10,9 @@ import {
   GAME_COLORS,
   FONTS,
   drawUtils,
+  getGameLang,
 } from './constants'
 
-const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
 const SNAKE_TEXTS = {
   en: {
     pressSpace: 'Press SPACE to Start',
@@ -39,7 +39,7 @@ const SNAKE_TEXTS = {
     exit: 'ESC để thoát',
   },
 }
-const stx = (key) => { const l = getLang(); return (SNAKE_TEXTS[l] || SNAKE_TEXTS.vi)[key] || key }
+const stx = (key) => { const l = getGameLang(); return (SNAKE_TEXTS[l] || SNAKE_TEXTS.vi)[key] || key }
 
 // Snake constants
 const CELL_SIZE = 13

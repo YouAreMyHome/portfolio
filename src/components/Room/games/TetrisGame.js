@@ -6,9 +6,7 @@
  *   Panel : x=142 onwards                    → score, next piece, controls
  */
 
-import { CANVAS_WIDTH, CANVAS_HEIGHT, GAME_COLORS } from './constants'
-
-const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+import { CANVAS_WIDTH, CANVAS_HEIGHT, GAME_COLORS, getGameLang } from './constants'
 const TETRIS_TEXTS = {
   en: {
     score: 'SCORE',
@@ -35,7 +33,7 @@ const TETRIS_TEXTS = {
     restartHint: 'SPACE để chơi lại  |  ESC để thoát',
   },
 }
-const ttx = (key) => { const l = getLang(); return (TETRIS_TEXTS[l] || TETRIS_TEXTS.vi)[key] }
+const ttx = (key) => { const l = getGameLang(); return (TETRIS_TEXTS[l] || TETRIS_TEXTS.vi)[key] }
 
 // ── Constants ────────────────────────────────────────────────────────────────
 

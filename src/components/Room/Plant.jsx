@@ -151,7 +151,7 @@ const succulentCenterMat = new THREE.MeshStandardMaterial({ color: '#bbf7d0', ro
 function SucculentPlant() {
   const plantRef = useRef()
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }) => {
     if (!plantRef.current) return
     const t = clock.elapsedTime
     plantRef.current.rotation.y = Math.sin(t * 0.3) * 0.01

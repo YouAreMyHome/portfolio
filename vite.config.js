@@ -66,6 +66,7 @@ export default defineConfig(({ mode }) => {
             'vendor-r3f': ['@react-three/fiber', '@react-three/drei'],
             'vendor-animation': ['gsap', 'framer-motion'],
             'vendor-state': ['zustand'],
+            'vendor-supabase': ['@supabase/supabase-js'],
           },
           // Add asset size limits
           assetFileNames: (assetInfo) => {

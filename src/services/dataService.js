@@ -4,8 +4,6 @@ import {
   aboutMe as defaultAboutMe,
   skills as defaultSkills,
   projects as defaultProjects,
-  experience as defaultExperience,
-  education as defaultEducation,
 } from '../data/portfolio'
 import { playlist as defaultPlaylist } from '../data/playlist'
 

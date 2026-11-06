@@ -141,3 +141,12 @@ export const STORAGE_KEYS = {
   DINO_HIGH_SCORE: 'dinoHighScore',
   TETRIS_HIGH_SCORE: 'tetrisHighScore',
 }
+
+// Unified game language detection
+export const getGameLang = () => {
+  try {
+    return localStorage.getItem('nghia-lang') || 'vi'
+  } catch {
+    return 'vi'
+  }
+}

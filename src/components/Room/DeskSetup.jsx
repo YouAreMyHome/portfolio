@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { RoundedBox, useHelper } from '@react-three/drei'
+import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 import { COLORS } from './colors'
 import useStore from '../../store/useStore'
@@ -79,7 +79,7 @@ function drawCodeEditor(ctx, showCursor) {
   ctx.fillRect(0, 0, 35, H)
   
   // Activity bar icons (VS Code style)
-  const icons = ['â—‡', 'â—‹', 'âŒ¥', 'â–¸', 'â–¡']
+  const icons = ['◇', '○', '⌥', '▸', '□']
   ctx.font = '14px Consolas, monospace'
   icons.forEach((icon, i) => {
     ctx.fillText(icon, 10, 30 + i * 35)
@@ -92,7 +92,7 @@ function drawCodeEditor(ctx, showCursor) {
   // File tree
   ctx.fillStyle = '#cccccc'
   ctx.font = '10px Consolas, monospace'
-  const files = ['â–¼ src', '  â—‡ App.jsx', '  â—‡ index.js', '  â–¼ components', '    â—‡ Room.jsx', 'â—‡ package.json']
+  const files = ['▼ src', '  ◇ App.jsx', '  ◇ index.js', '  ▼ components', '    ◇ Room.jsx', '◇ package.json']
   files.forEach((file, i) => {
     ctx.fillStyle = i === 1 ? '#ffffff' : '#cccccc'
     ctx.fillText(file, 42, 25 + i * 16)
@@ -374,7 +374,7 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
         <meshBasicMaterial color="#4ade80" toneMapped={false} />
       </mesh>
 
-      {/* Monitor stand â€” áº©n khi arm-mounted */}
+      {/* Monitor stand — áº©n khi arm-mounted */}
       {!noStand && (
         <group position={[0, -0.27, -0.02]}>
           <mesh castShadow>
@@ -423,11 +423,11 @@ function DeskSetup({ onProjectClick }) {
     <group position={[-2.8, 0, -2.5]} rotation={[0, Math.PI / 4, 0]}>
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          PC TOWER â€” sÃ n nhÃ  bÃªn pháº£i bÃ n
-          Chiá»u cao 0.54, Ä‘áº·t ngay cáº¡nh chÃ¢n bÃ n pháº£i
+          PC TOWER — sÃ n nhÃ  bÃªn pháº£i bÃ n
+          Chiá»u cao 0.54, Ä‘áº·t ngay cáº¡nh chÃ¢n bÃ n pháº£i
           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <group position={[1.08, 0, 0.08]}>
-        {/* ThÃ¢n case ATX */}
+        {/* Thân case ATX */}
         <RoundedBox args={[0.23, 0.52, 0.48]} radius={0.014} smoothness={4} castShadow position={[0, 0.26, 0]}>
           <meshStandardMaterial color="#0c0c12" metalness={0.5} roughness={0.3} />
         </RoundedBox>
@@ -468,7 +468,7 @@ function DeskSetup({ onProjectClick }) {
           <meshBasicMaterial color="#818cf8" transparent opacity={0.7} />
         </mesh>
 
-        {/* Logo kháº¯c trÃªn kÃ­nh */}
+        {/* Logo khắc trên kính */}
         <mesh position={[-0.118, 0.28, 0]} rotation={[0, -Math.PI / 2, 0]}>
           <planeGeometry args={[0.038, 0.038]} />
           <meshBasicMaterial color="#6366f1" transparent opacity={0.55} />
@@ -492,7 +492,7 @@ function DeskSetup({ onProjectClick }) {
           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <group position={[0, DESK_H, 0]}>
 
-        {/* Máº·t bÃ n dark walnut */}
+        {/* Máº·t bÃ n dark walnut */}
         <RoundedBox args={[2.3, 0.05, 1.1]} radius={0.013} smoothness={4} castShadow receiveShadow>
           <meshStandardMaterial color="#1c1008" roughness={0.58} />
         </RoundedBox>
@@ -501,7 +501,7 @@ function DeskSetup({ onProjectClick }) {
           <boxGeometry args={[2.28, 0.001, 1.08]} />
           <meshStandardMaterial color="#2a180c" roughness={0.72} />
         </mesh>
-        {/* Cáº¡nh trÆ°á»›c accent strip */}
+        {/* Cạnh trước accent strip */}
         <mesh position={[0, -0.003, 0.548]}>
           <boxGeometry args={[2.27, 0.044, 0.005]} />
           <meshStandardMaterial color="#0f0804" roughness={0.35} />
@@ -512,7 +512,7 @@ function DeskSetup({ onProjectClick }) {
           <meshStandardMaterial color="#080808" roughness={0.96} />
         </mesh>
 
-        {/* Desk mat lá»›n */}
+        {/* Desk mat lớn */}
         <mesh position={[-0.02, 0.027, 0.19]} receiveShadow>
           <boxGeometry args={[1.55, 0.005, 0.66]} />
           <meshStandardMaterial color="#141418" roughness={0.95} />
@@ -523,36 +523,36 @@ function DeskSetup({ onProjectClick }) {
           <meshBasicMaterial color="#6366f1" transparent opacity={0.6} />
         </mesh>
 
-        {/* â”€â”€ MONITOR ARM (VESA dual) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── MONITOR ARM (VESA dual) ──────────────── */}
         <group position={[0.06, 0.027, -0.43]}>
-          {/* Clamp bÃ n */}
+          {/* Clamp bÃ n */}
           <mesh position={[0, 0.02, 0]}>
             <boxGeometry args={[0.052, 0.04, 0.052]} />
             <meshStandardMaterial color="#0f172a" metalness={0.75} roughness={0.3} />
           </mesh>
-          {/* Trá»¥ Ä‘á»©ng */}
+          {/* Trụ đứng */}
           <mesh position={[0, 0.31, 0]} castShadow>
             <cylinderGeometry args={[0.013, 0.015, 0.62, 12]} />
             <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.18} />
           </mesh>
-          {/* Khá»›p Ä‘á»‰nh */}
+          {/* Khớp đỉnh */}
           <mesh position={[0, 0.6, 0]}>
             <sphereGeometry args={[0.019, 10, 10]} />
             <meshStandardMaterial color="#334155" metalness={0.8} roughness={0.2} />
           </mesh>
-          {/* CÃ¡nh tay trÃ¡i */}
+          {/* Cánh tay trái */}
           <group position={[-0.24, 0.59, 0]}>
             <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
               <cylinderGeometry args={[0.008, 0.008, 0.48, 8]} />
               <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
             </mesh>
-            {/* Drop-down VESA trÃ¡i */}
+            {/* Drop-down VESA trái */}
             <mesh position={[-0.16, -0.07, 0.06]}>
               <cylinderGeometry args={[0.006, 0.006, 0.14, 8]} />
               <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
             </mesh>
           </group>
-          {/* CÃ¡nh tay pháº£i */}
+          {/* Cánh tay phải */}
           <group position={[0.24, 0.59, 0]}>
             <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
               <cylinderGeometry args={[0.008, 0.008, 0.48, 8]} />
@@ -565,7 +565,7 @@ function DeskSetup({ onProjectClick }) {
           </group>
         </group>
 
-        {/* â”€â”€ MONITORS (arm-mounted, khÃ´ng stand) â”€â”€ */}
+        {/* ── MONITORS (arm-mounted, không stand) ── */}
         <Monitor
           type="code"
           position={[-0.44, 0.44, -0.27]}
@@ -580,7 +580,7 @@ function DeskSetup({ onProjectClick }) {
           noStand
         />
 
-        {/* â”€â”€ KEYBOARD (mechanical, per-key RGB) â”€â”€ */}
+        {/* ── KEYBOARD (mechanical, per-key RGB) ── */}
         <group position={[0, 0.036, 0.25]}>
           <RoundedBox args={[0.46, 0.022, 0.165]} radius={0.012} smoothness={4} castShadow>
             <meshStandardMaterial color="#0f172a" metalness={0.1} roughness={0.72} />
@@ -607,17 +607,17 @@ function DeskSetup({ onProjectClick }) {
           <pointLight ref={kbRgbRef} intensity={0.25} distance={0.35} position={[0, -0.008, 0.04]} />
         </group>
 
-        {/* â”€â”€ MOUSE (ergonomic) â”€â”€ */}
+        {/* ── MOUSE (ergonomic) ── */}
         <group position={[0.36, 0.04, 0.25]}>
           <RoundedBox args={[0.062, 0.03, 0.105]} radius={0.018} smoothness={6} castShadow>
             <meshStandardMaterial color="#0c0c12" roughness={0.35} metalness={0.2} />
           </RoundedBox>
-          {/* NÃºt trÃ¡i */}
+          {/* Nút trái */}
           <mesh position={[-0.015, 0.016, -0.022]}>
             <boxGeometry args={[0.025, 0.004, 0.052]} />
             <meshStandardMaterial color="#1a1a1e" />
           </mesh>
-          {/* NÃºt pháº£i */}
+          {/* Nút phải */}
           <mesh position={[0.015, 0.016, -0.022]}>
             <boxGeometry args={[0.025, 0.004, 0.052]} />
             <meshStandardMaterial color="#181820" />
@@ -634,7 +634,7 @@ function DeskSetup({ onProjectClick }) {
           </mesh>
         </group>
 
-        {/* â”€â”€ LOA TRÃI (Studio monitor, hÆ°á»›ng ra phÃ­a trÆ°á»›c) â”€â”€ */}
+        {/* ── LOA TRÃI (Studio monitor, hÆ°á»›ng ra phÃ­a trÆ°á»›c) ── */}
         <group position={[-0.88, 0.125, -0.18]}>
           <RoundedBox args={[0.088, 0.2, 0.12]} radius={0.01} castShadow>
             <meshStandardMaterial color="#0a0a0c" roughness={0.62} metalness={0.1} />
@@ -657,7 +657,7 @@ function DeskSetup({ onProjectClick }) {
             <circleGeometry args={[0.022, 22]} />
             <meshStandardMaterial color="#1e1e24" />
           </mesh>
-          {/* Badge vÃ ng */}
+          {/* Badge vÃ ng */}
           <mesh position={[0, 0.088, 0.062]}>
             <boxGeometry args={[0.038, 0.007, 0.001]} />
             <meshStandardMaterial color="#fbbf24" roughness={0.4} />
@@ -669,7 +669,7 @@ function DeskSetup({ onProjectClick }) {
           </mesh>
         </group>
 
-        {/* â”€â”€ LOA PHáº¢I â”€â”€ */}
+        {/* ── LOA PHẢI ── */}
         <group position={[0.68, 0.125, -0.18]}>
           <RoundedBox args={[0.088, 0.2, 0.12]} radius={0.01} castShadow>
             <meshStandardMaterial color="#0a0a0c" roughness={0.62} metalness={0.1} />
@@ -696,24 +696,24 @@ function DeskSetup({ onProjectClick }) {
           </mesh>
         </group>
 
-        {/* â”€â”€ ÄÃˆN BÃ€N LED BAR â”€â”€ */}
+        {/* ── ÄÃˆN BÃ€N LED BAR ── */}
         <group position={[-0.08, 0.025, -0.40]}>
           {/* Äáº¿ trÃ²n */}
           <mesh position={[0, 0.012, 0]}>
             <cylinderGeometry args={[0.036, 0.043, 0.022, 14]} />
             <meshStandardMaterial color="#0f172a" metalness={0.76} roughness={0.28} />
           </mesh>
-          {/* Cá»™t Ä‘á»©ng */}
+          {/* Cột đứng */}
           <mesh position={[0, 0.245, 0]} castShadow>
             <cylinderGeometry args={[0.009, 0.011, 0.46, 10]} />
             <meshStandardMaterial color="#1e293b" metalness={0.82} roughness={0.2} />
           </mesh>
-          {/* Khá»›p trÃªn */}
+          {/* Khớp trên */}
           <mesh position={[0, 0.465, 0]}>
             <sphereGeometry args={[0.014, 8, 8]} />
             <meshStandardMaterial color="#334155" metalness={0.78} roughness={0.22} />
           </mesh>
-          {/* Arm ngáº¯n cháº¿ch ra phÃ­a trÆ°á»›c */}
+          {/* Arm ngắn chếch ra phía trước */}
           <group position={[0.08, 0.465, 0.04]} rotation={[-0.3, 0, 0]}>
             <mesh position={[0, 0, 0.085]}>
               <cylinderGeometry args={[0.007, 0.007, 0.18, 8]} />
@@ -748,19 +748,19 @@ function DeskSetup({ onProjectClick }) {
           </group>
         </group>
 
-        {/* â”€â”€ LY CÃ€ PHÃŠ â”€â”€ */}
+        {/* ── LY CÀ PHÊ ── */}
         <group position={[0.82, 0.024, 0.34]}>
           {/* ÄÄ©a lÃ³t */}
           <mesh position={[0, 0.007, 0]} castShadow>
             <cylinderGeometry args={[0.038, 0.042, 0.012, 18]} />
             <meshStandardMaterial color="#f1f5f9" roughness={0.22} />
           </mesh>
-          {/* ThÃ¢n ly */}
+          {/* Thân ly */}
           <mesh position={[0, 0.054, 0]} castShadow>
             <cylinderGeometry args={[0.019, 0.016, 0.062, 16]} />
             <meshStandardMaterial color="#f1f5f9" roughness={0.22} />
           </mesh>
-          {/* CÃ  phÃª */}
+          {/* CÃ  phÃª */}
           <mesh position={[0, 0.083, 0]}>
             <cylinderGeometry args={[0.017, 0.017, 0.003, 14]} />
             <meshStandardMaterial color="#1a0800" roughness={0.78} />
@@ -777,9 +777,9 @@ function DeskSetup({ onProjectClick }) {
           </mesh>
         </group>
 
-        {/* â”€â”€ LAPTOP (Ä‘Ã³ng, trÃªn laptop stand nhÃ´m) â”€â”€ */}
+        {/* ── LAPTOP (đóng, trên laptop stand nhôm) ── */}
         <group position={[-0.87, 0.025, 0.1]}>
-          {/* Stand bar trÆ°á»›c */}
+          {/* Stand bar trước */}
           <mesh position={[0, 0.022, 0.038]} rotation={[-0.2, 0, 0]} castShadow>
             <boxGeometry args={[0.21, 0.007, 0.055]} />
             <meshStandardMaterial color="#2d3748" metalness={0.74} roughness={0.2} />
@@ -805,7 +805,7 @@ function DeskSetup({ onProjectClick }) {
       </group>
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          CHÃ‚N BÃ€N â€” Hairpin legs (2 thanh má»—i chÃ¢n)
+          CHÃ‚N BÃ€N — Hairpin legs (2 thanh má»—i chÃ¢n)
           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {[[-1.02, -0.42], [-1.02, 0.42], [1.02, -0.42], [1.02, 0.42]].map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>

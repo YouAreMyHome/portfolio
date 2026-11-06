@@ -19,7 +19,7 @@ export default function SleepHUD() {
   const toggleDeskLamp = useStore((state) => state.toggleDeskLamp)
 
   const { playClick, playSound } = useSounds()
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isVi = i18n.language === 'vi'
 
   const [simulatedTime, setSimulatedTime] = useState('23:45')
@@ -76,7 +76,7 @@ export default function SleepHUD() {
           </div>
           <div>
             <h3 className="sleep-hud-title">
-              {isVi ? 'Chế Độ Giấc Ngủ' : 'Deep Sleep Mode'}
+              {isVi ? 'Chế Độ Giấc Ngủ' : 'Deep Sleep Mode'} • {simulatedTime}
             </h3>
             <span className="sleep-hud-subtitle">
               {isCharacterSleeping

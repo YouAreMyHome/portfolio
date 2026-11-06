@@ -4,7 +4,14 @@
  * Two paddles, one ball, first to score wins!
  */
 
-const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  GAME_COLORS,
+  FONTS,
+  getGameLang,
+} from './constants'
+
 const PONG_TEXTS = {
   en: {
     subtitle: 'Classic Arcade Game',
@@ -36,13 +43,10 @@ const PONG_TEXTS = {
   },
 }
 const ptx = (key, ...args) => {
-  const l = getLang()
+  const l = getGameLang()
   const t = (PONG_TEXTS[l] || PONG_TEXTS.vi)[key]
   return typeof t === 'function' ? t(...args) : (t || key)
 }
-
-const CANVAS_WIDTH = 460
-const CANVAS_HEIGHT = 260
 
 // Game constants
 const PADDLE_WIDTH = 10

@@ -4,7 +4,14 @@
  * Classic endless runner - jump over obstacles!
  */
 
-const getLang = () => { try { return localStorage.getItem('nghia-lang') || 'vi' } catch { return 'vi' } }
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  GAME_COLORS,
+  FONTS,
+  getGameLang,
+} from './constants'
+
 const DINO_TEXTS = {
   en: {
     pressJump: 'Press SPACE or ↑ to Jump',
@@ -33,10 +40,7 @@ const DINO_TEXTS = {
     exit: 'ESC để thoát',
   },
 }
-const dtx = (key) => { const l = getLang(); return (DINO_TEXTS[l] || DINO_TEXTS.vi)[key] || key }
-
-const CANVAS_WIDTH = 460
-const CANVAS_HEIGHT = 260
+const dtx = (key) => { const l = getGameLang(); return (DINO_TEXTS[l] || DINO_TEXTS.vi)[key] || key }
 
 // Game constants
 const GROUND_Y = 200
@@ -124,7 +128,7 @@ export function createDinoState() {
  * Calculate jump height at current speed
  * Dùng để đảm bảo obstacles có thể nhảy qua được
  */
-function getMaxJumpHeight() {
+function _getMaxJumpHeight() {
   // Physics: v² = v0² + 2*a*s => s = v0² / (2*g)
   const jumpHeight = (JUMP_FORCE * JUMP_FORCE) / (2 * GRAVITY)
   return jumpHeight

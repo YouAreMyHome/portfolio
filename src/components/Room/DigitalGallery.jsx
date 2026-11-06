@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, memo } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import InteractiveObject from './InteractiveObject'
@@ -93,6 +93,17 @@ function DigitalGallery({
     }
   }, [imageCount])
   
+  // Chuyển ảnh tiếp theo
+  const nextImage = useCallback(() => {
+    if (isTransitioning || imageCount === 0) return
+    
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % imageCount)
+      setIsTransitioning(false)
+    }, 300)
+  }, [isTransitioning, imageCount])
+
   // Auto slideshow
   useEffect(() => {
     if (!autoSlide || !texturesLoaded) return
@@ -102,18 +113,7 @@ function DigitalGallery({
     }, slideInterval)
     
     return () => clearInterval(interval)
-  }, [autoSlide, slideInterval, texturesLoaded, currentIndex])
-  
-  // Chuyển ảnh tiếp theo
-  const nextImage = () => {
-    if (isTransitioning || imageCount === 0) return
-    
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % imageCount)
-      setIsTransitioning(false)
-    }, 300)
-  }
+  }, [autoSlide, slideInterval, texturesLoaded, nextImage])
   
   // Animation cho glow effect
   useFrame((state) => {

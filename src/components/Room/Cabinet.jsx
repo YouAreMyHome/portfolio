@@ -18,7 +18,6 @@ const cabinetBrassMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metal
 
 function Cabinet() {
   const oakColor = '#b38455'
-  const oakDark = '#8a623c'
   const brassColor = '#d4af37'
 
   return (

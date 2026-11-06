@@ -421,8 +421,8 @@ function Bed() {
             <cylinderGeometry args={[0.085, 0.13, 0.17, 24, 1, true]} />
             <meshStandardMaterial
               color={isNight ? '#fef3c7' : '#f8fafc'}
-              emissive={isNight ? '#fde68a' : lightingPreset === 'sunset' ? '#f59e0b' : '#000000'}
-              emissiveIntensity={isNight ? 1.4 : lightingPreset === 'sunset' ? 0.75 : 0}
+              emissive={isNight ? '#f59e0b' : lightingPreset === 'sunset' ? '#f59e0b' : '#000000'}
+              emissiveIntensity={isNight ? 0.72 : lightingPreset === 'sunset' ? 0.5 : 0}
               toneMapped={false}
               side={2}
               roughness={0.7}
@@ -434,13 +434,13 @@ function Bed() {
             <meshStandardMaterial color={brassColor} metalness={0.9} roughness={0.2} />
           </mesh>
 
-          {/* Chiếu sáng 2700K tỏa ấm cúng quanh góc ngủ */}
+          {/* Chiếu sáng 2700K tỏa ấm cúng quanh góc ngủ (Dịu nhẹ, không gây cháy sáng đệm và tường) */}
           <pointLight
             position={[0, 0.24, 0]}
-            intensity={isNight ? 1.15 : lightingPreset === 'sunset' ? 0.55 : lightingPreset === 'rainy' ? 0.45 : 0.1}
-            color="#fde68a"
-            distance={3.6}
-            decay={1.8}
+            intensity={isNight ? 0.35 : lightingPreset === 'sunset' ? 0.28 : lightingPreset === 'rainy' ? 0.22 : 0.08}
+            color="#fcd34d"
+            distance={2.4}
+            decay={2.0}
           />
         </group>
 

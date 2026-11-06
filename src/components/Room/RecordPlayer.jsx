@@ -74,7 +74,6 @@ function RecordPlayer({ position = [-0.3, 0, -3.6] }) {
   const walnutDark = '#56341a'
   const walnutWarm = '#8b5934'
   const champagneBrass = '#d4af37'
-  const brassMuted = '#b8972e'
   const brushedSteel = '#888d92'
 
   return (

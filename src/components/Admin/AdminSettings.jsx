@@ -18,7 +18,7 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
   const { playClick, playSuccess } = useSounds()
-  const isConfigured = isSupabaseConfigured()
+  const _isConfigured = isSupabaseConfigured()
 
   useEffect(() => {
     dataService.getProfile().then((data) => {

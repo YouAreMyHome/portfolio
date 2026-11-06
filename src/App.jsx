@@ -1,7 +1,9 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
 import { OrbitControls } from '@react-three/drei'
 import { Analytics } from '@vercel/analytics/react'
+import { track } from '@vercel/analytics'
 import { Hand, RotateCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ErrorBoundary, WebGLErrorBoundary } from './components/UI/ErrorBoundary'
@@ -20,6 +22,7 @@ import { useMobile, getGraphicsSettings } from './utils/useMobile'
 import { IMAGES } from './data/images'
 import { preloadImages } from './utils/preloadImages'
 import { clearLoadingMarks, mark, measure } from './utils/loadingMetrics'
+import { eventBus, APP_EVENTS } from './utils/eventBus'
 
 // Lazy load UI overlay components
 const PanelOverlay = lazy(() => import('./components/UI/PanelOverlay'))
@@ -59,16 +62,44 @@ function BackgroundController() {
   return null
 }
 
-// Sound system connector
+// Sound system connector - connects Web Audio and Analytics via AppEventBus
 function SoundSystem() {
-  const setSoundTrigger = useStore((state) => state.setSoundTrigger)
   const { playSound } = useSounds()
 
   useEffect(() => {
-    setSoundTrigger(playSound)
-  }, [setSoundTrigger, playSound])
+    const unsubAudio = eventBus.on(APP_EVENTS.AUDIO_PLAY, (name) => {
+      playSound(name)
+    })
+    const unsubAnalytics = eventBus.on(APP_EVENTS.ANALYTICS_TRACK, ({ name, properties }) => {
+      try {
+        track(name, properties)
+      } catch {}
+    })
+    return () => {
+      unsubAudio()
+      unsubAnalytics()
+    }
+  }, [playSound])
 
   return null
+}
+
+// Dynamic scene background mượt mà đồng bộ 100% với body
+function SmoothSceneBackground({ targetColor }) {
+  const { scene } = useThree()
+  const targetColorObj = useRef(new THREE.Color(targetColor))
+
+  useEffect(() => {
+    targetColorObj.current.set(targetColor)
+  }, [targetColor])
+
+  useFrame((_, delta) => {
+    if (scene.background && scene.background.isColor) {
+      scene.background.lerp(targetColorObj.current, 1 - Math.exp(-3.5 * delta))
+    }
+  })
+
+  return <color attach="background" args={[targetColor]} />
 }
 
 // Scene component - chứa tất cả 3D elements
@@ -89,10 +120,7 @@ function Scene({ isNightMode, graphics = {} }) {
   })
 
   const {
-    softShadows = true,
     postProcessing = true,
-    shadowSamples = 16,
-    shadowSize = 25,
   } = graphics
 
   const activePreset = isNightMode ? 'night' : (lightingPreset || 'morning')
@@ -100,8 +128,8 @@ function Scene({ isNightMode, graphics = {} }) {
 
   return (
     <>
-      {/* Dynamic scene background đồng bộ 100% với body */}
-      <color attach="background" args={[sceneBgColor]} />
+      {/* Dynamic scene background chuyển màu nhung mượt mà */}
+      <SmoothSceneBackground targetColor={sceneBgColor} />
 
       <Suspense fallback={null}>
         {/* Dynamic Lighting */}
@@ -281,7 +309,7 @@ function AppContent() {
             depth: true
           }}
           dpr={graphics.pixelRatio}
-          onCreated={({ gl, camera }) => {
+          onCreated={({ camera }) => {
             camera.lookAt(0, 0, 0)
           }}
         >

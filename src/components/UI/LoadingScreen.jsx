@@ -172,6 +172,9 @@ function LoadingScreen() {
     hasEnteredRoom,
     criticalAssetsFailed,
     criticalAssetsTotal,
+    playSuccess,
+    setLoadingMetrics,
+    setShowWelcome,
   ])
 
   if (hasEnteredRoom || hideAll) return null

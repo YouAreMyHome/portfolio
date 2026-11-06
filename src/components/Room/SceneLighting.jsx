@@ -114,27 +114,27 @@ function SceneLighting() {
       underDesk: { intensity: 0.35, color: '#06b6d4' },
     },
     night: {
-      // Ban đêm: Không gian nhung lam lãng mạn, ấm áp, chill và hiện đại
-      // Tuyệt đối không để phòng tối đen; cân bằng hài hòa giữa ánh trăng dịu và hệ thống đèn nội thất
-      ambient: { intensity: 0.66, color: '#272948' },
+      // Ban đêm: Không gian nhung lam lãng mạn, ấm áp, chill và hiện đại (Cinematic Velvet Midnight)
+      // Cân bằng hài hòa giữa ánh trăng dịu và hệ thống đèn nội thất, triệt tiêu hoàn toàn hiện tượng cháy sáng cục bộ
+      ambient: { intensity: 0.72, color: '#282b4a' }, // Ánh sáng nhung lam huyền ảo giúp toàn bộ phòng có chi tiết mềm mại
       directional: {
-        intensity: 0.48,
-        color: '#93c5fd', // Ánh trăng bàng bạc
+        intensity: 0.42,
+        color: '#93c5fd', // Ánh trăng bàng bạc tự nhiên xuyên cửa sổ
         pos: [-2.6, 6.5, -6.8],
         target: [-0.6, 0.3, -0.6],
-        shadowRadius: 4.2,
+        shadowRadius: 5.0,
         shadowBias: -0.0001,
         shadowNormalBias: 0.032,
       },
-      window: { intensity: 0.65, color: '#60a5fa' }, // Vệt trăng rọi qua cửa sổ
-      rim: { intensity: 0.36, color: '#a5b4fc' }, // Tôn viền khối 3D
-      monitorBias: { intensity: 1.15, color: '#38bdf8' }, // Lo-fi Cyan bias hắt sau màn hình
-      bedsideLamp: { intensity: 1.45, color: '#fde68a' }, // Đèn ngủ mật ong ấm cúng (2700K)
-      bedUnderglow: { intensity: 0.85, color: '#fbbf24' }, // Floating bed Japandi LED
-      roomBounce: { intensity: 0.48, color: '#fde68a' }, // Phản xạ sàn gỗ & thảm len
-      stringLights: { intensity: 0.90, color: '#fef08a' }, // Đèn dây trang trí lung linh
-      artAccent: { intensity: 0.45, color: '#fef3c7' }, // Đèn rọi tường tranh
-      underDesk: { intensity: 0.50, color: '#06b6d4' }, // Cyber under-desk glow
+      window: { intensity: 0.55, color: '#60a5fa' }, // Vệt trăng rọi qua cửa sổ
+      rim: { intensity: 0.32, color: '#a5b4fc' }, // Tôn viền khối 3D mềm mại
+      monitorBias: { intensity: 0.85, color: '#38bdf8' }, // Lo-fi Cyan bias dịu nhẹ hắt sau màn hình
+      bedsideLamp: { intensity: 0.48, color: '#f59e0b' }, // Đèn ngủ mật ong ấm cúng (2200K), êm dịu không chói mắt
+      bedUnderglow: { intensity: 0.55, color: '#f59e0b' }, // Dải LED hổ phách hắt chân giường Japandi
+      roomBounce: { intensity: 0.58, color: '#fed7aa' }, // Phản xạ sàn gỗ & thảm len ấm áp, làm nổi bật trung tâm phòng
+      stringLights: { intensity: 0.35, color: '#fbbf24' }, // Ánh sáng vàng hổ phách dịu của đèn dây
+      artAccent: { intensity: 0.28, color: '#fef3c7' }, // Đèn rọi tường tranh thanh nhã
+      underDesk: { intensity: 0.38, color: '#06b6d4' }, // Cyber under-desk glow vừa đủ
     },
   }
 
@@ -156,9 +156,10 @@ function SceneLighting() {
     }
   }, [])
 
-  // Smooth frame loop transitions (Zero GC Allocation)
+  // Smooth frame loop transitions với Exponential Damping mượt mà (Framerate-independent)
   useFrame((_, delta) => {
-    const factor = Math.min(1, delta * 4)
+    const factor = 1 - Math.exp(-2.6 * delta)
+    const lampFactor = 1 - Math.exp(-6 * delta)
 
     // 1. Ambient Light
     if (ambientRef.current) {
@@ -220,13 +221,13 @@ function SceneLighting() {
       rimLightRef.current.color.lerp(_tempColor, factor)
     }
 
-    // 5. Desk Task Lamp
+    // 5. Desk Task Lamp (Êm dịu như bóng đèn sợi đốt)
     if (deskLampRef.current) {
       const targetLamp = deskLampOn ? 1.25 : isNight ? 0.35 : 0.0
       deskLampRef.current.intensity = THREE.MathUtils.lerp(
         deskLampRef.current.intensity,
         targetLamp,
-        Math.min(1, delta * 8)
+        lampFactor
       )
     }
 
@@ -393,14 +394,14 @@ function SceneLighting() {
         decay={1.8}
       />
 
-      {/* ── 8. BEDSIDE READING LAMP (Ngọn hải đăng ấm áp 2700K đầu giường) ── */}
+      {/* ── 8. BEDSIDE READING LAMP (Ngọn hải đăng ấm áp 2200K đầu giường) ── */}
       <pointLight
         ref={bedsideLampRef}
         position={[-3.4, 0.85, 0.35]}
         intensity={targetConfig.bedsideLamp.intensity}
         color={targetConfig.bedsideLamp.color}
-        distance={4.8}
-        decay={1.6}
+        distance={4.0}
+        decay={2.0}
       />
 
       {/* ── 9. FLOATING BED JAPANDI LED UNDERGLOW (Dải LED hổ phách hắt chân giường) ── */}
@@ -410,7 +411,7 @@ function SceneLighting() {
         intensity={targetConfig.bedUnderglow.intensity}
         color={targetConfig.bedUnderglow.color}
         distance={3.2}
-        decay={1.8}
+        decay={2.0}
       />
 
       {/* ── 10. ROOM CENTER DIFFUSE BOUNCE (Ánh sáng phản hồi từ sàn gỗ sồi & thảm len) ── */}
@@ -423,24 +424,24 @@ function SceneLighting() {
         decay={1.8}
       />
 
-      {/* ── 11. DREAMY FAIRY LIGHTS WALL WASH (Dải đèn dây decor lung linh) ── */}
+      {/* ── 11. DREAMY FAIRY LIGHTS WALL WASH (Dải đèn dây phủ dịu vào lòng phòng, triệt tiêu vệt cháy tường) ── */}
       <pointLight
         ref={stringLightsRef}
-        position={[-3.8, 2.4, 0]}
-        intensity={stringLightsOn ? 1.2 : targetConfig.stringLights.intensity}
+        position={[-3.35, 2.3, 0]}
+        intensity={stringLightsOn ? 0.65 : targetConfig.stringLights.intensity}
         color={targetConfig.stringLights.color}
-        distance={4.5}
-        decay={1.8}
+        distance={4.8}
+        decay={2.0}
       />
 
       {/* ── 12. ART WALL & PLAN BOARD DOWNLIGHT (Đèn rọi tranh & Bảng kỹ năng) ── */}
       <pointLight
         ref={artWallAccentRef}
-        position={[-3.6, 2.5, 1.2]}
+        position={[-3.5, 2.4, 1.2]}
         intensity={targetConfig.artAccent.intensity}
         color={targetConfig.artAccent.color}
-        distance={3.2}
-        decay={1.8}
+        distance={3.0}
+        decay={2.0}
       />
     </>
   )

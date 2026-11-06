@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Download, X, Sparkles, RefreshCw } from 'lucide-react'
 import useStore from '../../store/useStore'
@@ -14,7 +14,7 @@ export default function PhotoMode() {
   const [snapshotUrl, setSnapshotUrl] = useState(null)
   const [capturing, setCapturing] = useState(false)
 
-  const capturePhoto = () => {
+  const capturePhoto = useCallback(() => {
     setCapturing(true)
     playClick()
 
@@ -32,7 +32,7 @@ export default function PhotoMode() {
       }
       setCapturing(false)
     }, 200)
-  }
+  }, [playClick, playSuccess])
 
   useEffect(() => {
     if (showPhotoMode) {
@@ -40,7 +40,7 @@ export default function PhotoMode() {
     } else {
       setSnapshotUrl(null)
     }
-  }, [showPhotoMode])
+  }, [showPhotoMode, capturePhoto])
 
   const downloadPhoto = () => {
     if (!snapshotUrl) return

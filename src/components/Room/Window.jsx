@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
@@ -323,6 +323,57 @@ function RainGlassDrops() {
   )
 }
 
+// ─── Dual-layer Smooth Scenic Backdrop (Hòa trộn mượt khi chuyển khung cảnh) ───
+function ScenicBackdrop({ activePreset }) {
+  const [currentPreset, setCurrentPreset] = useState(activePreset)
+  const [prevPreset, setPrevPreset] = useState(null)
+  const opacityRef = useRef(1)
+  const frontMatRef = useRef()
+
+  useEffect(() => {
+    if (activePreset !== currentPreset) {
+      setPrevPreset(currentPreset)
+      setCurrentPreset(activePreset)
+      opacityRef.current = 0
+    }
+  }, [activePreset, currentPreset])
+
+  useFrame((_, delta) => {
+    if (opacityRef.current < 1) {
+      opacityRef.current = Math.min(1, opacityRef.current + delta * 1.6)
+      if (frontMatRef.current) {
+        frontMatRef.current.opacity = opacityRef.current
+      }
+    }
+  })
+
+  const currentTex = useMemo(() => getSceneryTexture(currentPreset), [currentPreset])
+  const prevTex = useMemo(() => (prevPreset ? getSceneryTexture(prevPreset) : null), [prevPreset])
+
+  return (
+    <group position={[0, 0.04, 0.038]}>
+      {/* Lớp nền phong cảnh trước đó để hòa trộn mượt mà */}
+      {prevTex && (
+        <mesh position={[0, 0, -0.001]}>
+          <planeGeometry args={[1.18, 1.52]} />
+          <meshBasicMaterial map={prevTex} toneMapped={false} />
+        </mesh>
+      )}
+      {/* Lớp phong cảnh mới hòa tan êm ái */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[1.18, 1.52]} />
+        <meshBasicMaterial
+          ref={frontMatRef}
+          map={currentTex}
+          toneMapped={false}
+          transparent={Boolean(prevTex)}
+          opacity={prevTex ? opacityRef.current : 1}
+        />
+      </mesh>
+    </group>
+  )
+}
+
 /**
  * Window - Scandinavian Casement Window with Atmospheric Scenic Vista
  * - 100% contained canvas scenery texture that can never bleed onto the room walls
@@ -335,11 +386,6 @@ function Window() {
   const lightingPreset = useStore((state) => state.lightingPreset)
   const activePreset = isNightMode ? 'night' : lightingPreset || 'morning'
 
-  // Procedural scenic vista texture (zero re-allocation via module cache)
-  const sceneryTexture = useMemo(() => {
-    return getSceneryTexture(activePreset)
-  }, [activePreset])
-
   return (
     <group position={[-2, 1.8, -3.9]} rotation={[0, 0, 0]}>
       {/* ── 1. HỐC CỬA SỔ TRẮNG TRANG NHÃ (Wall Recess Trim) ── */}
@@ -349,10 +395,7 @@ function Window() {
       </mesh>
 
       {/* ── 2. TRANH PHONG CẢNH THIÊN NHIÊN HOÀN HẢO (100% Inset Scenic Backdrop) ── */}
-      <mesh position={[0, 0.04, 0.038]}>
-        <planeGeometry args={[1.18, 1.52]} />
-        <meshBasicMaterial map={sceneryTexture} toneMapped={false} />
-      </mesh>
+      <ScenicBackdrop activePreset={activePreset} />
 
       {/* ── 3. MẶT KÍNH CỬA SỔ TRONG SUỐT NHẸ NHÀNG (Lightweight Standard Glass Pane) ── */}
       <mesh position={[0, 0.04, 0.045]}>

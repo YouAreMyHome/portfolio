@@ -1,18 +1,28 @@
-import React, { useRef, useMemo, memo } from 'react'
+import React, { useRef, useMemo, useLayoutEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 /**
  * VolumetricAtmosphere - Hiệu ứng không khí vi mô tinh tế
- * - Hơi nước bốc lên từ cốc cà phê (Coffee Steam)
+ * - Coffee Mug Steam: Hơi nước bốc lên từ cốc cà phê
+ * Tối ưu hóa:
+ * - InstancedMesh cho các hạt hơi nước thay vì render 10 mesh riêng rẽ
+ * - 1 shared material duy nhất thay vì 10 instances trong JSX
  */
 const sharedSteamSphereGeo = new THREE.SphereGeometry(1, 6, 6)
+const steamMat = new THREE.MeshBasicMaterial({
+  color: '#ffffff',
+  transparent: true,
+  opacity: 0.08,
+  depthWrite: false,
+})
+
+const STEAM_COUNT = 10
 
 function VolumetricAtmosphere() {
-  const steamRef = useRef()
+  const steamGroupRef = useRef()
+  const instancedRef = useRef()
 
-  // Tạo hạt hơi nước từ cốc cà phê
-  const STEAM_COUNT = 10
   const steamData = useMemo(() => {
     return Array.from({ length: STEAM_COUNT }, (_, i) => ({
       x: (Math.random() - 0.5) * 0.02,
@@ -22,33 +32,34 @@ function VolumetricAtmosphere() {
     }))
   }, [])
 
-  // Animation frame loop
+  useLayoutEffect(() => {
+    if (!instancedRef.current) return
+    const dummy = new THREE.Object3D()
+    steamData.forEach((d, i) => {
+      dummy.position.set(d.x, d.y, d.z)
+      dummy.scale.set(d.scale, d.scale * 1.4, d.scale)
+      dummy.updateMatrix()
+      instancedRef.current.setMatrixAt(i, dummy.matrix)
+    })
+    instancedRef.current.instanceMatrix.needsUpdate = true
+  }, [steamData])
+
+  // Animation frame loop nhẹ nhàng
   useFrame((state) => {
-    const time = state.clock.elapsedTime
-    if (steamRef.current) {
-      steamRef.current.rotation.y = Math.sin(time * 0.8) * 0.12
+    if (steamGroupRef.current) {
+      const time = state.clock.elapsedTime
+      steamGroupRef.current.rotation.y = Math.sin(time * 0.8) * 0.12
     }
   })
 
   return (
     <group>
-      {/* ── Coffee Mug Steam ── */}
-      <group ref={steamRef} position={[-2.45, 0.84, -2.15]}>
-        {steamData.map((d, i) => (
-          <mesh
-            key={i}
-            position={[d.x, d.y, d.z]}
-            scale={[d.scale, d.scale * 1.4, d.scale]}
-            geometry={sharedSteamSphereGeo}
-          >
-            <meshBasicMaterial
-              color="#ffffff"
-              transparent
-              opacity={0.12 - (d.y / 0.2) * 0.1}
-              depthWrite={false}
-            />
-          </mesh>
-        ))}
+      {/* ── Coffee Mug Steam (Instanced Batch) ── */}
+      <group ref={steamGroupRef} position={[-2.45, 0.84, -2.15]}>
+        <instancedMesh
+          ref={instancedRef}
+          args={[sharedSteamSphereGeo, steamMat, STEAM_COUNT]}
+        />
       </group>
     </group>
   )

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import {
   Sparkles,
   Volume2,
@@ -591,22 +591,7 @@ export default function WelcomeScreen() {
     }
   }, [])
 
-  // Keyboard shortcut: Press Enter or Space to enter room
-  useEffect(() => {
-    if (!showWelcome || exitPhase !== 'idle') return
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        handleEnter()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showWelcome, exitPhase])
-
-  const handleEnter = () => {
+  const handleEnter = useCallback(() => {
     if (exitPhase !== 'idle') return
     playClick()
     playSuccess()
@@ -636,7 +621,22 @@ export default function WelcomeScreen() {
       clearTimeout(enterRoomTimer)
       clearTimeout(cleanupTimer)
     }
-  }
+  }, [exitPhase, playClick, playSuccess, enterRoom, completeWelcomeExit])
+
+  // Keyboard shortcut: Press Enter or Space to enter room
+  useEffect(() => {
+    if (!showWelcome || exitPhase !== 'idle') return
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleEnter()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showWelcome, exitPhase, handleEnter])
 
   if (!showWelcome || (hasEnteredRoom && exitPhase === 'idle')) return null
 

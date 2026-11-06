@@ -6,73 +6,326 @@ import DigitalGallery from './DigitalGallery'
 import useStore from '../../store/useStore'
 import { IMAGES } from '../../data/images'
 import { POLAROID_STORIES } from '../../data/polaroidData'
+import { emitSound } from '../../utils/eventBus'
 
 /**
- * WallDecorations - Tranh, poster và decorations trên 2 tường hiển thị
+ * WallDecorations - Tranh, poster và hệ thống đèn trang trí nghệ thuật trên tường
  * 
- * LAYOUT TƯờNG SAU (Z = -3.90), nhìn từ trong phòng:
+ * LAYOUT TƯỜNG SAU (Z = -3.90), nhìn từ trong phòng:
  * X: -4 --- -2(Window) --- 0(Clock) --- 1(TV) --- 2.8(Shelf) --- 4
  * 
- * LAYOUT TƯờNG TRÁI (X = -3.88), nhìn từ trong phòng:
- * Z: -4 --- -2.5 --- -1 --- 0.5(PlanBoard) --- 1.5(Bed) --- 3 --- 4
+ * LAYOUT TƯỜNG TRÁI (X = -3.88), nhìn từ trong phòng:
+ * Z: -4 --- -3(DigitalGallery + ArtSconce) --- -2.5 --- -1 --- 0.5(PlanBoard) --- 1.5(Bed) --- 2.6(LightSwitch) --- 4
  */
 
+// ── Shared Flyweight Geometries for Architectural Lighting Suite ──
+
+// Catenary Fairy Lights Cable Curve & Tube
+const cableCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 0, -2.20),
+  new THREE.Vector3(0, -0.05, -1.85),
+  new THREE.Vector3(0, -0.08, -1.52),
+  new THREE.Vector3(0, -0.05, -1.18),
+  new THREE.Vector3(0, 0, -0.85),
+  new THREE.Vector3(0, -0.05, -0.50),
+  new THREE.Vector3(0, -0.08, -0.15),
+  new THREE.Vector3(0, -0.05, 0.20),
+  new THREE.Vector3(0, 0, 0.55),
+  new THREE.Vector3(0, -0.05, 0.90),
+  new THREE.Vector3(0, -0.08, 1.25),
+  new THREE.Vector3(0, -0.05, 1.60),
+  new THREE.Vector3(0, 0, 1.95),
+])
+const festoonCableGeo = new THREE.TubeGeometry(cableCurve, 64, 0.0022, 6, false)
+
+// Wall Anchor Pegs
+const wallPegFlangeGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.005, 12)
+const wallPegShaftGeo = new THREE.CylinderGeometry(0.007, 0.007, 0.048, 10)
+const wallPegPinGeo = new THREE.SphereGeometry(0.005, 8, 8)
+
+// Edison Bulb Fixtures
+const bulbDropCordUnitGeo = new THREE.CylinderGeometry(0.0012, 0.0012, 1, 6)
+const bulbCollarGeo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.008, 10)
+const bulbSocketGeo = new THREE.CylinderGeometry(0.0095, 0.0085, 0.016, 12)
+const bulbFilamentGeo = new THREE.CylinderGeometry(0.0009, 0.0009, 0.022, 6)
+const bulbGlassGlobeGeo = new THREE.SphereGeometry(0.022, 16, 14)
+const bulbGlassTeardropGeo = new THREE.SphereGeometry(0.020, 16, 14)
+
+// Hanging Keepsakes (Clothespins & Cards)
+const clothespinGeo = new THREE.BoxGeometry(0.006, 0.024, 0.008)
+const miniPhotoCardGeo = new THREE.BoxGeometry(0.072, 0.092, 0.002)
+
+// Nordic Art Gallery Sconce (Picture Light)
+const sconceCanopyGeo = new THREE.CylinderGeometry(0.034, 0.034, 0.012, 16)
+const sconceArmGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.16, 8)
+const sconceHoodGeo = new THREE.CylinderGeometry(0.013, 0.013, 0.44, 16)
+const sconceEndCapGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.012, 12)
+const sconceDiffuserGeo = new THREE.BoxGeometry(0.015, 0.003, 0.40)
+
+// Architectural Light Switch
+const switchPlateGeo = new THREE.BoxGeometry(0.082, 0.13, 0.012)
+const switchWoodGeo = new THREE.BoxGeometry(0.068, 0.116, 0.004)
+const switchScrewGeo = new THREE.CylinderGeometry(0.0025, 0.0025, 0.003, 8)
+const switchBezelGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.006, 12)
+const switchToggleGeo = new THREE.CylinderGeometry(0.003, 0.0045, 0.030, 8)
+const switchToggleTipGeo = new THREE.SphereGeometry(0.005, 8, 8)
+const switchIndicatorGeo = new THREE.CylinderGeometry(0.0045, 0.0045, 0.004, 10)
+
+// ── Shared Flyweight Materials ──
+const brassHardwareMat = new THREE.MeshStandardMaterial({
+  color: '#c5a059',
+  metalness: 0.88,
+  roughness: 0.26,
+})
+const turnedOakMat = new THREE.MeshStandardMaterial({
+  color: '#9b714f',
+  roughness: 0.68,
+})
+const darkWalnutMat = new THREE.MeshStandardMaterial({
+  color: '#2b1b11',
+  roughness: 0.72,
+})
+const braidedCordMat = new THREE.MeshStandardMaterial({
+  color: '#1a1f26',
+  roughness: 0.85,
+})
+const matteSlateMat = new THREE.MeshStandardMaterial({
+  color: '#1a1e24',
+  roughness: 0.42,
+  metalness: 0.25,
+})
+const clothespinMat = new THREE.MeshStandardMaterial({
+  color: '#d4b996',
+  roughness: 0.75,
+})
+const kraftPaperMat = new THREE.MeshStandardMaterial({
+  color: '#e8dcbe',
+  roughness: 0.88,
+})
+
+// ── Festoon Lights Layout Data ──
+const WALL_PEGS = [
+  { z: -2.20 },
+  { z: -0.85 },
+  { z: 0.55 },
+  { z: 1.95 },
+]
+
+const BULB_DATA = [
+  // Span 1: Peg (-2.20) to Peg (-0.85)
+  { z: -1.79, yOffset: -0.058, drop: 0.08, type: 'edison' },
+  { z: -1.37, yOffset: -0.072, drop: 0.11, type: 'globe' },
+  { z: -0.96, yOffset: -0.015, drop: 0.07, type: 'edison' },
+
+  // Span 2: Peg (-0.85) to Peg (0.55)
+  { z: -0.54, yOffset: -0.044, drop: 0.08, type: 'globe' },
+  { z: -0.13, yOffset: -0.080, drop: 0.12, type: 'edison' },
+  { z: 0.29, yOffset: -0.036, drop: 0.07, type: 'globe' },
+
+  // Span 3: Peg (0.55) to Peg (1.95)
+  { z: 0.70, yOffset: -0.016, drop: 0.08, type: 'edison' },
+  { z: 1.12, yOffset: -0.074, drop: 0.11, type: 'globe' },
+  { z: 1.54, yOffset: -0.058, drop: 0.08, type: 'edison' },
+]
+
+const MEMORY_CARDS = [
+  { z: -1.05, yOffset: -0.032, tilt: 0.08, type: 'sketch' },
+  { z: 0.45, yOffset: -0.022, tilt: -0.06, type: 'polaroid' },
+]
+
 /**
- * LightSwitch - Công tắc đèn treo tường
- * Click để bật/tắt String Lights
+ * LightSwitch - Công tắc kiến trúc phong cách Bắc Âu (Architectural Toggle Switch)
+ * Thân kim loại đen mờ, ốp gỗ óc chó thủ công, cần gạt đồng thau knurled và vòng LED báo trạng thái
  */
 function LightSwitch({ position, isOn, onToggle }) {
+  const handleClick = () => {
+    emitSound('click')
+    if (onToggle) onToggle()
+  }
+
   return (
-    <InteractiveObject name="lightswitch" onClick={onToggle}>
+    <InteractiveObject name="lightswitch" onClick={handleClick}>
       <group position={position} rotation={[0, Math.PI / 2, 0]}>
-        {/* Backplate - Mặt nền công tắc */}
-        <mesh>
-          <boxGeometry args={[0.08, 0.12, 0.015]} />
-          <meshStandardMaterial color="#f5f5f5" roughness={0.3} />
-        </mesh>
-        
-        {/* Viền */}
-        <mesh position={[0, 0, 0.008]}>
-          <boxGeometry args={[0.065, 0.105, 0.003]} />
-          <meshStandardMaterial color="#e0e0e0" roughness={0.4} />
-        </mesh>
-        
-        {/* Switch toggle area */}
-        <mesh position={[0, 0, 0.01]}>
-          <boxGeometry args={[0.04, 0.07, 0.008]} />
-          <meshStandardMaterial color="#d0d0d0" roughness={0.5} />
-        </mesh>
-        
-        {/* Toggle switch - nghiêng lên/xuống tùy trạng thái */}
-        <group position={[0, 0, 0.018]} rotation={[isOn ? -0.4 : 0.4, 0, 0]}>
-          <mesh>
-            <boxGeometry args={[0.025, 0.04, 0.012]} />
-            <meshStandardMaterial 
-              color={isOn ? '#4ade80' : '#94a3b8'} 
-              roughness={0.3}
-              metalness={0.2}
-            />
-          </mesh>
+        {/* Mặt đế kim loại đen mờ cao cấp */}
+        <mesh geometry={switchPlateGeo} material={matteSlateMat} />
+
+        {/* Ốp gỗ óc chó sẫm màu thủ công */}
+        <mesh position={[0, 0, 0.007]} geometry={switchWoodGeo} material={darkWalnutMat} />
+
+        {/* 4 đinh ốc đồng thau lục giác ở 4 góc */}
+        <mesh position={[-0.028, 0.051, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchScrewGeo} material={brassHardwareMat} />
+        <mesh position={[0.028, 0.051, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchScrewGeo} material={brassHardwareMat} />
+        <mesh position={[-0.028, -0.051, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchScrewGeo} material={brassHardwareMat} />
+        <mesh position={[0.028, -0.051, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchScrewGeo} material={brassHardwareMat} />
+
+        {/* Vành đế đồng thau tiện tròn */}
+        <mesh position={[0, 0.008, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchBezelGeo} material={brassHardwareMat} />
+
+        {/* Cần gạt toggle switch đồng thau (Gạt lên khi BẬT, gạt xuống khi TẮT) */}
+        <group position={[0, 0.008, 0.012]} rotation={[isOn ? -0.42 : 0.42, 0, 0]}>
+          <mesh position={[0, 0.014, 0.004]} rotation={[0.3, 0, 0]} geometry={switchToggleGeo} material={brassHardwareMat} />
+          <mesh position={[0, 0.027, 0.008]} geometry={switchToggleTipGeo} material={brassHardwareMat} />
         </group>
-        
-        {/* Indicator light nhỏ */}
-        <mesh position={[0, -0.045, 0.012]}>
-          <sphereGeometry args={[0.006, 8, 8]} />
-          <meshStandardMaterial 
-            color={isOn ? '#22c55e' : '#334155'}
-            emissive={isOn ? '#22c55e' : '#000000'}
-            emissiveIntensity={isOn ? 1 : 0}
+
+        {/* Đèn chỉ báo vi tinh thể (Xanh ngọc khi bật, hổ phách dịu khi tắt) */}
+        <mesh position={[0, -0.038, 0.009]} rotation={[Math.PI / 2, 0, 0]} geometry={switchIndicatorGeo}>
+          <meshStandardMaterial
+            color={isOn ? '#34d399' : '#f59e0b'}
+            emissive={isOn ? '#10b981' : '#d97706'}
+            emissiveIntensity={isOn ? 1.6 : 0.8}
             toneMapped={false}
           />
         </mesh>
-        
-        {/* Glow when on */}
-        {isOn && (
-          <pointLight 
-            position={[0, 0, 0.05]} 
-            intensity={0.1} 
-            distance={0.3} 
-            color="#22c55e"
+      </group>
+    </InteractiveObject>
+  )
+}
+
+/**
+ * NordicArtSconce - Đèn rọi tranh gắn tường (Architectural Picture Light)
+ * Bố trí tinh tế phía trên Khung tranh điện tử Digital Gallery
+ */
+function NordicArtSconce({ position, isLit }) {
+  return (
+    <group position={position} rotation={[0, Math.PI / 2, 0]}>
+      {/* Nắp gắn tường tròn bằng đồng thau phay xước */}
+      <mesh position={[0, 0, 0.006]} rotation={[Math.PI / 2, 0, 0]} geometry={sconceCanopyGeo} material={brassHardwareMat} />
+
+      {/* Cặp tay vươn thanh mảnh vươn ra khỏi tường */}
+      <mesh position={[-0.07, 0, 0.08]} rotation={[Math.PI / 2, 0, 0]} geometry={sconceArmGeo} material={brassHardwareMat} />
+      <mesh position={[0.07, 0, 0.08]} rotation={[Math.PI / 2, 0, 0]} geometry={sconceArmGeo} material={brassHardwareMat} />
+
+      {/* Chao đèn hình trụ ngang đen mờ sang trọng */}
+      <mesh position={[0, 0, 0.16]} rotation={[0, 0, Math.PI / 2]} geometry={sconceHoodGeo} material={matteSlateMat} />
+
+      {/* Khóa đầu chao đèn bằng đồng thau tiện rãnh */}
+      <mesh position={[-0.22, 0, 0.16]} rotation={[0, 0, Math.PI / 2]} geometry={sconceEndCapGeo} material={brassHardwareMat} />
+      <mesh position={[0.22, 0, 0.16]} rotation={[0, 0, Math.PI / 2]} geometry={sconceEndCapGeo} material={brassHardwareMat} />
+
+      {/* Tấm tán quang mica mờ ấm áp hướng xuống tranh */}
+      <mesh position={[0, -0.012, 0.16]} geometry={sconceDiffuserGeo}>
+        <meshStandardMaterial
+          color={isLit ? '#fffbeb' : '#f1f5f9'}
+          emissive={isLit ? '#fff7ed' : '#000000'}
+          emissiveIntensity={isLit ? 1.4 : 0}
+          roughness={0.2}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Luồng sáng rọi mềm chiếu vào tác phẩm nghệ thuật bên dưới */}
+      {isLit && (
+        <pointLight
+          position={[0, -0.06, 0.18]}
+          intensity={0.20}
+          distance={1.6}
+          decay={2.0}
+          color="#fffbeb"
+        />
+      )}
+    </group>
+  )
+}
+
+/**
+ * NordicFestoonLights - Hệ thống đèn dây Edison cổ điển kiểu Bắc Âu
+ * Có chốt tiện gỗ sồi, dây bọc dù võng tự nhiên, 9 bóng Edison vintage, kẹp gỗ lưu bút
+ */
+function NordicFestoonLights({ position, isLit, stringLightsOn, isNight, onToggle }) {
+  const handleClick = () => {
+    emitSound('click')
+    if (onToggle) onToggle()
+  }
+
+  return (
+    <InteractiveObject name="festoon-lights" onClick={handleClick}>
+      <group position={position}>
+        {/* Dây bọc dù dệt sợi than củi uốn võng tự nhiên (Seamless Tube Geometry) */}
+        <mesh geometry={festoonCableGeo} material={braidedCordMat} />
+
+        {/* 4 Chốt tiện gỗ sồi & đồng cố định vào tường */}
+        {WALL_PEGS.map((peg, i) => (
+          <group key={`peg-${i}`} position={[0, 0, peg.z]}>
+            <mesh position={[-0.038, 0, 0]} rotation={[0, 0, Math.PI / 2]} geometry={wallPegFlangeGeo} material={brassHardwareMat} />
+            <mesh position={[-0.014, 0, 0]} rotation={[0, 0, Math.PI / 2]} geometry={wallPegShaftGeo} material={turnedOakMat} />
+            <mesh position={[0.012, 0, 0]} geometry={wallPegPinGeo} material={brassHardwareMat} />
+          </group>
+        ))}
+
+        {/* 9 Bóng đèn sợi đốt Edison phong cách Vintage */}
+        {BULB_DATA.map((bulb, i) => {
+          const yBase = bulb.yOffset - bulb.drop
+          return (
+            <group key={`bulb-${i}`}>
+              {/* Dây thả kim loại/bọc vải thả xuống */}
+              <mesh
+                position={[0, bulb.yOffset - bulb.drop / 2, bulb.z]}
+                scale={[1, bulb.drop, 1]}
+                geometry={bulbDropCordUnitGeo}
+                material={braidedCordMat}
+              />
+
+              {/* Vòng đệm tiện gỗ óc chó */}
+              <mesh position={[0, yBase - 0.004, bulb.z]} geometry={bulbCollarGeo} material={darkWalnutMat} />
+
+              {/* Đui đèn đồng thau phay xước */}
+              <mesh position={[0, yBase - 0.014, bulb.z]} geometry={bulbSocketGeo} material={brassHardwareMat} />
+
+              {/* Sợi đốt Vonfram (Tungsten) phát quang rực rỡ */}
+              <mesh position={[0, yBase - 0.032, bulb.z]} geometry={bulbFilamentGeo}>
+                <meshStandardMaterial
+                  color={isLit ? '#fef08a' : '#475569'}
+                  emissive={isLit ? '#fbbf24' : '#1e293b'}
+                  emissiveIntensity={isLit ? (stringLightsOn ? 2.8 : isNight ? 1.8 : 1.2) : 0.08}
+                  toneMapped={false}
+                />
+              </mesh>
+
+              {/* Vỏ bóng thủy tinh hổ phách ấm áp */}
+              <mesh
+                position={[0, yBase - 0.032, bulb.z]}
+                scale={bulb.type === 'edison' ? [0.9, 1.35, 0.9] : [1, 1, 1]}
+                geometry={bulb.type === 'edison' ? bulbGlassTeardropGeo : bulbGlassGlobeGeo}
+              >
+                <meshStandardMaterial
+                  color={isLit ? '#fffdf0' : '#f8fafc'}
+                  emissive={isLit ? '#f59e0b' : '#fef3c7'}
+                  emissiveIntensity={isLit ? (stringLightsOn ? 0.92 : isNight ? 0.65 : 0.40) : 0.04}
+                  roughness={0.12}
+                  metalness={0.05}
+                  transparent
+                  opacity={0.84}
+                  toneMapped={false}
+                />
+              </mesh>
+            </group>
+          )
+        })}
+
+        {/* Kẹp gỗ treo ảnh kỷ niệm & note polaroid mini kẹp trên dây */}
+        {MEMORY_CARDS.map((card, i) => (
+          <group key={`card-${i}`} position={[0, card.yOffset, card.z]} rotation={[0, 0, card.tilt]}>
+            <mesh position={[0, -0.008, 0]} geometry={clothespinGeo} material={clothespinMat} />
+            <mesh position={[0.004, -0.055, 0]} geometry={miniPhotoCardGeo} material={kraftPaperMat} />
+            <mesh position={[0.006, -0.048, 0]}>
+              <circleGeometry args={[0.016, 16]} />
+              <meshBasicMaterial color={card.type === 'sketch' ? '#e76f51' : '#2a9d8f'} />
+            </mesh>
+            <mesh position={[0.006, -0.070, 0]}>
+              <planeGeometry args={[0.045, 0.016]} />
+              <meshBasicMaterial color="#264653" />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Soft Ambient Fairy Lights Wash - Phủ nhẹ nhàng vào lòng phòng, triệt tiêu hoàn toàn vệt cháy tròn sát tường */}
+        {isLit && (
+          <pointLight
+            position={[0.42, -0.25, 0.0]}
+            intensity={stringLightsOn ? 0.30 : 0.16}
+            distance={4.2}
+            decay={2.0}
+            color="#fed7aa"
           />
         )}
       </group>
@@ -98,7 +351,6 @@ function useSafeTexture(url) {
       setTexture(_polaroidTextureCache.get(url))
       return
     }
-
 
     _sharedTextureLoader.load(
       url,
@@ -134,30 +386,29 @@ function useSafeTexture(url) {
  * Polaroid - Ảnh polaroid/frame treo tường
  * Click để phóng to xem ảnh
  */
-function Polaroid({ 
-  position, 
-  rotation = [0, 0, 0], 
-  tilt = 0, 
+function Polaroid({
+  position,
+  rotation = [0, 0, 0],
+  tilt = 0,
   imagePath,
-  allImages,          // full gallery array — for lightbox navigation
-  size = [0.18, 0.18],        // Kích thước ảnh [width, height]
-  frameSize = [0.22, 0.26],   // Kích thước frame [width, height]
-  frameColor = "#f5f5f0",     // Màu frame
-  tapeColor = null,           // Băng dính washi tape trang trí
+  allImages,
+  size = [0.18, 0.18],
+  frameSize = [0.22, 0.26],
+  frameColor = "#f5f5f0",
+  tapeColor = null,
 }) {
   const openPolaroid = useStore((state) => state.openPolaroid)
   const texture = useSafeTexture(imagePath)
-  
+
   const handleClick = () => {
     const gallery = allImages ?? ALL_POLAROIDS
     const idx = gallery.findIndex((item) => (typeof item === 'object' ? item.src : item) === imagePath)
     openPolaroid(gallery, idx < 0 ? 0 : idx)
   }
-  
-  // Tính offset Y cho ảnh trong frame (polaroid style có phần trắng dưới rộng hơn)
+
   const isPolaroidStyle = frameSize[1] > frameSize[0] * 1.1
   const photoOffsetY = isPolaroidStyle ? (frameSize[1] - size[1]) / 3 : 0
-  
+
   return (
     <InteractiveObject name="polaroid" onClick={handleClick}>
       <group position={position} rotation={rotation}>
@@ -172,15 +423,15 @@ function Polaroid({
           {tapeColor && (
             <mesh position={[0, frameSize[1] / 2, 0.010]} rotation={[0, 0, tilt * 0.4]}>
               <boxGeometry args={[frameSize[0] * 0.42, 0.024, 0.003]} />
-              <meshStandardMaterial 
-                color={tapeColor} 
-                roughness={0.65} 
-                transparent 
-                opacity={0.92} 
+              <meshStandardMaterial
+                color={tapeColor}
+                roughness={0.65}
+                transparent
+                opacity={0.92}
               />
             </mesh>
           )}
-          
+
           {/* Photo area */}
           <mesh position={[0, photoOffsetY, 0.009]}>
             <planeGeometry args={size} />
@@ -218,13 +469,6 @@ function Polaroid({
 // Tất cả ảnh polaroid & gallery trong phòng — lightbox có thể di chuyển giữa các ảnh
 const ALL_POLAROIDS = POLAROID_STORIES
 
-// ── Flyweight Assets cho Dây đèn trang trí Fairy Lights ──
-const fairyCordGeo = new THREE.CylinderGeometry(0.0015, 0.0015, 0.08, 6)
-const fairySocketGeo = new THREE.CylinderGeometry(0.009, 0.008, 0.014, 8)
-const fairyBulbGeo = new THREE.SphereGeometry(0.024, 12, 12)
-const fairyCordMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.7 })
-const fairySocketMat = new THREE.MeshStandardMaterial({ color: '#d4af37', metalness: 0.9, roughness: 0.25 })
-
 function WallDecorations() {
   const stringLightsOn = useStore((state) => state.stringLightsOn)
   const toggleStringLights = useStore((state) => state.toggleStringLights)
@@ -232,16 +476,15 @@ function WallDecorations() {
   const lightingPreset = useStore((state) => state.lightingPreset)
   const isNight = isNightMode || lightingPreset === 'night'
   const isLit = stringLightsOn || isNight || lightingPreset === 'sunset'
+
   return (
     <group>
       {/* ========================================= */}
-      {/* TƯờNG SAU (Z = -3.90) - Back Wall */}
-      {/* Đã có: Window(X=-2), Clock(X=0), TV(X=1), Shelf(X=2.8) */}
-      {/* => Chỉ đặt ở góc trái xa (X < -3) */}
+      {/* TƯỜNG SAU (Z = -3.90) - Back Wall */}
       {/* ========================================= */}
-      
+
       {/* Small Frame - Ảnh từ /assets/img/frame1.jpg */}
-      <Polaroid 
+      <Polaroid
         position={[-3.5, 2.2, -3.88]}
         rotation={[0, 0, 0]}
         tilt={0}
@@ -251,74 +494,45 @@ function WallDecorations() {
         frameSize={[0.25, 0.3]}
         frameColor="#4A3520"
       />
-      
+
       {/* ========================================= */}
       {/* TƯỜNG TRÁI (X = -3.88) - Left Wall */}
-      {/* Đã có: PlanBoard(Z=0.5), Bed(Z≈1.5) */}
       {/* ========================================= */}
-      
-      {/* Light Switch - Công tắc bật/tắt String Lights */}
-      {/* Đặt ngang chiều cao giường, bên trái giường (phía đầu giường) */}
-      <LightSwitch 
-        position={[-3.88, 0.6, 2.6]} 
-        isOn={stringLightsOn} 
-        onToggle={toggleStringLights} 
-      />
-      
-      {/* String lights / Fairy lights - CAO trên tường, dọc theo Z (Y=2.6, ép sát tường X=-3.92) */}
-      <group>
-        <group position={[-3.92, 2.6, 0]}>
-          {/* Wire - dây treo ngang theo Z */}
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[0.006, 0.006, 3.4]} />
-            <meshStandardMaterial color="#1e293b" roughness={0.7} />
-          </mesh>
-          
-          {/* Các bóng đèn treo dọc dây (Flyweight pattern) */}
-          {[-1.4, -0.95, -0.5, 0, 0.5, 0.95, 1.4].map((z, i) => (
-            <group key={i} position={[0, 0, z]}>
-              {/* Dây treo kim loại xuống */}
-              <mesh position={[0, -0.04, 0]} geometry={fairyCordGeo} material={fairyCordMat} />
-              {/* Chụp đui đèn đồng thau */}
-              <mesh position={[0, -0.085, 0]} geometry={fairySocketGeo} material={fairySocketMat} />
-              {/* Bóng đèn thủy tinh tròn phát quang rực rỡ */}
-              <mesh position={[0, -0.11, 0]} geometry={fairyBulbGeo}>
-                <meshStandardMaterial 
-                  color={isLit ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fdfaf5'}
-                  emissive={isLit ? ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'][i] : '#fef3c7'}
-                  emissiveIntensity={stringLightsOn ? 1.6 : isNight ? 1.15 : lightingPreset === 'sunset' ? 0.8 : 0.08}
-                  roughness={0.15}
-                  metalness={0.05}
-                  transparent
-                  opacity={0.92}
-                  toneMapped={false}
-                />
-              </mesh>
-            </group>
-          ))}
 
-          {/* Proxy Point Lights - Chỉ 2 nguồn sáng phủ mịn dọc tường, tiết kiệm 70% draw/light overhead */}
-          {isLit && (
-            <>
-              <pointLight position={[0.08, -0.15, -0.75]} intensity={stringLightsOn ? 0.65 : 0.4} distance={2.5} decay={1.8} color="#fef08a" />
-              <pointLight position={[0.08, -0.15, 0.75]} intensity={stringLightsOn ? 0.65 : 0.4} distance={2.5} decay={1.8} color="#fed7aa" />
-            </>
-          )}
-        </group>
-      </group>
-      
+      {/* Light Switch - Công tắc gạt kiến trúc cao cấp */}
+      {/* Đặt ngang chiều cao giường, phía đầu giường */}
+      <LightSwitch
+        position={[-3.88, 0.6, 2.6]}
+        isOn={stringLightsOn}
+        onToggle={toggleStringLights}
+      />
+
+      {/* Nordic Festoon Lights - Đèn dây Edison nghệ thuật Bắc Âu dọc tường trái */}
+      <NordicFestoonLights
+        position={[-3.84, 2.62, 0]}
+        isLit={isLit}
+        stringLightsOn={stringLightsOn}
+        isNight={isNight}
+        onToggle={toggleStringLights}
+      />
+
       {/* Digital Gallery - Khung tranh điện tử tương tác */}
-      {/* GÓC SAU TRÁI tường (Z = -3), xa PlanBoard */}
-      <DigitalGallery 
-        position={[-3.88, 1.6, -3]} 
+      <DigitalGallery
+        position={[-3.88, 1.6, -3]}
         rotation={[0, Math.PI / 2, 0]}
         size={[0.5, 0.65]}
         autoSlide={true}
         slideInterval={8000}
       />
-      
+
+      {/* Nordic Art Sconce - Đèn rọi tranh thanh mảnh phía trên Digital Gallery */}
+      <NordicArtSconce
+        position={[-3.88, 2.18, -3.0]}
+        isLit={isLit}
+      />
+
       {/* Polaroid 1 - Ảnh từ /assets/img/polaroid1.jpg */}
-      <Polaroid 
+      <Polaroid
         position={[-3.88, 2.22, -1.8]}
         rotation={[0, Math.PI / 2, 0]}
         tilt={0.06}
@@ -326,9 +540,9 @@ function WallDecorations() {
         allImages={ALL_POLAROIDS}
         tapeColor="#f6bd60"
       />
-      
+
       {/* Polaroid 2 - Ảnh từ /assets/img/polaroid2.jpg */}
-      <Polaroid 
+      <Polaroid
         position={[-3.88, 1.96, -1.45]}
         rotation={[0, Math.PI / 2, 0]}
         tilt={-0.08}

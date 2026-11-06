@@ -4,7 +4,6 @@ import {
   Bloom,
   Vignette,
   ToneMapping,
-  N8AO,
   Pixelation,
 } from '@react-three/postprocessing'
 import { ToneMappingMode } from 'postprocessing'
@@ -12,10 +11,9 @@ import useStore from '../../store/useStore'
 
 /**
  * PostProcessingEffects - Pipeline hậu kỳ đồ họa cao cấp
- * - N8AO: Tạo bóng đổ tiếp xúc (contact shadows) mềm mại giữa các khe kẽ đồ vật 3D
- * - Bloom: Phát sáng nịnh mắt cho đèn LED, màn hình máy tính, TV và trăng sao
+ * - Bloom: Phát sáng chọn lọc cho đèn LED, màn hình máy tính, TV và trăng sao (threshold >= 1.05)
  * - Vignette: Tạo chiều sâu góc nhìn
- * - ToneMapping: Chuẩn hóa màu sắc rực rỡ, sắc sảo
+ * - ToneMapping: Chuẩn hóa màu sắc rực rỡ, sắc sảo (ACES Filmic)
  * - Pixelation: Chế độ giả lập Retro Pixel Art khi người dùng bật
  */
 export default function PostProcessingEffects({ graphics = {} }) {
@@ -31,36 +29,26 @@ export default function PostProcessingEffects({ graphics = {} }) {
   const isNight = isNightMode || lightingPreset === 'night'
 
   return (
-    <EffectComposer multisampling={composerMultisampling} disableNormalPass={false}>
-      {/* 1. N8AO: Ambient Occlusion tính toán halfRes + bilateral filter (nhanh gấp 4 lần, chất lượng sắc sảo) */}
-      <N8AO
-        aoRadius={0.35}
-        distanceFalloff={2.0}
-        intensity={isNight ? 0.55 : 0.75}
-        color="#0d0f1a"
-        halfRes={true}
-        quality="medium"
-      />
-
-      {/* 2. Bloom: Phát sáng nịnh mắt cho đèn LED, đèn ngủ, TV và ánh trăng */}
+    <EffectComposer multisampling={composerMultisampling}>
+      {/* 1. Selective Bloom: Chỉ phát quang các vật thể phát sáng (emissive/LED), triệt tiêu chớp sáng khi xoay camera */}
       <Bloom
-        intensity={isNight ? 0.45 : lightingPreset === 'sunset' ? 0.35 : 0.22}
-        luminanceThreshold={0.92}
-        luminanceSmoothing={0.25}
+        intensity={(isNight ? 0.45 : lightingPreset === 'sunset' ? 0.35 : 0.22) * (bloomIntensity / 0.35)}
+        luminanceThreshold={1.05}
+        luminanceSmoothing={0.15}
         mipmapBlur
-        radius={0.45}
+        radius={0.4}
       />
 
-      {/* 3. ToneMapping: Tăng độ tương phản màu sắc sống động */}
+      {/* 2. ToneMapping: Tăng độ tương phản màu sắc sống động */}
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
 
-      {/* 4. Vignette: Viền tối điện ảnh nhẹ nhàng, không bóp nghẹt ánh sáng ban đêm */}
+      {/* 3. Vignette: Viền tối điện ảnh nhẹ nhàng, không bóp nghẹt ánh sáng ban đêm */}
       <Vignette
         offset={0.3}
         darkness={isNight ? 0.18 : 0.15}
       />
 
-      {/* 5. Tùy chọn Retro Pixelation: Biến đổi căn phòng thành phong cách game 16-bit */}
+      {/* 4. Tùy chọn Retro Pixelation: Biến đổi căn phòng thành phong cách game 16-bit */}
       {retroPixelMode && (
         <Pixelation granularity={5} />
       )}

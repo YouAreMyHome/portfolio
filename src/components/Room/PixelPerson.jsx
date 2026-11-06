@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBox, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
-import { useTranslation } from 'react-i18next'
 import { useSounds } from '../../utils/useSounds'
 import useStore from '../../store/useStore'
 
@@ -65,39 +64,18 @@ const SCENARIOS = {
   morning: {
     position: [0.75, 0.007, 0.65],
     rotationY: 0.15,
-    greetingKey: 'scenario.morning.greet',
-    dialogues: [
-      'scenario.morning.m0',
-      'scenario.morning.m1',
-      'scenario.morning.m2',
-      'scenario.morning.m3',
-    ],
     sound: 'charHappy',
     expression: 'happy',
   },
   sunset: {
     position: [0.82, 0.007, 0.50],
     rotationY: -Math.PI * 0.50, // Kneeling beside Cat at [0.3, 0.007, 0.5]
-    greetingKey: 'scenario.sunset.greet',
-    dialogues: [
-      'scenario.sunset.m0',
-      'scenario.sunset.m1',
-      'scenario.sunset.m2',
-      'scenario.sunset.m3',
-    ],
     sound: 'meow',
     expression: 'happy',
   },
   rainy: {
     position: [-0.85, 0.007, -2.15],
     rotationY: -Math.PI * 0.78, // Facing directly at Window at [-2, 1.8, -3.9] clear of desk
-    greetingKey: 'scenario.rainy.greet',
-    dialogues: [
-      'scenario.rainy.m0',
-      'scenario.rainy.m1',
-      'scenario.rainy.m2',
-      'scenario.rainy.m3',
-    ],
     sound: 'charPop',
     expression: 'neutral',
   },
@@ -106,13 +84,6 @@ const SCENARIOS = {
     bedsideRotY: Math.PI * 0.5,
     bedSleepPos: [-2.585, 0.455, 1.86],
     bedSleepRot: [-Math.PI / 2, 0, Math.PI / 2],
-    greetingKey: 'scenario.night.greet',
-    dialogues: [
-      'scenario.night.m0',
-      'scenario.night.m1',
-      'scenario.night.m2',
-      'scenario.night.m3',
-    ],
     sound: 'charTired',
     expression: 'sleeping',
   },
@@ -194,95 +165,6 @@ const Voxel = memo(function Voxel({
     />
   )
 })
-
-// ─── Intelligent Speech Bubble (Auto Camera-Oriented via Billboard) ────────────
-function SpeechBubble({ visible, message }) {
-  const bubbleRef = useRef()
-  const floatRef  = useRef()
-  const scaleRef  = useRef(0)
-
-  useFrame((state, delta) => {
-    if (!bubbleRef.current) return
-
-    const target = visible ? 1 : 0
-    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, target, delta * 12)
-    const s = scaleRef.current
-    bubbleRef.current.scale.set(s, s, s)
-    bubbleRef.current.visible = s > 0.005
-
-    if (floatRef.current && s > 0.005) {
-      floatRef.current.position.y = Math.sin(state.clock.elapsedTime * 2.5) * 0.018
-    }
-  })
-
-  const borderMat   = { color: '#2B2520', roughness: 0.5, metalness: 0.08 }
-  const fillMat     = { color: '#FFFDF7', roughness: 0.25, metalness: 0.02 }
-  const shadowMat   = { color: '#0C0A09', transparent: true, opacity: 0.22, roughness: 1 }
-  const glossMat    = { color: '#FFFFFF', transparent: true, opacity: 0.55, roughness: 0.05 }
-  const warmLineMat = { color: '#D4B996', transparent: true, opacity: 0.35, roughness: 0.5 }
-
-  return (
-    <Billboard position={[0, 1.55, 0.08]} follow={true} lockX={false} lockY={false} lockZ={false}>
-      <group ref={bubbleRef} scale={0} frustumCulled={false}>
-        <group ref={floatRef}>
-          {/* Soft Drop Shadow */}
-          <RoundedBox args={[1.36, 0.82, 0.03]} radius={0.12} smoothness={3} position={[0.025, -0.025, -0.04]}>
-            <meshStandardMaterial {...shadowMat} />
-          </RoundedBox>
-
-          {/* Outer Border Layer */}
-          <RoundedBox args={[1.32, 0.78, 0.09]} radius={0.11} smoothness={3} position={[0, 0, 0]}>
-            <meshStandardMaterial {...borderMat} />
-          </RoundedBox>
-
-          {/* Inner Cream Bubble Body */}
-          <RoundedBox args={[1.24, 0.70, 0.085]} radius={0.09} smoothness={3} position={[0, 0, 0.008]}>
-            <meshStandardMaterial {...fillMat} />
-          </RoundedBox>
-
-          {/* Top Gloss Highlight Strip */}
-          <RoundedBox args={[0.58, 0.045, 0.015]} radius={0.02} smoothness={2} position={[-0.15, 0.265, 0.055]}>
-            <meshStandardMaterial {...glossMat} />
-          </RoundedBox>
-          <RoundedBox args={[0.08, 0.035, 0.015]} radius={0.015} smoothness={2} position={[-0.48, 0.255, 0.055]}>
-            <meshStandardMaterial {...glossMat} />
-          </RoundedBox>
-
-          {/* Subtle Bottom Warm Shadow Line */}
-          <RoundedBox args={[1.0, 0.035, 0.01]} radius={0.016} smoothness={2} position={[0, -0.275, 0.053]}>
-            <meshStandardMaterial {...warmLineMat} />
-          </RoundedBox>
-
-          {/* Tail */}
-          <RoundedBox args={[0.16, 0.14, 0.075]} radius={0.025} smoothness={2} position={[0.18, -0.42, 0.002]} rotation={[0, 0, -0.42]}>
-            <meshStandardMaterial {...borderMat} />
-          </RoundedBox>
-          <RoundedBox args={[0.13, 0.11, 0.07]} radius={0.02} smoothness={2} position={[0.18, -0.42, 0.009]} rotation={[0, 0, -0.42]}>
-            <meshStandardMaterial {...fillMat} />
-          </RoundedBox>
-
-          {/* Crisp Text */}
-          <Text
-            renderOrder={105}
-            position={[0, 0.012, 0.06]}
-            fontSize={0.08}
-            color="#241B12"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={1.08}
-            lineHeight={1.45}
-            letterSpacing={0.006}
-            overflowWrap="break-word"
-            material-depthTest={false}
-            material-depthWrite={false}
-          >
-            {message}
-          </Text>
-        </group>
-      </group>
-    </Billboard>
-  )
-}
 
 // ─── Refined Eyes with Catchlight Speculars ─────────────────────────────────────
 function Eye({ side, expression, isBlinking }) {
@@ -924,8 +806,6 @@ function PixelPerson({ scale = 1, ...props }) {
   const wakeUpTrigger = useStore((state) => state.wakeUpTrigger)
   const activePreset = isNightMode ? 'night' : lightingPreset || 'morning'
 
-  const [currentMessage, setCurrentMessage] = useState('')
-  const [bubbleVisible, setBubbleVisible] = useState(false)
   const [expression, setExpression] = useState('happy')
   const [isBlinking, setIsBlinking] = useState(false)
 
@@ -969,7 +849,6 @@ function PixelPerson({ scale = 1, ...props }) {
   const targetRotYRef       = useRef(SCENARIOS[activePreset]?.rotationY || 0.15)
   const isMovingRef         = useRef(false)
   const gaitPhaseRef        = useRef(0)
-  const dialogueIndexRef    = useRef(-1)
 
   // Night State Sub-stages: 'idle' | 'night_yawn' | 'walk_to_bed' | 'settle_at_bedside' | 'sit_at_bed' | 'swing_legs_in' | 'recline_to_pillow' | 'sleeping'
   const nightStageRef       = useRef(activePreset === 'night' ? 'sleeping' : 'idle')
@@ -979,11 +858,8 @@ function PixelPerson({ scale = 1, ...props }) {
   // Wake Up Sub-stages: 'idle' | 'wake_stir' | 'wake_sit' | 'wake_swing_legs' | 'wake_stand'
   const wakeTimerRef        = useRef(0)
 
-  const dismissTimer        = useRef(null)
   const blinkTimer          = useRef(null)
-  const welcomeTimer        = useRef(null)
 
-  const { t } = useTranslation()
   const { playSound } = useSounds()
 
   // Initialize position on mount
@@ -1017,6 +893,7 @@ function PixelPerson({ scale = 1, ...props }) {
     }
 
     setExpression(cfg.expression)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Wake-up trigger from Sleep HUD or User Action
@@ -1038,11 +915,6 @@ function PixelPerson({ scale = 1, ...props }) {
       currentPresetRef.current = activePreset
       const isNight = activePreset === 'night'
       const cfg = SCENARIOS[activePreset] || SCENARIOS.morning
-      dialogueIndexRef.current = -1
-
-      // Hide speech bubble during transitions
-      setBubbleVisible(false)
-      if (dismissTimer.current) clearTimeout(dismissTimer.current)
 
       if (isNight) {
         // Start night sequence: start with yawn, then plan path to bedside
@@ -1068,26 +940,6 @@ function PixelPerson({ scale = 1, ...props }) {
     }
   }, [activePreset, playSound, setIsCharacterSleeping, setBedStage])
 
-  // Welcome popup on initial visit after 2 seconds
-  useEffect(() => {
-    welcomeTimer.current = setTimeout(() => {
-      if (dialogueIndexRef.current === -1 && !isMovingRef.current) {
-        const cfg = SCENARIOS[activePreset] || SCENARIOS.morning
-        setCurrentMessage(t(cfg.greetingKey))
-        setBubbleVisible(true)
-        if (cfg.sound) playSound(cfg.sound)
-
-        dismissTimer.current = setTimeout(() => {
-          setBubbleVisible(false)
-        }, 4500)
-      }
-    }, 2000)
-
-    return () => {
-      if (welcomeTimer.current) clearTimeout(welcomeTimer.current)
-    }
-  }, [activePreset, playSound, t])
-
   // Periodic natural blink
   useEffect(() => {
     let active = true
@@ -1108,25 +960,13 @@ function PixelPerson({ scale = 1, ...props }) {
     return () => {
       active = false
       if (blinkTimer.current) clearTimeout(blinkTimer.current)
-      if (dismissTimer.current) clearTimeout(dismissTimer.current)
     }
   }, [])
 
-  // Click handler: Cycles through scenario dialogue & plays expressive sound
+  // Click handler: Plays expressive sound & reaction
   const handleClick = useCallback((e) => {
     if (e && e.stopPropagation) e.stopPropagation()
-    if (welcomeTimer.current) clearTimeout(welcomeTimer.current)
-    if (dismissTimer.current) clearTimeout(dismissTimer.current)
-
     const cfg = SCENARIOS[activePreset] || SCENARIOS.morning
-    const dialogues = cfg.dialogues || []
-
-    const nextIndex = (dialogueIndexRef.current + 1) % dialogues.length
-    dialogueIndexRef.current = nextIndex
-    const nextKey = dialogues[nextIndex]
-
-    setCurrentMessage(t(nextKey))
-    setBubbleVisible(true)
 
     // Sound effect
     if (cfg.sound) playSound(cfg.sound)
@@ -1137,11 +977,7 @@ function PixelPerson({ scale = 1, ...props }) {
       setExpression(cfg.expression)
       setIsBlinking(false)
     }, 90)
-
-    dismissTimer.current = setTimeout(() => {
-      setBubbleVisible(false)
-    }, 4500)
-  }, [activePreset, playSound, t])
+  }, [activePreset, playSound])
 
   // Cursor Hover Feedback
   const handlePointerOver = useCallback((e) => {
@@ -1415,9 +1251,6 @@ function PixelPerson({ scale = 1, ...props }) {
         safeSetIsCharacterSleeping(false)
         safeSetBedStage('settle_bedside')
         nightTimerRef.current += delta
-        const p = Math.min(1, nightTimerRef.current / 0.8)
-        const s = p * p * (3 - 2 * p)
-
         // Ổn định vị trí tại điểm bedside trên sàn phòng, căn thẳng trục nằm Z = 1.86
         curPos.x = THREE.MathUtils.lerp(curPos.x, -1.62, delta * 8)
         curPos.y = THREE.MathUtils.lerp(curPos.y, 0.007, delta * 10)
@@ -1478,11 +1311,7 @@ function PixelPerson({ scale = 1, ...props }) {
           nightStageRef.current = 'sit_at_bed'
           nightTimerRef.current = 0
           isLyingInBedRef.current = true
-          setCurrentMessage(t('scenario.night.greet'))
-          setBubbleVisible(true)
           playSound('charTired')
-          if (dismissTimer.current) clearTimeout(dismissTimer.current)
-          dismissTimer.current = setTimeout(() => setBubbleVisible(false), 3800)
         }
         return
       }
@@ -1898,11 +1727,6 @@ function PixelPerson({ scale = 1, ...props }) {
       // ── Arrived at Destination: Scenario Actions ──
       if (isMovingRef.current) {
         isMovingRef.current = false
-        const cfg = SCENARIOS[activePreset] || SCENARIOS.morning
-        setCurrentMessage(t(cfg.greetingKey))
-        setBubbleVisible(true)
-        if (dismissTimer.current) clearTimeout(dismissTimer.current)
-        dismissTimer.current = setTimeout(() => setBubbleVisible(false), 4500)
       }
 
       // Smoothly orient to final scenario heading
@@ -2213,9 +2037,6 @@ function PixelPerson({ scale = 1, ...props }) {
             </group>
           </group>
         </group>
-
-        {/* ── 5. Intelligent Speech Bubble (Auto Camera-Oriented) ── */}
-        <SpeechBubble visible={bubbleVisible} message={currentMessage} />
       </group>
 
       {/* ── 6. World-Space Decoupled Visual Effects ── */}

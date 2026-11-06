@@ -9,11 +9,11 @@ import * as THREE from 'three'
  * Sử dụng duration-based animation với easing function mượt mà
  */
 
-// Easing function - ease out cubic (mượt và tự nhiên)
-const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+// Easing function - ease in out cubic (khởi đầu êm ái, chuyển động mượt mà, giảm tốc tinh tế)
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 // Animation duration (ms)
-const ANIMATION_DURATION = 600
+const ANIMATION_DURATION = 750
 
 // Camera positions
 const CAMERA_VIEWS = {
@@ -98,7 +98,7 @@ function CameraController({ controlsRef }) {
     
     const elapsed = performance.now() - anim.startTime
     const progress = Math.min(elapsed / ANIMATION_DURATION, 1)
-    const easedProgress = easeOutCubic(progress)
+    const easedProgress = easeInOutCubic(progress)
     
     // Interpolate position
     camera.position.lerpVectors(anim.startPosition, anim.endPosition, easedProgress)

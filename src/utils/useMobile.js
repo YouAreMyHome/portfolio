@@ -13,7 +13,6 @@ export function useMobile() {
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth
-      const height = window.innerHeight
       
       // Touch detection
       const hasTouch = 'ontouchstart' in window || 

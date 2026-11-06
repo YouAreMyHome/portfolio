@@ -4,7 +4,9 @@ import { COLORS } from './colors'
 
 /**
  * Walls - Tường phòng với chi tiết crown molding và baseboard
- * Hoàn toàn tối ưu flyweight (Static geometries & materials khởi tạo 1 lần trong VRAM)
+ * Tối ưu hóa:
+ * - Flyweight static geometries & materials
+ * - matrixAutoUpdate={false} triệt tiêu tính toán ma trận khung hình
  */
 const backWallGeo = new THREE.BoxGeometry(8, 3, 0.1)
 const leftWallGeo = new THREE.BoxGeometry(0.1, 3, 8)

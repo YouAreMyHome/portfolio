@@ -10,18 +10,20 @@ import useStore from '../../store/useStore'
  * - Click handler: mở panel tương ứng
  * - Cursor change on hover
  * - Disabled when another panel is active
+ * - Idle throttling: không tính toán trong useFrame khi vật thể đã ở vị trí tĩnh
  */
 function InteractiveObject({ 
   children, 
   name,
   panelId,
   onClick,
-  hoverLift = 0.08, // Lift lên nhẹ thay vì scale
+  hoverLift = 0.08,
   ...props 
 }) {
   const groupRef = useRef()
   const [hovered, setHovered] = useState(false)
   const baseY = useRef(0)
+  const isMoving = useRef(false)
   const setHoveredObject = useStore((state) => state.setHoveredObject)
   const setActivePanel = useStore((state) => state.setActivePanel)
   const isPanelActive = useStore((state) => state.activePanel !== null)
@@ -40,6 +42,7 @@ function InteractiveObject({
   useEffect(() => {
     if (isDisabled && hovered) {
       setHovered(false)
+      isMoving.current = true
       setHoveredObject(null)
       document.body.style.cursor = 'auto'
     }
@@ -47,15 +50,17 @@ function InteractiveObject({
   
   // Smooth lift animation with Delta-timed Exponential Damping (Framerate-independent)
   useFrame((_, delta) => {
-    if (groupRef.current) {
-      const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
-      const diff = targetY - groupRef.current.position.y
-      if (Math.abs(diff) > 0.0002) {
-        const factor = 1 - Math.exp(-14 * delta)
-        groupRef.current.position.y += diff * factor
-      } else if (groupRef.current.position.y !== targetY) {
-        groupRef.current.position.y = targetY
-      }
+    if (!groupRef.current || !isMoving.current) return
+
+    const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
+    const diff = targetY - groupRef.current.position.y
+
+    if (Math.abs(diff) > 0.0002) {
+      const factor = 1 - Math.exp(-9 * delta)
+      groupRef.current.position.y += diff * factor
+    } else {
+      groupRef.current.position.y = targetY
+      isMoving.current = false // Đã dừng lại vị trí đích, ngắt useFrame tính toán
     }
   })
   
@@ -63,6 +68,7 @@ function InteractiveObject({
     e.stopPropagation()
     if (isDisabled) return
     setHovered(true)
+    isMoving.current = true
     setHoveredObject(name)
     document.body.style.cursor = 'pointer'
   }
@@ -71,6 +77,7 @@ function InteractiveObject({
     e.stopPropagation()
     if (isDisabled) return
     setHovered(false)
+    isMoving.current = true
     setHoveredObject(null)
     document.body.style.cursor = 'auto'
   }

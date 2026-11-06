@@ -1,375 +1,39 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { track } from '@vercel/analytics'
+import { createUISlice } from './slices/uiSlice'
+import { createThemeSlice } from './slices/themeSlice'
+import { createCharacterSlice } from './slices/characterSlice'
+import { createLoadingSlice } from './slices/loadingSlice'
+import { createOverlaySlice } from './slices/overlaySlice'
 
 /**
- * Zustand Store - Phase 3: Interaction & Logic
+ * Zustand Store - Modular Slice Architecture
  * 
- * Navigation Map:
- * - PC → Projects
- * - Board → Skills  
- * - TV → Playground
- * - Bed/Phone → Contact
- * - Window → Theme Toggle
- * - Cat → Easter Egg
- *
+ * Slices:
+ * - uiSlice: Panel overlays, welcome screen, camera & navigation
+ * - themeSlice: Lighting presets, day/night cycles, shaders, lamp
+ * - characterSlice: Character autonomous behavior, sleeping, bed interaction
+ * - loadingSlice: Critical asset preloading, session progress, metrics
+ * - overlaySlice: Guestbook, leaderboard, photo mode, kanban, polaroid, audio player
+ * 
  * Persisted (localStorage):
- * - isNightMode    : ghi nhớ chế độ sáng/tối sau reload
- * - stringLightsOn : ghi nhớ trạng thái đèn dây
+ * - isNightMode, stringLightsOn, lightingPreset, retroPixelMode, deskLampOn
  */
-
-// Tự động nhận diện kịch bản môi trường phù hợp với múi giờ thực tế địa phương của người dùng
-const getInitialAmbientPreset = () => {
-  try {
-    const hour = new Date().getHours()
-    if (hour >= 5 && hour < 16) return 'morning'
-    if (hour >= 16 && hour < 19) return 'sunset'
-    return 'night'
-  } catch {
-    return 'morning'
-  }
-}
-
-const defaultAmbientPreset = getInitialAmbientPreset()
-
 const useStore = create(
   persist(
     (set, get) => ({
-  // UI State
-  activePanel: null, // 'projects', 'skills', 'playground', 'contact', 'about'
-  isLoading: false,
-  showWelcome: false,
-  hasEnteredRoom: false,
-  isSceneReady: false, // true khi frame 3D đầu tiên đã render xong
-  isCriticalAssetsReady: false,
-  criticalAssetsTotal: 0,
-  criticalAssetsLoaded: 0,
-  criticalAssetsFailed: 0,
-  loadingStartedAt: 0,
-  loadingMinDisplayMs: 1500,
-  loadingMetrics: null,
-  cameraZoom: 80,
-  isZoomed: false,
+      ...createUISlice(set, get),
+      ...createThemeSlice(set, get),
+      ...createCharacterSlice(set, get),
+      ...createLoadingSlice(set, get),
+      ...createOverlaySlice(set, get),
 
-  // Scene transition (che overlay khi Three.js recompile shader)
-  // 'idle' | 'covering' | 'revealing'
-  transitionPhase: 'idle',
-  transitionTarget: 'night', // 'night' | 'day' — hướng chuyển đổi
-  
-  // Theme & Lighting Presets ('morning' | 'sunset' | 'rainy' | 'night')
-  isNightMode: defaultAmbientPreset === 'night',
-  lightingPreset: defaultAmbientPreset, // Tự động đồng bộ theo giờ thực tế địa phương
-  retroPixelMode: false,     // Bộ lọc retro pixel art shader
-  deskLampOn: defaultAmbientPreset === 'night', // Ban đêm thắp sáng đèn bàn
-  
-  // Interactive Overlays
-  showGuestbook: false,
-  showLeaderboard: false,
-  activeLeaderboardGame: 'snake',
-  showPhotoMode: false,
-  showAdmin: false,
-  
-  // Interaction State
-  hoveredObject: null,
-  
-  // Easter Egg
-  catClicks: 0,
-  showEasterEgg: false,
-  
-  // Record Player
-  isRecordPlaying: false,
-  showMusicPlayer: false,
-  
-  // Clock time display
-  showClockTime: false,
-  
-  // String lights
-  stringLightsOn: false,
-  
-  // Kanban Board overlay
-  showKanbanBoard: false,
-  
-  // Polaroid lightbox (gallery)
-  polaroidImages: [],   // mảng tất cả ảnh trong gallery
-  polaroidIndex: 0,     // index ảnh đang xem
-  
-  // Sound callback (set by App component)
-  onSoundTrigger: null,
-  setSoundTrigger: (callback) => set({ onSoundTrigger: callback }),
-  
-  // Record Player controls
-  setRecordPlaying: (playing) => set({ isRecordPlaying: playing }),
-  setShowMusicPlayer: (show) => set({ showMusicPlayer: show }),
-  
-  // Clock time toggle
-  toggleClockTime: () => {
-    const { showClockTime, onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ showClockTime: !showClockTime })
-    // Auto hide after 3 seconds
-    if (!showClockTime) {
-      setTimeout(() => set({ showClockTime: false }), 3000)
-    }
-  },
-  
-  // String lights toggle
-  toggleStringLights: () => {
-    const { stringLightsOn, onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ stringLightsOn: !stringLightsOn })
-  },
-  
-  // Kanban Board toggle
-  toggleKanbanBoard: () => {
-    const { showKanbanBoard, onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ showKanbanBoard: !showKanbanBoard })
-  },
-  
-  closeKanbanBoard: () => set({ showKanbanBoard: false }),
-  
-  // Polaroid gallery
-  openPolaroid: (images, startIndex = 0) => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    // Accept single string or array
-    const arr = Array.isArray(images) ? images : [images]
-    track('polaroid_open', { count: arr.length })
-    set({ polaroidImages: arr, polaroidIndex: Math.max(0, Math.min(startIndex, arr.length - 1)) })
-  },
-  closePolaroid: () => set({ polaroidImages: [], polaroidIndex: 0 }),
-  prevPolaroid: () => set((state) => ({
-    polaroidIndex: (state.polaroidIndex - 1 + state.polaroidImages.length) % state.polaroidImages.length,
-  })),
-  nextPolaroid: () => set((state) => ({
-    polaroidIndex: (state.polaroidIndex + 1) % state.polaroidImages.length,
-  })),
-  
-  // Actions
-  setActivePanel: (panel) => {
-    const { onSoundTrigger } = get()
-    if (panel && onSoundTrigger) onSoundTrigger('panelOpen')
-    if (panel) track('panel_open', { panel })
-    set({ 
-      activePanel: panel,
-      isZoomed: panel !== null 
-    })
-  },
-  
-  closePanel: () => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('panelClose')
-    set({ 
-      activePanel: null,
-      isZoomed: false 
-    })
-  },
-
-  setShowWelcome: (show) => set({ showWelcome: show }),
-
-  enterRoom: () => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('panelOpen')
-    set({ hasEnteredRoom: true })
-  },
-
-  completeWelcomeExit: () => set({ showWelcome: false }),
-  
-  setLoading: (loading) => set({ isLoading: loading }),
-
-  startLoadingSession: ({ total = 0, minDisplayMs = 1500 } = {}) => set({
-    isCriticalAssetsReady: false,
-    criticalAssetsTotal: total,
-    criticalAssetsLoaded: 0,
-    criticalAssetsFailed: 0,
-    loadingStartedAt: Date.now(),
-    loadingMinDisplayMs: minDisplayMs,
-  }),
-
-  setCriticalAssetsTotal: (total) => set({ criticalAssetsTotal: Math.max(0, total) }),
-
-  markCriticalAssetLoaded: () => set((state) => ({
-    criticalAssetsLoaded: Math.min(state.criticalAssetsTotal, state.criticalAssetsLoaded + 1),
-  })),
-
-  markCriticalAssetFailed: () => set((state) => ({
-    criticalAssetsFailed: Math.min(state.criticalAssetsTotal, state.criticalAssetsFailed + 1),
-  })),
-
-  setCriticalAssetsReady: (ready) => set({ isCriticalAssetsReady: !!ready }),
-
-  setLoadingMetrics: (metricsOrUpdater) => set((state) => ({
-    loadingMetrics: typeof metricsOrUpdater === 'function'
-      ? metricsOrUpdater(state.loadingMetrics)
-      : metricsOrUpdater,
-  })),
-
-  setSceneReady: () => set({ isSceneReady: true }),
-
-  resetLoadingState: () => set({
-    isSceneReady: false,
-    isCriticalAssetsReady: false,
-    criticalAssetsTotal: 0,
-    criticalAssetsLoaded: 0,
-    criticalAssetsFailed: 0,
-    loadingStartedAt: 0,
-    loadingMinDisplayMs: 1500,
-    loadingMetrics: null,
-  }),
-  
-  setCameraTarget: (target) => set({ cameraTarget: target }),
-  setCameraZoom: (zoom) => set({ cameraZoom: zoom }),
-  
-  // Theme toggle — dùng overlay che khuất khi Three.js recompile shader
-  toggleNightMode: () => {
-    const { isNightMode, onSoundTrigger, transitionPhase } = get()
-    if (transitionPhase !== 'idle') return  // debounce — chờ transition xong
-    if (onSoundTrigger) {
-      onSoundTrigger(isNightMode ? 'dayMode' : 'nightMode')
-    }
-    const nextMode = !isNightMode
-    track('theme_toggle', { theme: nextMode ? 'night' : 'day' })
-
-    // Phase 1 — 'covering': overlay fade-in (CSS 260ms)
-    // Dùng setTimeout cố định > CSS duration để đảm bảo overlay đã visible
-    // ở mọi frame rate (60fps / 120fps / 30fps đều an toàn)
-    set({ transitionPhase: 'covering', transitionTarget: nextMode ? 'night' : 'day' })
-
-    setTimeout(() => {
-      // Phase 2 — flip mode khi overlay đang hoàn toàn che khuất scene
-      // Three.js bắt đầu recompile shaders tại đây
-      set({ isNightMode: nextMode })
-
-      // Phase 3 — đợi Three.js render xong frame mới (rAF-aligned)
-      // Mỗi rAF = 1 render cycle thực tế, tự động scale theo frame rate thiết bị
-      let frames = 0
-      const waitForRender = () => {
-        frames++
-        if (frames < 8) {
-          // 8 frames: ~133ms @60fps | ~267ms @30fps | ~67ms @120fps
-          requestAnimationFrame(waitForRender)
-        } else {
-          // Scene mới đã render đủ frame — bắt đầu fade-out
-          set({ transitionPhase: 'revealing' })
-          // Phase 4 — 'idle' sau khi CSS fade-out hoàn tất (360ms)
-          setTimeout(() => set({ transitionPhase: 'idle' }), 360)
-        }
-      }
-      requestAnimationFrame(waitForRender)
-    }, 280) // 280ms > 260ms CSS fade-in → overlay chắc chắn opaque
-  },
-  
-  setHoveredObject: (obj) => set({ hoveredObject: obj }),
-  
-  // Cat Easter Egg
-  clickCat: () => {
-    const { catClicks, onSoundTrigger } = get()
-    const clicks = catClicks + 1
-    
-    // Play meow sound
-    if (onSoundTrigger) onSoundTrigger('meow')
-    
-    set({ catClicks: clicks })
-    if (clicks >= 5) {
-      if (onSoundTrigger) onSoundTrigger('easterEgg')
-      track('easter_egg_found')
-      set({ showEasterEgg: true })
-      // Reset after 3 seconds
-      setTimeout(() => set({ showEasterEgg: false, catClicks: 0 }), 3000)
-    }
-  },
-  
-  resetEasterEgg: () => set({ showEasterEgg: false, catClicks: 0 }),
-  
-  // Record Player toggle - show/hide music player
-  toggleRecordPlayer: () => {
-    const { onSoundTrigger, showMusicPlayer } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    if (!showMusicPlayer) track('music_player_open')
-    set({ showMusicPlayer: !showMusicPlayer })
-  },
-
-  // Lighting Presets ('morning' | 'sunset' | 'rainy' | 'night')
-  setLightingPreset: (preset) => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    const isNight = preset === 'night'
-    set({
-      lightingPreset: preset,
-      isNightMode: isNight,
-    })
-  },
-
-  // Auto Scenario Tour (24h Day-Night Cycle)
-  isAutoScenarioRunning: false,
-  toggleAutoScenario: () => {
-    const { isAutoScenarioRunning, onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ isAutoScenarioRunning: !isAutoScenarioRunning })
-  },
-  setAutoScenarioRunning: (running) => set({ isAutoScenarioRunning: running }),
-
-  // Character & Environment Interactivity System
-  characterAction: 'walking', // 'walking' | 'stretching' | 'petting_cat' | 'drinking_coffee' | 'sitting_bed' | 'sleeping' | 'idle'
-  setCharacterAction: (action) => set({ characterAction: action }),
-  isCharacterSleeping: false,
-  setIsCharacterSleeping: (sleeping) => set({ isCharacterSleeping: sleeping }),
-  // Bed Physical Interaction Stage
-  // 'none' | 'settle_bedside' | 'sit_at_bed' | 'swing_legs_in' | 'recline_to_pillow' | 'sleeping' | 'wake_stir' | 'wake_sit' | 'wake_swing_legs' | 'wake_stand'
-  bedStage: 'none',
-  setBedStage: (stage) => set({ bedStage: stage }),
-  wakeUpTrigger: 0,
-  wakeUpCharacter: () => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('charHappy')
-    set((state) => ({ wakeUpTrigger: state.wakeUpTrigger + 1 }))
-  },
-
-  // Retro Pixel Shader filter toggle
-  toggleRetroPixelMode: () => {
-    const { onSoundTrigger, retroPixelMode } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ retroPixelMode: !retroPixelMode })
-  },
-
-  // Desk Lamp toggle
-  toggleDeskLamp: () => {
-    const { onSoundTrigger, deskLampOn } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ deskLampOn: !deskLampOn })
-  },
-
-  // Guestbook modal
-  openGuestbook: () => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ showGuestbook: true })
-  },
-  closeGuestbook: () => set({ showGuestbook: false }),
-
-  // Leaderboard modal
-  openLeaderboard: (game = 'snake') => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ showLeaderboard: true, activeLeaderboardGame: game })
-  },
-  closeLeaderboard: () => set({ showLeaderboard: false }),
-
-  // Photo Mode
-  openPhotoMode: () => {
-    const { onSoundTrigger } = get()
-    if (onSoundTrigger) onSoundTrigger('click')
-    set({ showPhotoMode: true })
-  },
-  closePhotoMode: () => set({ showPhotoMode: false }),
-
-  // Admin Dashboard
-  openAdmin: () => set({ showAdmin: true }),
-  closeAdmin: () => set({ showAdmin: false }),
+      // Deprecated backwards-compatibility connector (now handled via AppEventBus)
+      onSoundTrigger: null,
+      setSoundTrigger: (_callback) => {},
     }),
     {
-      name: 'nghia-room-prefs',   // localStorage key
-      // Chỉ persist những field cần ghi nhớ, bỏ qua transient state
+      name: 'nghia-room-prefs',
       partialize: (state) => ({
         isNightMode: state.isNightMode,
         stringLightsOn: state.stringLightsOn,
