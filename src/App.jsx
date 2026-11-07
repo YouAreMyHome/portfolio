@@ -12,8 +12,7 @@ import SceneLighting from './components/Room/SceneLighting'
 import CameraController from './components/Room/CameraController'
 import PostProcessingEffects from './components/Room/PostProcessingEffects'
 import HUD from './components/UI/HUD'
-import LoadingScreen from './components/UI/LoadingScreen'
-import WelcomeScreen from './components/UI/WelcomeScreen'
+import ConstructionHUD from './components/UI/ConstructionHUD'
 import ClockTimeDisplay from './components/UI/ClockTimeDisplay'
 import TransitionOverlay from './components/UI/TransitionOverlay'
 import useStore from './store/useStore'
@@ -42,7 +41,7 @@ const AdminIndex = lazy(() => import('./components/Admin/index'))
  * - Bảng màu nền thống nhất 100% giữa HTML Body, Container Div và Three.js Canvas
  */
 const AMBIENT_BG_COLORS = {
-  morning: '#e8edf4',
+  morning: '#eee9e0',
   sunset: '#2a110a',
   rainy: '#18202d',
   night: '#090d16',
@@ -141,17 +140,18 @@ function Scene({ isNightMode, graphics = {} }) {
         {/* Camera Controller - animate camera for TV view */}
         <CameraController controlsRef={controlsRef} />
 
-        {/* OrbitControls - giới hạn góc xoay */}
+        {/* OrbitControls - Quán tính xoay mượt mà chuẩn Awwwards */}
         <OrbitControls
           ref={controlsRef}
           enableDamping
-          dampingFactor={0.05}
+          dampingFactor={0.075}
           minZoom={40}
           maxZoom={150}
-          minAzimuthAngle={-Math.PI / 4}
-          maxAzimuthAngle={Math.PI / 4}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 2.5}
+          minAzimuthAngle={-Math.PI / 2.8}
+          maxAzimuthAngle={Math.PI / 2.8}
+          minPolarAngle={Math.PI / 7}
+          maxPolarAngle={Math.PI / 2.3}
+          rotateSpeed={0.8}
           enablePan={controlsEnabled}
           enableRotate={controlsEnabled}
           enableZoom={controlsEnabled}
@@ -340,6 +340,9 @@ function AppContent() {
         <AdminIndex />
       </Suspense>
 
+      {/* Architectural Procedural Genesis HUD */}
+      <ConstructionHUD />
+
       {/* HUD */}
       <HUD isTouchDevice={isTouchDevice} />
 
@@ -353,12 +356,6 @@ function AppContent() {
 
       {/* Scene Transition Overlay — chạy khi toggle day/night */}
       <TransitionOverlay />
-
-      {/* Loading Screen */}
-      <LoadingScreen />
-
-      {/* Welcome Screen - Game Main Menu Style */}
-      <WelcomeScreen />
 
       <Suspense fallback={<OverlayFallback />}>
         {/* Polaroid Lightbox */}

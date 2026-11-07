@@ -25,7 +25,6 @@ const _phoneDayColor = new THREE.Color('#22c55e')
 function Bed() {
   const phoneRef = useRef()
   const duvetRef = useRef()
-  const bodyMoundRef = useRef()
   const pillowLeftRef = useRef()
   const pillowIndentRef = useRef()
   const pillowRightRef = useRef()
@@ -104,21 +103,13 @@ function Bed() {
       const targetZ = isDuvetUp ? 0.20 : 0.34
       const targetScaleZ = isDuvetUp ? 1.12 : 0.98
       const targetY = isSleepingStage
-        ? 0.468 + Math.sin(t * 1.4) * 0.005 // Synchronous harmonic breathing with character
+        ? 0.478 + Math.sin(t * 1.4) * 0.005 // Synchronous harmonic breathing with character
         : 0.44
 
       const duvetLerpSpeed = isRecliningStage ? 3.0 : 3.8
       duvetRef.current.position.z = THREE.MathUtils.lerp(duvetRef.current.position.z, targetZ, delta * duvetLerpSpeed)
       duvetRef.current.position.y = THREE.MathUtils.lerp(duvetRef.current.position.y, targetY, delta * 3.8)
       duvetRef.current.scale.z = THREE.MathUtils.lerp(duvetRef.current.scale.z, targetScaleZ, delta * 3.8)
-    }
-
-    // Dynamic 3D body mound under duvet (chăn phồng tự nhiên theo dáng người nằm bên dưới)
-    if (bodyMoundRef.current) {
-      const targetMoundScaleY = (isSleepingStage || isRecliningStage) ? 1.0 : 0.001
-      const moundSpeed = isRecliningStage ? 2.8 : 3.8
-      bodyMoundRef.current.scale.y = THREE.MathUtils.lerp(bodyMoundRef.current.scale.y, targetMoundScaleY, delta * moundSpeed)
-      bodyMoundRef.current.visible = bodyMoundRef.current.scale.y > 0.01
     }
 
     // Pillow indents smoothly under character's head on left side when reclining or sleeping
@@ -144,12 +135,14 @@ function Bed() {
       pillowRightRef.current.position.y = THREE.MathUtils.lerp(pillowRightRef.current.position.y, 0.45, delta * 4.0)
     }
 
-    // Left decorative cushion neatly shifts back against headboard when sitting/sleeping so it doesn't crowd sleeper
+    // Left decorative cushion neatly tucks away when sleeping so it doesn't collide with sleeper's head
     if (cushionLeftRef.current) {
-      const targetCushionZ = isOccupied ? -0.78 : -0.48
-      const targetCushionX = isOccupied ? -0.58 : -0.32
+      const targetCushionScale = isHeadOnPillow ? 0.001 : 1.0
+      const targetCushionZ = isOccupied ? -0.85 : -0.48
+      const targetCushionX = isOccupied ? -0.62 : -0.32
       const targetCushionY = isOccupied ? 0.52 : 0.49
       const targetCushionRotX = isOccupied ? -0.12 : -0.3
+      cushionLeftRef.current.scale.setScalar(THREE.MathUtils.lerp(cushionLeftRef.current.scale.x, targetCushionScale, delta * 4.5))
       cushionLeftRef.current.position.z = THREE.MathUtils.lerp(cushionLeftRef.current.position.z, targetCushionZ, delta * 3.5)
       cushionLeftRef.current.position.x = THREE.MathUtils.lerp(cushionLeftRef.current.position.x, targetCushionX, delta * 3.5)
       cushionLeftRef.current.position.y = THREE.MathUtils.lerp(cushionLeftRef.current.position.y, targetCushionY, delta * 3.5)
@@ -301,40 +294,6 @@ function Bed() {
           >
             <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
           </RoundedBox>
-
-          {/* Khối chăn phồng tự nhiên theo dáng người đang ngủ (Body Mound) */}
-          <group ref={bodyMoundRef} position={[0, 0, 0]} scale={[1, 0.001, 1]}>
-            {/* Phồng ngực & thân trên */}
-            <RoundedBox
-              args={[0.52, 0.11, 0.62]}
-              radius={0.045}
-              smoothness={4}
-              position={[-0.38, 0.065, -0.30]}
-              castShadow
-            >
-              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
-            </RoundedBox>
-            {/* Phồng hông & chân bao trọn vẹn đôi chân và gấu quần */}
-            <RoundedBox
-              args={[0.48, 0.095, 0.72]}
-              radius={0.038}
-              smoothness={4}
-              position={[-0.38, 0.048, 0.28]}
-              castShadow
-            >
-              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
-            </RoundedBox>
-            {/* Mép chăn lụa gấp ngược phồng uốn lượn ôm qua ngực người nằm */}
-            <RoundedBox
-              args={[0.54, 0.085, 0.26]}
-              radius={0.03}
-              smoothness={4}
-              position={[-0.38, 0.088, -0.60]}
-              castShadow
-            >
-              <meshStandardMaterial color="#fcf8f2" roughness={0.92} />
-            </RoundedBox>
-          </group>
 
           {/* ── 6. DẢI CHĂN LEN TRANG TRÍ (Terracotta Waffle Throw Runner) ── */}
           <group position={[0, 0.062, 0.4]}>

@@ -13,6 +13,7 @@
       "click": "Nhấn vào vật thể"
     },
     "hover": {
+      "person": "Chào chủ phòng 👋",
       "pc": "Khởi động máy tính",
       "board": "Kỹ năng & Công nghệ",
       "planboard": "Kế hoạch của mình",
@@ -89,10 +90,17 @@
   "music": {
     "open": "Mở Music Player",
     "minimize": "Thu nhỏ Player",
-    "queue": "Queue",
-    "tracks": "{{n}} tracks",
-    "no_track": "No track",
-    "unknown": "Unknown"
+    "close": "Đóng Player",
+    "queue": "Danh sách phát",
+    "tracks": "{{n}} bài hát",
+    "no_track": "Không có bài hát",
+    "unknown": "Chưa rõ nghệ sĩ",
+    "shuffle_on": "Bật phát ngẫu nhiên",
+    "shuffle_off": "Tắt phát ngẫu nhiên",
+    "repeat_all": "Lặp lại toàn bộ",
+    "repeat_one": "Lặp lại 1 bài",
+    "repeat_off": "Tắt lặp lại",
+    "now_playing": "Đang phát"
   },
   "kanban": {
     "title": "Bảng Kỹ Năng",

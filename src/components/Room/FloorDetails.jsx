@@ -209,27 +209,27 @@ function FloorDetails() {
         ))}
       </group>
 
-      {/* ── 6. Ván trượt Skateboard gỗ phong đặt trên sàn (Maple Skateboard on Floor - Flyweight) ── */}
-      <group position={[2.05, 0, 0.35]} rotation={[0, 0.35, 0]}>
+      {/* ── 6. Ván trượt Skateboard gỗ phong tựa nghiêng tinh tế vào hông tủ ngăn kéo (Leaning Maple Skateboard - Flyweight) ── */}
+      <group position={[2.68, 0.32, -3.15]} rotation={[0.08, 0.25, -0.34]}>
         {/* Mặt ván gỗ phong bo cong (Nose & Tail Kick) */}
-        <RoundedBox args={[0.18, 0.014, 0.72]} radius={0.01} smoothness={4} position={[0, 0.046, 0]} castShadow receiveShadow>
+        <RoundedBox args={[0.18, 0.014, 0.72]} radius={0.01} smoothness={4} position={[0, 0, 0]} castShadow receiveShadow>
           <meshStandardMaterial color="#d4a373" roughness={0.6} />
         </RoundedBox>
 
         {/* Lớp giấy ráp bám màu đen nhám mặt trên (Grip Tape) */}
-        <mesh position={[0, 0.054, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[0.16, 0.68]} />
           <meshStandardMaterial color="#18181b" roughness={0.98} />
         </mesh>
 
         {/* Hai trục xe kim loại hợp kim (Trucks - Flyweight) */}
         {[-0.2, 0.2].map((tz, ti) => (
-          <group key={ti} position={[0, 0.022, tz]}>
+          <group key={ti} position={[0, -0.024, tz]}>
             {/* Đế trục gắn vào ván */}
             <mesh position={[0, 0.01, 0]} geometry={skateBaseTruckGeo} material={skateTruckMat} />
             {/* Trục ngang */}
             <mesh position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} geometry={skateAxleGeo} material={skateAxleMat} />
-            {/* 2 bánh xe Urethane vàng cam đặt sát mặt sàn */}
+            {/* 2 bánh xe Urethane vàng cam */}
             {[-0.075, 0.075].map((wx, wi) => (
               <mesh key={wi} position={[wx, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow geometry={skateWheelGeo} material={skateWheelMat} />
             ))}

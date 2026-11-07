@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { RoundedBox } from '@react-three/drei'
+import { RoundedBox, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import { COLORS } from './colors'
 import useStore from '../../store/useStore'
@@ -492,7 +492,7 @@ function DeskSetup({ onProjectClick }) {
           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <group position={[0, DESK_H, 0]}>
 
-        {/* Máº·t bÃ n dark walnut */}
+        {/* Mặt bàn dark walnut */}
         <RoundedBox args={[2.3, 0.05, 1.1]} radius={0.013} smoothness={4} castShadow receiveShadow>
           <meshStandardMaterial color="#1c1008" roughness={0.58} />
         </RoundedBox>
@@ -501,6 +501,17 @@ function DeskSetup({ onProjectClick }) {
           <boxGeometry args={[2.28, 0.001, 1.08]} />
           <meshStandardMaterial color="#2a180c" roughness={0.72} />
         </mesh>
+
+        {/* Micro Contact Shadows trên mặt bàn (Bóng tiếp xúc mềm cho màn hình, bàn phím, cốc cà phê) */}
+        <ContactShadows
+          position={[0, 0.027, 0]}
+          scale={[2.2, 1.05]}
+          opacity={0.38}
+          blur={1.8}
+          far={0.35}
+          resolution={256}
+          frames={1}
+        />
         {/* Cạnh trước accent strip */}
         <mesh position={[0, -0.003, 0.548]}>
           <boxGeometry args={[2.27, 0.044, 0.005]} />

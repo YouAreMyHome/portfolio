@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import useStore from '../../store/useStore'
 import { useSounds } from '../../utils/useSounds'
 import { Cat, PartyPopper } from 'lucide-react'
@@ -14,6 +15,7 @@ import './Panels.css'
 /**
  * PanelOverlay - Modal manager for Portfolio panels
  * Uses Compound / Container-Presenter design pattern.
+ * Seamless Camera-to-OS transition delay (Henry Heffernan style)
  */
 function PanelOverlay() {
   const activePanel = useStore((state) => state.activePanel)
@@ -21,12 +23,24 @@ function PanelOverlay() {
   const showEasterEgg = useStore((state) => state.showEasterEgg)
   const isNightMode = useStore((state) => state.isNightMode)
   const { playClick } = useSounds()
+  const [osReady, setOsReady] = useState(false)
+
+  // Đợi camera Dolly Zoom áp sát vào màn hình PC trước khi hiển thị PortfolioOS
+  useEffect(() => {
+    if (activePanel === 'projects') {
+      const timer = setTimeout(() => setOsReady(true), 320)
+      return () => clearTimeout(timer)
+    } else {
+      setOsReady(false)
+    }
+  }, [activePanel])
 
   // TVGameOverlay handles 'playground'
   if (activePanel === 'playground') return null
 
-  // Portfolio OS for projects - renders fullscreen
+  // Portfolio OS for projects - renders sau nhịp zoom máy quay điện ảnh
   if (activePanel === 'projects') {
+    if (!osReady) return null
     return <PortfolioOS onExit={closePanel} />
   }
 

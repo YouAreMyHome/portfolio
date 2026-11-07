@@ -67,7 +67,7 @@ export function getGraphicsSettings(isMobile, isTablet) {
     return {
       shadows: false,
       postProcessing: false,
-      pixelRatio: Math.min(dpr, 1.0),
+      pixelRatio: Math.min(dpr, 1.2),
       antialias: false,
       aoSamples: 4,
       bloomIntensity: 0.22,
@@ -80,7 +80,7 @@ export function getGraphicsSettings(isMobile, isTablet) {
       contactShadowResolutionMain: 256,
       contactShadowResolutionRug: 128,
       composerMultisampling: 0,
-      zoom: 55
+      zoom: 60
     }
   }
 
@@ -89,7 +89,7 @@ export function getGraphicsSettings(isMobile, isTablet) {
     return {
       shadows: true,
       postProcessing: true,
-      pixelRatio: Math.min(dpr, 1.15),
+      pixelRatio: Math.min(dpr, 1.5),
       antialias: false,
       aoSamples: 6,
       bloomIntensity: 0.28,
@@ -102,16 +102,16 @@ export function getGraphicsSettings(isMobile, isTablet) {
       contactShadowResolutionMain: 384,
       contactShadowResolutionRug: 192,
       composerMultisampling: 0,
-      zoom: 65
+      zoom: 75
     }
   }
 
-  // Desktop tối ưu mượt mà 60 FPS (DPR 1.25 chống nghẽn fill-rate 4K, contact shadows bake frames=1)
+  // Desktop tối ưu mượt mà 60-120 FPS đẳng cấp Awwwards (Zoom 95 bố cục ấm cúng, đầy đặn)
   return {
     shadows: true,
     postProcessing: true,
-    pixelRatio: Math.min(dpr, 1.25),
-    antialias: false, // Tắt antialias canvas khi có EffectComposer để tránh đệm MSAA kép
+    pixelRatio: Math.min(dpr, 2.0),
+    antialias: false, // Tắt antialias canvas khi có EffectComposer SMAA để tránh đệm kép
     aoSamples: 8,
     bloomIntensity: 0.35,
     softShadows: true,
@@ -123,7 +123,7 @@ export function getGraphicsSettings(isMobile, isTablet) {
     contactShadowResolutionMain: 512,
     contactShadowResolutionRug: 256,
     composerMultisampling: 0,
-    zoom: 80
+    zoom: 95
   }
 }
 

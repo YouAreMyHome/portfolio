@@ -3,11 +3,11 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 /**
- * VolumetricAtmosphere - Hiệu ứng không khí vi mô tinh tế
+ * VolumetricAtmosphere - Hiệu ứng không khí vi mô tinh tế, trong trẻo
  * - Coffee Mug Steam: Hơi nước bốc lên từ cốc cà phê
  * Tối ưu hóa:
- * - InstancedMesh cho các hạt hơi nước thay vì render 10 mesh riêng rẽ
- * - 1 shared material duy nhất thay vì 10 instances trong JSX
+ * - InstancedMesh cho các hạt hơi nước thay vì render nhiều mesh riêng rẽ
+ * - Không dùng các khối hình học giả luồng sáng làm đục màn hình
  */
 const sharedSteamSphereGeo = new THREE.SphereGeometry(1, 6, 6)
 const steamMat = new THREE.MeshBasicMaterial({

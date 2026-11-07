@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { Environment, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
 import useStore from '../../store/useStore'
 import { useMobile } from '../../utils/useMobile'
@@ -51,30 +52,30 @@ function SceneLighting() {
   // ── Bảng cấu hình quang học 4 kịch bản ánh sáng (Master Optical Profiles) ──
   const PRESET_CONFIGS = {
     morning: {
-      ambient: { intensity: 0.84, color: '#fcfaf5' },
+      ambient: { intensity: 0.36, color: '#fbf6ef' }, // Cân bằng mềm mại, giữ độ sâu bóng đổ chân thực
       directional: {
-        intensity: 1.55,
-        color: '#fff8eb',
+        intensity: 1.08, // Nắng ban mai ấm áp tự nhiên, triệt tiêu hiện tượng cháy sáng sàn gỗ
+        color: '#fff1d6',
         pos: [-2.6, 6.8, -6.8],
         target: [-0.6, 0.3, -0.6],
         shadowRadius: 2.2,
         shadowBias: -0.00012,
         shadowNormalBias: 0.028,
       },
-      window: { intensity: 0.38, color: '#e0f2fe' },
-      rim: { intensity: 0.22, color: '#fef3c7' },
+      window: { intensity: 0.32, color: '#e0f2fe' },
+      rim: { intensity: 0.20, color: '#fef3c7' },
       monitorBias: { intensity: 0.25, color: '#38bdf8' },
       bedsideLamp: { intensity: 0.25, color: '#fef08a' },
       bedUnderglow: { intensity: 0.0, color: '#fbbf24' },
-      roomBounce: { intensity: 0.18, color: '#fffbeb' },
+      roomBounce: { intensity: 0.10, color: '#fed7aa' },
       stringLights: { intensity: 0.15, color: '#fef08a' },
       artAccent: { intensity: 0.20, color: '#fef3c7' },
       underDesk: { intensity: 0.10, color: '#06b6d4' },
     },
     sunset: {
-      ambient: { intensity: 0.74, color: '#fed7aa' },
+      ambient: { intensity: 0.38, color: '#fed7aa' },
       directional: {
-        intensity: 1.40,
+        intensity: 1.12,
         color: '#fb923c',
         pos: [-3.6, 3.8, -7.5],
         target: [0.0, 0.2, 0.3],
@@ -82,20 +83,20 @@ function SceneLighting() {
         shadowBias: -0.0001,
         shadowNormalBias: 0.032,
       },
-      window: { intensity: 0.45, color: '#ea580c' },
-      rim: { intensity: 0.32, color: '#f43f5e' },
+      window: { intensity: 0.40, color: '#ea580c' },
+      rim: { intensity: 0.28, color: '#f43f5e' },
       monitorBias: { intensity: 0.65, color: '#818cf8' },
       bedsideLamp: { intensity: 0.85, color: '#fde68a' },
       bedUnderglow: { intensity: 0.45, color: '#fbbf24' },
-      roomBounce: { intensity: 0.38, color: '#fed7aa' },
+      roomBounce: { intensity: 0.22, color: '#fed7aa' },
       stringLights: { intensity: 0.70, color: '#fef08a' },
       artAccent: { intensity: 0.35, color: '#fed7aa' },
       underDesk: { intensity: 0.30, color: '#06b6d4' },
     },
     rainy: {
-      ambient: { intensity: 0.76, color: '#68778d' },
+      ambient: { intensity: 0.52, color: '#68778d' },
       directional: {
-        intensity: 0.35,
+        intensity: 0.38,
         color: '#94a3b8',
         pos: [-2.5, 7.5, -6.5],
         target: [-0.5, 0.4, -0.5],
@@ -103,22 +104,20 @@ function SceneLighting() {
         shadowBias: -0.0001,
         shadowNormalBias: 0.025,
       },
-      window: { intensity: 0.30, color: '#60a5fa' },
-      rim: { intensity: 0.22, color: '#cbd5e1' },
+      window: { intensity: 0.28, color: '#60a5fa' },
+      rim: { intensity: 0.20, color: '#cbd5e1' },
       monitorBias: { intensity: 0.75, color: '#38bdf8' },
       bedsideLamp: { intensity: 0.75, color: '#fde68a' },
       bedUnderglow: { intensity: 0.35, color: '#fbbf24' },
-      roomBounce: { intensity: 0.30, color: '#fde68a' },
+      roomBounce: { intensity: 0.20, color: '#93c5fd' },
       stringLights: { intensity: 0.60, color: '#fef08a' },
       artAccent: { intensity: 0.30, color: '#fde68a' },
       underDesk: { intensity: 0.35, color: '#06b6d4' },
     },
     night: {
-      // Ban đêm: Không gian nhung lam lãng mạn, ấm áp, chill và hiện đại (Cinematic Velvet Midnight)
-      // Cân bằng hài hòa giữa ánh trăng dịu và hệ thống đèn nội thất, triệt tiêu hoàn toàn hiện tượng cháy sáng cục bộ
-      ambient: { intensity: 0.72, color: '#282b4a' }, // Ánh sáng nhung lam huyền ảo giúp toàn bộ phòng có chi tiết mềm mại
+      ambient: { intensity: 0.62, color: '#252844' }, // Ánh sáng nhung lam huyền ảo vừa vặn
       directional: {
-        intensity: 0.42,
+        intensity: 0.38,
         color: '#93c5fd', // Ánh trăng bàng bạc tự nhiên xuyên cửa sổ
         pos: [-2.6, 6.5, -6.8],
         target: [-0.6, 0.3, -0.6],
@@ -126,15 +125,15 @@ function SceneLighting() {
         shadowBias: -0.0001,
         shadowNormalBias: 0.032,
       },
-      window: { intensity: 0.55, color: '#60a5fa' }, // Vệt trăng rọi qua cửa sổ
-      rim: { intensity: 0.32, color: '#a5b4fc' }, // Tôn viền khối 3D mềm mại
-      monitorBias: { intensity: 0.85, color: '#38bdf8' }, // Lo-fi Cyan bias dịu nhẹ hắt sau màn hình
-      bedsideLamp: { intensity: 0.48, color: '#f59e0b' }, // Đèn ngủ mật ong ấm cúng (2200K), êm dịu không chói mắt
-      bedUnderglow: { intensity: 0.55, color: '#f59e0b' }, // Dải LED hổ phách hắt chân giường Japandi
-      roomBounce: { intensity: 0.58, color: '#fed7aa' }, // Phản xạ sàn gỗ & thảm len ấm áp, làm nổi bật trung tâm phòng
-      stringLights: { intensity: 0.35, color: '#fbbf24' }, // Ánh sáng vàng hổ phách dịu của đèn dây
-      artAccent: { intensity: 0.28, color: '#fef3c7' }, // Đèn rọi tường tranh thanh nhã
-      underDesk: { intensity: 0.38, color: '#06b6d4' }, // Cyber under-desk glow vừa đủ
+      window: { intensity: 0.50, color: '#60a5fa' },
+      rim: { intensity: 0.28, color: '#a5b4fc' },
+      monitorBias: { intensity: 0.85, color: '#38bdf8' },
+      bedsideLamp: { intensity: 0.48, color: '#f59e0b' },
+      bedUnderglow: { intensity: 0.55, color: '#f59e0b' },
+      roomBounce: { intensity: 0.36, color: '#fed7aa' },
+      stringLights: { intensity: 0.35, color: '#fbbf24' },
+      artAccent: { intensity: 0.28, color: '#fef3c7' },
+      underDesk: { intensity: 0.38, color: '#06b6d4' },
     },
   }
 
@@ -443,6 +442,35 @@ function SceneLighting() {
         distance={3.0}
         decay={2.0}
       />
+
+      {/* ── 13. STUDIO ENVIRONMENT IBL (Phản xạ ánh sáng vi mô cho kim loại, kính, màn hình) ── */}
+      <Environment resolution={256}>
+        {/* Soft studio ceiling softbox */}
+        <Lightformer
+          form="rect"
+          intensity={isNight ? 0.2 : 0.3}
+          color={isNight ? '#60a5fa' : lightingPreset === 'sunset' ? '#fed7aa' : '#ffffff'}
+          position={[0, 7, 0]}
+          scale={[10, 10, 1]}
+          target={[0, 0, 0]}
+        />
+        {/* Lateral rim highlight - tạo viền phản chiếu sắc nét cho case PC và mép kính */}
+        <Lightformer
+          form="rect"
+          intensity={isNight ? 0.2 : 0.25}
+          color={isNight ? '#38bdf8' : '#fef08a'}
+          position={[-5, 4, -4]}
+          scale={[6, 3, 1]}
+        />
+        {/* Soft fill reflection */}
+        <Lightformer
+          form="rect"
+          intensity={isNight ? 0.15 : 0.2}
+          color={isNight ? '#818cf8' : '#fed7aa'}
+          position={[5, 3, 4]}
+          scale={[6, 3, 1]}
+        />
+      </Environment>
     </>
   )
 }

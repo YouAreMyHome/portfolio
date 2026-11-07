@@ -24,6 +24,7 @@ function InteractiveObject({
   const [hovered, setHovered] = useState(false)
   const baseY = useRef(0)
   const isMoving = useRef(false)
+  const velocityY = useRef(0)
   const setHoveredObject = useStore((state) => state.setHoveredObject)
   const setActivePanel = useStore((state) => state.setActivePanel)
   const isPanelActive = useStore((state) => state.activePanel !== null)
@@ -48,18 +49,31 @@ function InteractiveObject({
     }
   }, [isDisabled, hovered, setHoveredObject])
   
-  // Smooth lift animation with Delta-timed Exponential Damping (Framerate-independent)
+  // Damped Spring Physics (Vật lý Lò xo Giảm chấn nảy nhẹ đàn hồi chuẩn Awwwards)
   useFrame((_, delta) => {
     if (!groupRef.current || !isMoving.current) return
 
+    // Giới hạn delta an toàn để tránh nảy văng khi tab bị lag
+    const dt = Math.min(delta, 0.05)
     const targetY = hovered && !isDisabled ? baseY.current + hoverLift : baseY.current
-    const diff = targetY - groupRef.current.position.y
+    const displacement = targetY - groupRef.current.position.y
 
-    if (Math.abs(diff) > 0.0002) {
-      const factor = 1 - Math.exp(-9 * delta)
-      groupRef.current.position.y += diff * factor
-    } else {
+    // Hệ số vật lý đàn hồi
+    const springStiffness = 180
+    const damping = 18
+
+    // F = -k*x - c*v
+    const springForce = displacement * springStiffness
+    const dampingForce = -damping * velocityY.current
+    const acceleration = springForce + dampingForce
+
+    velocityY.current += acceleration * dt
+    groupRef.current.position.y += velocityY.current * dt
+
+    // Kiểm tra điểm dừng nghỉ tĩnh
+    if (Math.abs(displacement) < 0.0002 && Math.abs(velocityY.current) < 0.001) {
       groupRef.current.position.y = targetY
+      velocityY.current = 0
       isMoving.current = false // Đã dừng lại vị trí đích, ngắt useFrame tính toán
     }
   })

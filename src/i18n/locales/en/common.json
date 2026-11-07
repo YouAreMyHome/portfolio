@@ -13,6 +13,7 @@
       "click": "Click on objects"
     },
     "hover": {
+      "person": "Say Hi to the Host 👋",
       "pc": "Boot up computer",
       "board": "Skills & Technology",
       "planboard": "My plans",
@@ -89,10 +90,17 @@
   "music": {
     "open": "Open Music Player",
     "minimize": "Minimize player",
-    "queue": "Queue",
+    "close": "Close player",
+    "queue": "Playlist Queue",
     "tracks": "{{n}} tracks",
     "no_track": "No track",
-    "unknown": "Unknown"
+    "unknown": "Unknown artist",
+    "shuffle_on": "Enable shuffle",
+    "shuffle_off": "Disable shuffle",
+    "repeat_all": "Repeat all",
+    "repeat_one": "Repeat current",
+    "repeat_off": "Repeat off",
+    "now_playing": "Now playing"
   },
   "kanban": {
     "title": "My Skills Board",

@@ -96,6 +96,8 @@ function HUD({ isTouchDevice = false }) {
 
   const getHoverText = () => {
     switch (hoveredObject) {
+      case 'person':
+        return t('hud.hover.person', 'Chào chủ phòng 👋')
       case 'pc':
         return t('hud.hover.pc')
       case 'board':

@@ -5,15 +5,17 @@ import {
   Vignette,
   ToneMapping,
   Pixelation,
+  SMAA,
 } from '@react-three/postprocessing'
-import { ToneMappingMode } from 'postprocessing'
+import { ToneMappingMode, EdgeDetectionMode } from 'postprocessing'
 import useStore from '../../store/useStore'
 
 /**
- * PostProcessingEffects - Pipeline hậu kỳ đồ họa cao cấp
+ * PostProcessingEffects - Pipeline hậu kỳ đồ họa cao cấp chuẩn Awwwards
  * - Bloom: Phát sáng chọn lọc cho đèn LED, màn hình máy tính, TV và trăng sao (threshold >= 1.05)
- * - Vignette: Tạo chiều sâu góc nhìn
  * - ToneMapping: Chuẩn hóa màu sắc rực rỡ, sắc sảo (ACES Filmic)
+ * - SMAA: Khử răng cưa subpixel điện ảnh, triệt tiêu 100% cạnh răng cưa bậc thang
+ * - Vignette: Tạo chiều sâu góc nhìn
  * - Pixelation: Chế độ giả lập Retro Pixel Art khi người dùng bật
  */
 export default function PostProcessingEffects({ graphics = {} }) {
@@ -32,7 +34,7 @@ export default function PostProcessingEffects({ graphics = {} }) {
     <EffectComposer multisampling={composerMultisampling}>
       {/* 1. Selective Bloom: Chỉ phát quang các vật thể phát sáng (emissive/LED), triệt tiêu chớp sáng khi xoay camera */}
       <Bloom
-        intensity={(isNight ? 0.45 : lightingPreset === 'sunset' ? 0.35 : 0.22) * (bloomIntensity / 0.35)}
+        intensity={(isNight ? 0.42 : lightingPreset === 'sunset' ? 0.32 : 0.22) * (bloomIntensity / 0.35)}
         luminanceThreshold={1.05}
         luminanceSmoothing={0.15}
         mipmapBlur
@@ -42,13 +44,18 @@ export default function PostProcessingEffects({ graphics = {} }) {
       {/* 2. ToneMapping: Tăng độ tương phản màu sắc sống động */}
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
 
-      {/* 3. Vignette: Viền tối điện ảnh nhẹ nhàng, không bóp nghẹt ánh sáng ban đêm */}
+      {/* 3. SMAA: Khử răng cưa cận biên điện ảnh cho hình học 3D Isometric */}
+      {!retroPixelMode && (
+        <SMAA edgeDetectionMode={EdgeDetectionMode.COLOR} />
+      )}
+
+      {/* 4. Vignette: Viền tối điện ảnh nhẹ nhàng, không bóp nghẹt ánh sáng ban đêm */}
       <Vignette
         offset={0.3}
         darkness={isNight ? 0.18 : 0.15}
       />
 
-      {/* 4. Tùy chọn Retro Pixelation: Biến đổi căn phòng thành phong cách game 16-bit */}
+      {/* 5. Tùy chọn Retro Pixelation: Biến đổi căn phòng thành phong cách game 16-bit */}
       {retroPixelMode && (
         <Pixelation granularity={5} />
       )}

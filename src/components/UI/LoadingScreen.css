@@ -1,154 +1,406 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600&display=swap');
+/* ========================================================
+   CINEMATIC ENTRANCE PORTAL
+   Unified Loading & Welcome Experience (Awwwards Grade)
+   ======================================================== */
 
-/* ==========================================================================
-   LOADING SCREEN — SYNCHRONIZED WITH GAME MAIN MENU WELCOME SCREEN
-   ========================================================================== */
-
-.loading-screen {
+.portal-root {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #ededed;
+}
+
+/* ========================================================
+   1. CINEMATIC SHUTTER CURTAIN PANELS (Màn trượt kép mở rạp)
+   ======================================================== */
+.portal-shutter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: #090a10;
+  z-index: 1;
+  transition: transform 0.85s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+.portal-shutter.shutter-top {
+  top: 0;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.portal-shutter.shutter-bottom {
+  bottom: 0;
+  border-top: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+/* Khi người dùng click Vào phòng: 2 cánh rèm trượt mở rạp hát */
+.portal-entering .portal-shutter.shutter-top {
+  transform: translateY(-100%);
+}
+
+.portal-entering .portal-shutter.shutter-bottom {
+  transform: translateY(100%);
+}
+
+.portal-entering .portal-content {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========================================================
+   2. BLUEPRINT GRID & ATMOSPHERE
+   ======================================================== */
+.portal-grid-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center center;
+  pointer-events: none;
+}
+
+.portal-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(circle at center, transparent 35%, rgba(5, 6, 10, 0.88) 100%);
+  pointer-events: none;
+}
+
+.portal-center-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(40px);
+}
+
+.portal-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.p-star {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  opacity: 0.35;
+  animation: pStarTwinkle infinite alternate ease-in-out;
+}
+
+@keyframes pStarTwinkle {
+  0% { opacity: 0.15; transform: scale(0.8); }
+  100% { opacity: 0.85; transform: scale(1.2); }
+}
+
+/* ========================================================
+   3. CONTENT CONTAINER
+   ======================================================== */
+.portal-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 48px;
+  box-sizing: border-box;
+}
+
+/* ── Top Bar ── */
+.portal-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.brand-divider {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.brand-sub {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.portal-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portal-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.portal-control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.portal-control-btn.muted {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.system-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* ── Center Stage ── */
+.portal-center-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  user-select: none;
-  background-color: #080918;
-  color: #f1f5f9;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  opacity: 1;
-  transform: scale(1) translateY(0);
-  filter: blur(0px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.7s ease;
-  will-change: opacity, transform, filter;
-}
-
-/* Seamless Dissolve into Welcome Screen */
-.loading-screen.loading-screen-fading {
-  opacity: 0;
-  transform: scale(0.94) translateY(-24px);
-  filter: blur(8px);
-  pointer-events: none;
-}
-
-.loading-screen.loading-screen-fading .loading-card {
-  transform: scale(0.92) translateY(-28px);
-  opacity: 0;
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
-}
-
-/* Deep Night Sky Background — Synchronized with Welcome Screen */
-.loading-sky-gradient {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 75% 20%, #1e1b4b 0%, #131238 35%, #0b0c24 70%, #050614 100%);
-  z-index: 1;
-}
-
-.loading-scanlines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
-  background-size: 100% 3px;
-  opacity: 0.6;
-  z-index: 3;
-}
-
-.loading-vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at center, transparent 45%, rgba(4, 5, 15, 0.85) 100%);
-  z-index: 3;
-}
-
-/* Stars Layer */
-.loading-stars-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.loading-star {
-  position: absolute;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.85);
-  animation: loadingStarTwinkle infinite alternate ease-in-out;
-}
-
-@keyframes loadingStarTwinkle {
-  0% {
-    opacity: 0.2;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.3;
-    transform: scale(0.9);
-  }
-}
-
-/* Soft Ambient Moon Halo Behind Card */
-.loading-center-halo {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(245, 158, 11, 0.08) 40%, transparent 70%);
-  filter: blur(40px);
-  z-index: 2;
-  pointer-events: none;
-  animation: haloBreathe 5s infinite alternate ease-in-out;
-}
-
-@keyframes haloBreathe {
-  0% {
-    transform: scale(0.9);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-}
-
-/* ==========================================================================
-   LOADING CARD — MATCHES WELCOME HERO CARD
-   ========================================================================== */
-
-.loading-card {
+  margin: auto 0;
   position: relative;
-  z-index: 10;
-  width: 90%;
-  max-width: 480px;
-  background: rgba(13, 16, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(99, 102, 241, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 32px 30px 26px;
-  text-align: center;
-  overflow: hidden;
-  animation: loadingCardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes loadingCardEntrance {
+/* ── Isometric Voxel Blueprint Cube ── */
+.portal-cube-assembly {
+  position: relative;
+  width: 125px;
+  height: 125px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.portal-cube-assembly.ready {
+  transform: scale(0.92);
+  margin-bottom: 20px;
+}
+
+.cube-vector {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+  animation: cubeGentleFloat 4s ease-in-out infinite alternate;
+}
+
+@keyframes cubeGentleFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-7px) rotate(1.5deg); }
+}
+
+.cube-poly {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.4;
+  fill: rgba(15, 23, 42, 0.35);
+  transition: all 0.3s ease;
+}
+
+.poly-floor {
+  fill: rgba(245, 158, 11, 0.05);
+  stroke: rgba(245, 158, 11, 0.35);
+}
+
+.poly-left {
+  fill: rgba(56, 189, 248, 0.04);
+  stroke: rgba(56, 189, 248, 0.3);
+}
+
+.poly-right {
+  fill: rgba(139, 92, 246, 0.04);
+  stroke: rgba(139, 92, 246, 0.3);
+}
+
+.grid-subline {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 3;
+}
+
+/* Voxel Core Block */
+.voxel-face {
+  animation: voxelPulseGlow 2.5s ease-in-out infinite alternate;
+}
+
+.voxel-t {
+  fill: #f59e0b;
+  stroke: #fbbf24;
+  stroke-width: 1;
+}
+
+.voxel-l {
+  fill: #d97706;
+  stroke: #f59e0b;
+  stroke-width: 1;
+}
+
+.voxel-r {
+  fill: #b45309;
+  stroke: #d97706;
+  stroke-width: 1;
+}
+
+@keyframes voxelPulseGlow {
+  0% {
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.95));
+  }
+}
+
+.anchor-dot {
+  fill: #38bdf8;
+  filter: drop-shadow(0 0 4px #38bdf8);
+}
+
+/* Laser Scan Ray */
+.cube-scan-ray {
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  box-shadow: 0 0 12px #38bdf8;
+  opacity: 0.7;
+  animation: scanRayLoop 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes scanRayLoop {
+  0% { transform: translateY(0); opacity: 0.2; }
+  50% { opacity: 0.85; }
+  100% { transform: translateY(86px); opacity: 0.2; }
+}
+
+/* ========================================================
+   4. GIAI ĐOẠN 1: LOADING COUNTER & TERMINAL
+   ======================================================== */
+.loader-indicator-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.large-percent-readout {
+  font-size: clamp(64px, 10vw, 100px);
+  font-weight: 200;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  display: flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.large-percent-readout .digits {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-weight: 300;
+  background: linear-gradient(180deg, #ffffff 30%, rgba(255, 255, 255, 0.65) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.large-percent-readout .symbol {
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 300;
+  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.status-terminal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 16px;
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+}
+
+/* ========================================================
+   5. GIAI ĐOẠN 2: HERO ENTER PORTAL BUTTON (Morphing mượt mà)
+   ======================================================== */
+.enter-portal-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: enterAreaPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes enterAreaPop {
   0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.97);
+    transform: translateY(16px) scale(0.96);
   }
   100% {
     opacity: 1;
@@ -156,267 +408,205 @@
   }
 }
 
-/* Game Corner Brackets */
-.loading-card .card-corner {
+/* The Glowing Hero Button */
+.hero-enter-button {
+  position: relative;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  border-radius: 40px;
+  padding: 18px 42px;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 12px 36px rgba(245, 158, 11, 0.35), 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
+}
+
+.hero-enter-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 16px 48px rgba(245, 158, 11, 0.55), 0 0 32px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+}
+
+.hero-enter-button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn-content-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #0b0c10;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.arrow-icon {
+  transition: transform 0.25s ease;
+}
+
+.hero-enter-button:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+/* Breathing Aura Ripple Rings */
+.button-aura-ring {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  border-color: #6366f1;
+  inset: -6px;
+  border-radius: 48px;
+  border: 2px solid rgba(245, 158, 11, 0.5);
+  opacity: 0;
+  animation: auraRipple 2.6s ease-out infinite;
   pointer-events: none;
 }
 
-.loading-card .corner-tl {
-  top: 10px;
-  left: 10px;
-  border-top: 2px solid;
-  border-left: 2px solid;
+.button-aura-ring.ring-delay {
+  animation-delay: 1.3s;
 }
 
-.loading-card .corner-tr {
-  top: 10px;
-  right: 10px;
-  border-top: 2px solid;
-  border-right: 2px solid;
-}
-
-.loading-card .corner-bl {
-  bottom: 10px;
-  left: 10px;
-  border-bottom: 2px solid;
-  border-left: 2px solid;
-}
-
-.loading-card .corner-br {
-  bottom: 10px;
-  right: 10px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
-}
-
-/* Badge */
-.loading-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  color: #c7d2fe;
-  margin-bottom: 14px;
-}
-
-.loading-badge-icon {
-  color: #fbbf24;
-  animation: spinSlow 8s linear infinite;
-}
-
-/* Title */
-.loading-title {
-  margin: 0 0 6px;
-  font-family: 'Space Grotesk', -apple-system, sans-serif;
-  font-size: clamp(32px, 6vw, 42px);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
-}
-
-.loading-title .title-highlight {
-  display: inline-block;
-  background: linear-gradient(135deg, #ffffff 10%, #e0e7ff 50%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 25px rgba(129, 140, 248, 0.35);
-  margin-right: 10px;
-}
-
-.loading-title .title-sub {
-  display: inline-block;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(251, 191, 36, 0.35);
-}
-
-.loading-subtitle {
-  font-size: 13.5px;
-  color: #94a3b8;
-  margin: 0 auto 22px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
-}
-
-/* Stage status indicator pill */
-.loading-stage-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 7px 16px;
-  border-radius: 999px;
-  margin-bottom: 20px;
-}
-
-.loading-stage-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #fbbf24;
-  box-shadow: 0 0 8px #fbbf24;
-  animation: stageDotPulse 1.4s infinite ease-in-out;
-}
-
-@keyframes stageDotPulse {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.3);
-  }
-}
-
-.loading-stage-text {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #e2e8f0;
-  letter-spacing: 0.5px;
-}
-
-/* Progress bar container */
-.loading-bar-wrap {
-  width: 100%;
-  margin-bottom: 18px;
-}
-
-.loading-bar-track {
-  position: relative;
-  width: 100%;
-  height: 8px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.loading-bar-fill {
-  position: relative;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #fbbf24 100%);
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
-  transition: width 0.15s ease-out;
-}
-
-.loading-bar-glow-tip {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 12px;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 12px #ffffff, 0 0 20px #fbbf24;
-}
-
-.loading-bar-shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    transparent 100%
-  );
-  animation: barShimmer 2s infinite linear;
-}
-
-@keyframes barShimmer {
+@keyframes auraRipple {
   0% {
-    transform: translateX(-100%);
+    transform: scale(0.98);
+    opacity: 0.8;
   }
   100% {
-    transform: translateX(100%);
+    transform: scale(1.28);
+    opacity: 0;
   }
 }
 
-/* Meta info row under progress bar */
-.loading-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-}
-
-.loading-meta-steps {
-  color: #64748b;
-}
-
-.loading-meta-percent {
-  color: #fbbf24;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
-}
-
-/* Cozy Tip */
-.loading-cozy-tip {
+/* Micro Navigation Hints */
+.micro-navigation-hints {
+  margin-top: 18px;
   font-size: 12.5px;
-  color: #94a3b8;
-  margin: 0;
-  font-style: italic;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.04em;
+  text-align: center;
+  max-width: 480px;
 }
 
-/* Footer tiny watermark */
-.loading-footer-brand {
-  position: relative;
-  z-index: 10;
+.keyboard-shortcut-hint {
+  margin-top: 10px;
+  font-size: 10.5px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.12em;
+  animation: pulseDim 2s infinite ease-in-out;
+}
+
+@keyframes pulseDim {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+}
+
+/* ========================================================
+   6. BOTTOM BAR: HAIRLINE PROGRESS & METADATA
+   ======================================================== */
+.portal-bottom-bar {
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  color: #475569;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
+.hairline-meter-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: visible;
+  position: relative;
+}
 
-@media (max-width: 480px) {
-  .loading-card {
-    padding: 24px 18px 20px;
-    border-radius: 16px;
+.hairline-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #38bdf8 100%);
+  border-radius: 2px;
+  position: relative;
+  transition: width 0.1s linear;
+}
+
+.hairline-laser-beacon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+}
+
+.portal-footer-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.meta-engine {
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Transition Flash */
+.portal-transition-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.5) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.4s ease;
+}
+
+.portal-transition-flash.flash-active {
+  opacity: 1;
+}
+
+/* ========================================================
+   7. RESPONSIVE FOR MOBILE
+   ======================================================== */
+@media (max-width: 640px) {
+  .portal-content {
+    padding: 24px 20px;
   }
 
-  .loading-title {
-    font-size: 30px;
+  .brand-sub {
+    display: none;
   }
 
-  .loading-title .title-highlight {
-    display: block;
-    margin-right: 0;
+  .system-chip {
+    display: none;
   }
 
-  .loading-stage-text {
-    font-size: 11px;
+  .portal-cube-assembly {
+    width: 105px;
+    height: 105px;
+    margin-bottom: 16px;
   }
 
-  .loading-cozy-tip {
+  .hero-enter-button {
+    padding: 16px 32px;
+  }
+
+  .btn-content-wrap {
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .micro-navigation-hints {
     font-size: 11.5px;
+  }
+
+  .portal-footer-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }
