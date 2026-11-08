@@ -24,10 +24,10 @@ import {
 
 // Per-game visual identity for the PS5-style select screen
 const GAME_CARD_STYLES = {
-  snake:  { color: '#4ade80', rgb: '74,222,128',  emoji: '\uD83D\uDC0D', label: 'SNAKE' },
-  pong:   { color: '#22d3ee', rgb: '34,211,238',  emoji: '\uD83C\uDFD3', label: 'PONG' },
-  dino:   { color: '#f97316', rgb: '249,115,22',  emoji: '\uD83E\uDD96', label: 'DINO RUN' },
-  tetris: { color: '#a855f7', rgb: '168,85,247',  emoji: '\uD83E\uDDE9', label: 'TETRIS' },
+  snake: { color: '#4ade80', rgb: '74,222,128', emoji: '\uD83D\uDC0D', label: 'SNAKE' },
+  pong: { color: '#22d3ee', rgb: '34,211,238', emoji: '\uD83C\uDFD3', label: 'PONG' },
+  dino: { color: '#f97316', rgb: '249,115,22', emoji: '\uD83E\uDD96', label: 'DINO RUN' },
+  tetris: { color: '#a855f7', rgb: '168,85,247', emoji: '\uD83E\uDDE9', label: 'TETRIS' },
 }
 
 // Draws a rounded rectangle path (no fill/stroke — caller does that)
@@ -55,7 +55,7 @@ function TVScreen({ isActive }) {
   const [currentScreen, setCurrentScreen] = useState('select')
   const [gameState, setGameState] = useState('menu')
   const [selectedGame, setSelectedGame] = useState(0)
-  
+
   // Game scores (loaded from localStorage)
   const [scores, setScores] = useState(() => {
     const games = getGameList()
@@ -65,7 +65,7 @@ function TVScreen({ isActive }) {
     })
     return initial
   })
-  
+
   // Game state refs (mutable, not triggering re-renders)
   const gameStateRef = useRef(null)
   const lastUpdateRef = useRef(0)
@@ -76,44 +76,44 @@ function TVScreen({ isActive }) {
   useEffect(() => {
     needsRedrawSelectRef.current = true
   }, [selectedGame, scores, currentScreen])
-  
+
   // ========== CANVAS & TEXTURE ==========
   const { canvas, texture } = useMemo(() => {
     const cvs = document.createElement('canvas')
     cvs.width = CANVAS_WIDTH
     cvs.height = CANVAS_HEIGHT
-    
+
     const ctx = cvs.getContext('2d')
     ctx.fillStyle = GAME_COLORS.background
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-    
+
     const tex = new THREE.CanvasTexture(cvs)
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
     tex.colorSpace = THREE.SRGBColorSpace
     tex.needsUpdate = true
-    
+
     return { canvas: cvs, texture: tex }
   }, [])
-  
+
   // Cleanup texture on unmount
   useEffect(() => {
     return () => texture.dispose()
   }, [texture])
-  
+
   // ========== GAME LIST ==========
   const gameList = useMemo(() => getGameList(), [])
-  
+
   // ========== DRAWING: GAME SELECT (PS5-style) ==========
   const drawGameSelect = useCallback((ctx) => {
     const n = gameList.length
     const prevIdx = (selectedGame - 1 + n) % n
     const nextIdx = (selectedGame + 1) % n
-    const selGame  = gameList[selectedGame]
+    const selGame = gameList[selectedGame]
     const prevGame = gameList[prevIdx]
     const nextGame = gameList[nextIdx]
     const fallback = { color: '#4ade80', rgb: '74,222,128', emoji: '\uD83C\uDFAE', label: 'GAME' }
-    const selStyle  = GAME_CARD_STYLES[selGame.id]  || fallback
+    const selStyle = GAME_CARD_STYLES[selGame.id] || fallback
     const prevStyle = GAME_CARD_STYLES[prevGame.id] || fallback
     const nextStyle = GAME_CARD_STYLES[nextGame.id] || fallback
 
@@ -128,7 +128,7 @@ function TVScreen({ isActive }) {
 
     // ── Card layout ──
     const SEL_W = 128, SEL_H = 140
-    const SIDE_W = 90,  SIDE_H = 108
+    const SIDE_W = 90, SIDE_H = 108
     const GAP = 18
     const SEL_X = Math.floor((CANVAS_WIDTH - SEL_W) / 2)   // 166
     const SEL_Y = 24
@@ -253,39 +253,39 @@ function TVScreen({ isActive }) {
     ctx.textAlign = 'center'
     ctx.fillText('\u25C4 \u25BA  move     SPACE / ENTER  play', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 8)
   }, [selectedGame, gameList, scores])
-  
+
   // ========== START GAME ==========
   const startGame = useCallback((gameId) => {
     const game = getGame(gameId)
     if (!game) return
-    
+
     track('game_start', { game: gameId })
     gameStateRef.current = game.createState()
     inputRef.current = {}
     setCurrentScreen(gameId)
     setGameState('menu')
   }, [])
-  
+
   // ========== RESTART GAME ==========
   const restartGame = useCallback(() => {
     const game = getGame(currentScreen)
     if (!game) return
-    
+
     gameStateRef.current = game.createState()
     inputRef.current = {}
     setGameState('playing')
   }, [currentScreen])
-  
+
   // ========== HANDLE GAME OVER ==========
   const handleGameOver = useCallback((game, state) => {
     setGameState('gameover')
-    
+
     // Check for new high score
     let scoreValue = state.score
     if (game.scoreType === 'wins' && state.winner === 'PLAYER') {
       scoreValue = scores[game.id] + 1
     }
-    
+
     if (game.scoreType === 'highScore' && isNewHighScore(game.id, state.score)) {
       saveGameScore(game.id, state.score)
       setScores(prev => ({ ...prev, [game.id]: state.score }))
@@ -294,22 +294,22 @@ function TVScreen({ isActive }) {
       setScores(prev => ({ ...prev, [game.id]: scoreValue }))
     }
   }, [scores])
-  
+
   // ========== KEYBOARD CONTROLS ==========
   useEffect(() => {
     if (!isActive) return
-    
+
     const handleKeyDown = (e) => {
       const key = e.key
-      
+
       // Prevent default for game keys
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 
-           'w', 'a', 's', 'd', 'W', 'A', 'S', 'D', 
-           ' ', 'Escape', 'Enter', 'p', 'P'].includes(key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+        'w', 'a', 's', 'd', 'W', 'A', 'S', 'D',
+        ' ', 'Escape', 'Enter', 'p', 'P'].includes(key)) {
         e.preventDefault()
         e.stopPropagation()
       }
-      
+
       // ===== GAME SELECT =====
       if (currentScreen === 'select') {
         if (key === 'ArrowUp' || key === 'w' || key === 'W') {
@@ -321,7 +321,7 @@ function TVScreen({ isActive }) {
         }
         return
       }
-      
+
       // ESC handling
       if (key === 'Escape') {
         if (gameState === 'menu' || gameState === 'gameover') {
@@ -334,10 +334,10 @@ function TVScreen({ isActive }) {
         }
         return
       }
-      
+
       const game = getGame(currentScreen)
       if (!game) return
-      
+
       // ===== SNAKE =====
       if (currentScreen === 'snake') {
         // Start/Pause
@@ -349,19 +349,19 @@ function TVScreen({ isActive }) {
           }
           return
         }
-        
+
         if ((key === 'p' || key === 'P') && gameState === 'playing') {
           setGameState('paused')
           return
         }
-        
+
         // Direction
         if (gameState === 'playing' && game.controls.movement[key]) {
           const dir = game.controls.movement[key]
           game.setDirection(gameStateRef.current, dir.x, dir.y)
         }
       }
-      
+
       // ===== PONG =====
       else if (currentScreen === 'pong') {
         if (key === ' ' || key === 'Enter') {
@@ -374,7 +374,7 @@ function TVScreen({ isActive }) {
           }
           return
         }
-        
+
         // Paddle movement (continuous)
         if (game.controls.paddle[key]) {
           const dir = game.controls.paddle[key]
@@ -382,7 +382,7 @@ function TVScreen({ isActive }) {
           if (dir === 'down') gameStateRef.current.moveDown = true
         }
       }
-      
+
       // ===== DINO =====
       else if (currentScreen === 'dino') {
         if (game.controls.jump.includes(key)) {
@@ -395,12 +395,12 @@ function TVScreen({ isActive }) {
           }
           return
         }
-        
+
         if (key === 'Escape' && gameState === 'playing') {
           setGameState('paused')
         }
       }
-      
+
       // ===== TETRIS =====
       else if (currentScreen === 'tetris') {
         // Start / resume
@@ -414,26 +414,26 @@ function TVScreen({ isActive }) {
           }
           // playing → hard drop (fall through)
         }
-        
+
         if ((key === 'p' || key === 'P') && gameState === 'playing') {
           setGameState('paused')
           return
         }
-        
+
         if (gameState !== 'playing' || !gameStateRef.current) return
         const gs = gameStateRef.current
-        if (key === 'ArrowLeft')  game.move(gs, -1)
+        if (key === 'ArrowLeft') game.move(gs, -1)
         else if (key === 'ArrowRight') game.move(gs, 1)
         else if (key === 'ArrowUp' || key === 'z' || key === 'Z') game.rotate(gs)
         else if (key === 'ArrowDown') gs.softDrop = true
         else if (key === ' ') game.hardDrop(gs)
       }
     }
-    
+
     const handleKeyUp = (e) => {
       const game = getGame(currentScreen)
       if (!game) return
-      
+
       // Pong paddle
       if (currentScreen === 'pong' && gameStateRef.current) {
         if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
@@ -443,20 +443,20 @@ function TVScreen({ isActive }) {
           gameStateRef.current.moveDown = false
         }
       }
-      
+
       // Dino jump
       if (currentScreen === 'dino') {
         if (game.controls.jump.includes(e.key)) {
           inputRef.current.jump = false
         }
       }
-      
+
       // Tetris soft drop
       if (currentScreen === 'tetris' && gameStateRef.current) {
         if (e.key === 'ArrowDown') gameStateRef.current.softDrop = false
       }
     }
-    
+
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
     return () => {
@@ -464,14 +464,14 @@ function TVScreen({ isActive }) {
       window.removeEventListener('keyup', handleKeyUp)
     }
   }, [isActive, currentScreen, gameState, selectedGame, gameList, startGame, restartGame])
-  
+
   // ========== GAME LOOP ==========
   useFrame((state) => {
     if (!canvas || !texture) return
-    
+
     const ctx = canvas.getContext('2d')
     const now = state.clock.elapsedTime * 1000
-    
+
     // Game Select Screen - Chỉ vẽ và upload texture khi trạng thái thay đổi
     if (currentScreen === 'select') {
       if (needsRedrawSelectRef.current) {
@@ -481,21 +481,20 @@ function TVScreen({ isActive }) {
       }
       return
     }
-    
+
     const game = getGame(currentScreen)
     if (!game || !gameStateRef.current) {
-      texture.needsUpdate = true
       return
     }
-    
+
     const gState = gameStateRef.current
-    
+
     // Update game logic
     if (gameState === 'playing') {
-      const interval = game.getSpeed 
-        ? game.getSpeed(gState) 
+      const interval = game.getSpeed
+        ? game.getSpeed(gState)
         : game.updateInterval
-      
+
       if (now - lastUpdateRef.current >= interval) {
         // Game-specific update
         if (currentScreen === 'snake') {
@@ -519,11 +518,11 @@ function TVScreen({ isActive }) {
             handleGameOver(game, gState)
           }
         }
-        
+
         lastUpdateRef.current = now
       }
     }
-    
+
     // Draw based on state
     const score = scores[game.id]
     switch (gameState) {
@@ -540,10 +539,10 @@ function TVScreen({ isActive }) {
         game.draw.gameover(ctx, gState, score)
         break
     }
-    
+
     texture.needsUpdate = true
   })
-  
+
   // Reset when deactivated
   useEffect(() => {
     if (!isActive) {
@@ -552,7 +551,7 @@ function TVScreen({ isActive }) {
       setSelectedGame(0)
     }
   }, [isActive])
-  
+
   return (
     <mesh>
       <planeGeometry args={[1.15, 0.65]} />

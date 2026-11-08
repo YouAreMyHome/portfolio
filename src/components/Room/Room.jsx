@@ -76,6 +76,8 @@ function Room({ graphics = {} }) {
 
   // Quản lý hiển thị của các tầng công nghệ thi công
   const [showConstructionFX, setShowConstructionFX] = useState(true)
+  // Chỉ kích hoạt nướng bóng tiếp xúc sau khi nội thất đã hạ cánh vững chãi (triệt tiêu lag frame 1)
+  const [bakeShadows, setBakeShadows] = useState(false)
 
   const handleWindowClick = () => {
     const cycle = { morning: 'sunset', sunset: 'rainy', rainy: 'night', night: 'morning' }
@@ -294,7 +296,8 @@ function Room({ graphics = {} }) {
       )
     }
 
-    // [2.05s] Bóng tiếp xúc (Contact Shadows) bám chắc vào mặt sàn
+    // [2.05s] Kích hoạt nướng bóng tiếp xúc khi toàn bộ nội thất đã yên vị trên sàn (loại bỏ nghẽn frame 1)
+    masterTl.call(() => setBakeShadows(true), [], 2.05)
     if (shadowsGroupRef.current) {
       masterTl.to(
         shadowsGroupRef.current.scale,
@@ -440,8 +443,8 @@ function Room({ graphics = {} }) {
         <VolumetricAtmosphere />
       </group>
 
-      {/* ── 13. BÓNG TIẾP XÚC (Contact Shadows) ── */}
-      {contactShadows && (
+      {/* ── 13. BÓNG TIẾP XÚC (Contact Shadows - Nướng khi nội thất đã hạ cánh) ── */}
+      {contactShadows && bakeShadows && (
         <group ref={shadowsGroupRef}>
           {/* Floor Level Contact AO */}
           <ContactShadows

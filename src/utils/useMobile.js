@@ -9,24 +9,24 @@ export function useMobile() {
   const [isTablet, setIsTablet] = useState(false)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [screenSize, setScreenSize] = useState('desktop')
-  
+
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth
-      
+
       // Touch detection
-      const hasTouch = 'ontouchstart' in window || 
-                       navigator.maxTouchPoints > 0 ||
-                       window.matchMedia('(pointer: coarse)').matches
-      
+      const hasTouch = 'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.matchMedia('(pointer: coarse)').matches
+
       // Screen size categories
       const mobile = width <= 480
       const tablet = width > 480 && width <= 1024
-      
+
       setIsMobile(mobile)
       setIsTablet(tablet)
       setIsTouchDevice(hasTouch)
-      
+
       if (mobile) {
         setScreenSize('mobile')
       } else if (tablet) {
@@ -35,17 +35,17 @@ export function useMobile() {
         setScreenSize('desktop')
       }
     }
-    
+
     checkDevice()
     window.addEventListener('resize', checkDevice)
     window.addEventListener('orientationchange', checkDevice)
-    
+
     return () => {
       window.removeEventListener('resize', checkDevice)
       window.removeEventListener('orientationchange', checkDevice)
     }
   }, [])
-  
+
   return {
     isMobile,
     isTablet,
@@ -57,10 +57,22 @@ export function useMobile() {
 
 /**
  * Get optimized graphics settings based on device
- * Full quality for all devices
+ * Full quality for all devices with mathematically responsive zoom
  */
 export function getGraphicsSettings(isMobile, isTablet) {
-  const dpr = window.devicePixelRatio || 1
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
+  const width = typeof window !== 'undefined' ? window.innerWidth : 1200
+  const height = typeof window !== 'undefined' ? window.innerHeight : 800
+  const aspect = width / height
+
+  // Tính toán zoom ban đầu chuẩn xác theo tỉ lệ màn hình
+  const responsiveZoom = aspect < 0.65
+    ? Math.max(34, Math.round(width / 10.0))
+    : aspect < 1.0
+      ? Math.max(48, Math.round(width / 10.8))
+      : aspect < 1.3
+        ? Math.max(65, Math.round(width / 12.0))
+        : 95
 
   // Mobile ưu tiên FPS ổn định, giảm các hiệu ứng nặng GPU.
   if (isMobile) {
@@ -80,7 +92,8 @@ export function getGraphicsSettings(isMobile, isTablet) {
       contactShadowResolutionMain: 256,
       contactShadowResolutionRug: 128,
       composerMultisampling: 0,
-      zoom: 60
+      zoom: responsiveZoom,
+      isMobile: true,
     }
   }
 
@@ -102,7 +115,8 @@ export function getGraphicsSettings(isMobile, isTablet) {
       contactShadowResolutionMain: 384,
       contactShadowResolutionRug: 192,
       composerMultisampling: 0,
-      zoom: 75
+      zoom: responsiveZoom,
+      isTablet: true,
     }
   }
 
@@ -110,7 +124,7 @@ export function getGraphicsSettings(isMobile, isTablet) {
   return {
     shadows: true,
     postProcessing: true,
-    pixelRatio: Math.min(dpr, 2.0),
+    pixelRatio: Math.min(dpr, 1.5), // Giới hạn 1.5x kết hợp SMAA: Sắc nét hoàn hảo, giảm 45% GPU fillrate, triệt tiêu giật lag khi xoay camera
     antialias: false, // Tắt antialias canvas khi có EffectComposer SMAA để tránh đệm kép
     aoSamples: 8,
     bloomIntensity: 0.35,
@@ -123,7 +137,8 @@ export function getGraphicsSettings(isMobile, isTablet) {
     contactShadowResolutionMain: 512,
     contactShadowResolutionRug: 256,
     composerMultisampling: 0,
-    zoom: 95
+    zoom: responsiveZoom,
+    isMobile: false,
   }
 }
 

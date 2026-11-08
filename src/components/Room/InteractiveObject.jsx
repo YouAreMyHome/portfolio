@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import useStore from '../../store/useStore'
+import { cameraState } from '../../utils/cameraState'
 
 /**
  * InteractiveObject - Wrapper cho các đồ vật có thể tương tác
@@ -12,13 +13,13 @@ import useStore from '../../store/useStore'
  * - Disabled when another panel is active
  * - Idle throttling: không tính toán trong useFrame khi vật thể đã ở vị trí tĩnh
  */
-function InteractiveObject({ 
-  children, 
+function InteractiveObject({
+  children,
   name,
   panelId,
   onClick,
   hoverLift = 0.08,
-  ...props 
+  ...props
 }) {
   const groupRef = useRef()
   const [hovered, setHovered] = useState(false)
@@ -28,17 +29,17 @@ function InteractiveObject({
   const setHoveredObject = useStore((state) => state.setHoveredObject)
   const setActivePanel = useStore((state) => state.setActivePanel)
   const isPanelActive = useStore((state) => state.activePanel !== null)
-  
+
   // Vô hiệu hóa tất cả khi có bất kỳ panel nào đang active
   const isDisabled = isPanelActive
-  
+
   // Store original Y position
   useEffect(() => {
     if (groupRef.current) {
       baseY.current = groupRef.current.position.y
     }
   }, [])
-  
+
   // Reset hover state khi bị disabled
   useEffect(() => {
     if (isDisabled && hovered) {
@@ -48,7 +49,7 @@ function InteractiveObject({
       document.body.style.cursor = 'auto'
     }
   }, [isDisabled, hovered, setHoveredObject])
-  
+
   // Damped Spring Physics (Vật lý Lò xo Giảm chấn nảy nhẹ đàn hồi chuẩn Awwwards)
   useFrame((_, delta) => {
     if (!groupRef.current || !isMoving.current) return
@@ -77,38 +78,57 @@ function InteractiveObject({
       isMoving.current = false // Đã dừng lại vị trí đích, ngắt useFrame tính toán
     }
   })
-  
+
+  const pointerDownPos = useRef({ x: 0, y: 0 })
+
+  const handlePointerDown = (e) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY }
+  }
+
   const handlePointerOver = (e) => {
     e.stopPropagation()
     if (isDisabled) return
+    // Bỏ qua hover khi chuột đang bị nhấn giữ (đang drag/xoay camera) hoặc OrbitControls đang hoạt động
+    if (e.nativeEvent?.buttons > 0 || cameraState.isInteracting) return
+    if (hovered) return
     setHovered(true)
     isMoving.current = true
     setHoveredObject(name)
     document.body.style.cursor = 'pointer'
   }
-  
+
+
   const handlePointerOut = (e) => {
     e.stopPropagation()
     if (isDisabled) return
+    if (!hovered) return
     setHovered(false)
     isMoving.current = true
     setHoveredObject(null)
     document.body.style.cursor = 'auto'
   }
-  
+
+
   const handleClick = (e) => {
     e.stopPropagation()
     if (isDisabled) return
+    // Nếu người dùng vừa kéo chuột (>6px) để xoay camera thì không kích hoạt click
+    const dx = Math.abs(e.clientX - pointerDownPos.current.x)
+    const dy = Math.abs(e.clientY - pointerDownPos.current.y)
+    if (dx > 6 || dy > 6 || cameraState.isInteracting) return
+
     if (onClick) {
       onClick()
     } else if (panelId) {
       setActivePanel(panelId)
     }
   }
-  
+
+
   return (
     <group
       ref={groupRef}
+      onPointerDown={handlePointerDown}
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
       onClick={handleClick}

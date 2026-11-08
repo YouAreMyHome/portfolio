@@ -58,35 +58,51 @@ function DigitalGallery({
     const loader = new THREE.TextureLoader()
     loader.setCrossOrigin('anonymous')
     const loadedTextures = new Array(imageCount).fill(null)
-    let settled = 0
 
-    GALLERY_IMAGES.forEach((url, index) => {
-      loader.load(
-        url,
-        (texture) => {
-          texture.colorSpace = THREE.SRGBColorSpace
-          texture.minFilter = THREE.LinearFilter
-          texture.magFilter = THREE.LinearFilter
-          texture.generateMipmaps = false
-          texture.needsUpdate = true
-          loadedTextures[index] = texture
-          settled += 1
+    const configureTexture = (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace
+      texture.minFilter = THREE.LinearFilter
+      texture.magFilter = THREE.LinearFilter
+      texture.generateMipmaps = false
+      texture.needsUpdate = true
+    }
 
-          if (active && settled === imageCount) {
-            setTextureArray(loadedTextures)
-            setTexturesLoaded(true)
+    // 1. Tải trước ảnh đầu tiên (index 0) tức thì để hiển thị ngay khi phòng xuất hiện
+    loader.load(
+      GALLERY_IMAGES[0],
+      (texture) => {
+        if (!active) return
+        configureTexture(texture)
+        loadedTextures[0] = texture
+        setTextureArray([...loadedTextures])
+        setTexturesLoaded(true)
+
+        // 2. Tải tiến trình các ảnh còn lại sau khi main thread rảnh rỗi (tránh giật lag khi tải trang)
+        const loadRestTimer = setTimeout(() => {
+          if (!active) return
+          for (let i = 1; i < imageCount; i++) {
+            loader.load(
+              GALLERY_IMAGES[i],
+              (tex) => {
+                if (!active) return
+                configureTexture(tex)
+                loadedTextures[i] = tex
+                setTextureArray([...loadedTextures])
+              },
+              undefined,
+              (err) => console.warn(`[DigitalGallery] Slide ${i} load failed:`, err)
+            )
           }
-        },
-        undefined,
-        () => {
-          settled += 1
-          if (active && settled === imageCount) {
-            setTextureArray(loadedTextures)
-            setTexturesLoaded(true)
-          }
-        }
-      )
-    })
+        }, 2200)
+
+        return () => clearTimeout(loadRestTimer)
+      },
+      undefined,
+      (err) => {
+        console.warn('[DigitalGallery] Primary image load failed:', err)
+        if (active) setTexturesLoaded(true)
+      }
+    )
 
     return () => {
       active = false

@@ -39,6 +39,7 @@ export default function PostProcessingEffects({ graphics = {} }) {
         luminanceSmoothing={0.15}
         mipmapBlur
         radius={0.4}
+        levels={5}
       />
 
       {/* 2. ToneMapping: Tăng độ tương phản màu sắc sống động */}

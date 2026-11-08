@@ -22,6 +22,7 @@ import { IMAGES } from './data/images'
 import { preloadImages } from './utils/preloadImages'
 import { clearLoadingMarks, mark, measure } from './utils/loadingMetrics'
 import { eventBus, APP_EVENTS } from './utils/eventBus'
+import { setCameraInteracting, updateCameraInteractionTime } from './utils/cameraState'
 
 // Lazy load UI overlay components
 const PanelOverlay = lazy(() => import('./components/UI/PanelOverlay'))
@@ -72,7 +73,7 @@ function SoundSystem() {
     const unsubAnalytics = eventBus.on(APP_EVENTS.ANALYTICS_TRACK, ({ name, properties }) => {
       try {
         track(name, properties)
-      } catch {}
+      } catch { }
     })
     return () => {
       unsubAudio()
@@ -94,6 +95,7 @@ function SmoothSceneBackground({ targetColor }) {
 
   useFrame((_, delta) => {
     if (scene.background && scene.background.isColor) {
+      if (scene.background.equals(targetColorObj.current)) return
       scene.background.lerp(targetColorObj.current, 1 - Math.exp(-3.5 * delta))
     }
   })
@@ -103,6 +105,7 @@ function SmoothSceneBackground({ targetColor }) {
 
 // Scene component - chứa tất cả 3D elements
 function Scene({ isNightMode, graphics = {} }) {
+  const { gl, scene, camera } = useThree()
   const controlsRef = useRef()
   // Disable controls when viewing TV (boolean selector prevents re-rendering Scene on other panels)
   const controlsEnabled = useStore((state) => state.activePanel !== 'playground')
@@ -110,11 +113,32 @@ function Scene({ isNightMode, graphics = {} }) {
   const setSceneReady = useStore((state) => state.setSceneReady)
   const lightingPreset = useStore((state) => state.lightingPreset)
 
-  // Bắt tín hiệu frame đầu tiên render xong
+  const handleOrbitStart = () => {
+    setCameraInteracting(true)
+    useStore.getState().setHoveredObject(null)
+    document.body.style.cursor = 'grabbing'
+  }
+
+  const handleOrbitEnd = () => {
+    setCameraInteracting(false)
+    document.body.style.cursor = 'auto'
+  }
+
+  const handleOrbitChange = () => {
+    updateCameraInteractionTime()
+  }
+
+  // Bắt tín hiệu frame đầu tiên render xong và pre-compile toàn bộ GPU shaders
   useFrame(() => {
     if (!isSceneReady) {
       mark('loading:first-frame')
       setSceneReady()
+      // Pre-compile toàn bộ shader programs trên GPU ngay tại frame 1 để triệt tiêu hiện tượng đứng hình khi vật thể xuất hiện
+      if (gl && scene && camera) {
+        try {
+          gl.compile(scene, camera)
+        } catch { }
+      }
     }
   })
 
@@ -144,14 +168,14 @@ function Scene({ isNightMode, graphics = {} }) {
         <OrbitControls
           ref={controlsRef}
           enableDamping
-          dampingFactor={0.075}
-          minZoom={40}
-          maxZoom={150}
+          dampingFactor={0.05}
+          minZoom={graphics.isMobile ? 22 : graphics.isTablet ? 32 : 40}
+          maxZoom={graphics.isMobile ? 130 : 160}
           minAzimuthAngle={-Math.PI / 2.8}
           maxAzimuthAngle={Math.PI / 2.8}
           minPolarAngle={Math.PI / 7}
           maxPolarAngle={Math.PI / 2.3}
-          rotateSpeed={0.8}
+          rotateSpeed={0.92}
           enablePan={controlsEnabled}
           enableRotate={controlsEnabled}
           enableZoom={controlsEnabled}
@@ -161,6 +185,9 @@ function Scene({ isNightMode, graphics = {} }) {
             ONE: 1, // ROTATE
             TWO: 2  // DOLLY_PAN
           }}
+          onStart={handleOrbitStart}
+          onEnd={handleOrbitEnd}
+          onChange={handleOrbitChange}
         />
 
         {/* Post-processing Effects */}
@@ -183,6 +210,7 @@ function AppContent() {
   const markCriticalAssetFailed = useStore((state) => state.markCriticalAssetFailed)
   const setCriticalAssetsReady = useStore((state) => state.setCriticalAssetsReady)
   const setLoadingMetrics = useStore((state) => state.setLoadingMetrics)
+  const hasEnteredRoom = useStore((state) => state.hasEnteredRoom)
   const { isMobile, isTablet, isTouchDevice } = useMobile()
   const graphics = getGraphicsSettings(isMobile, isTablet)
 
@@ -200,12 +228,11 @@ function AppContent() {
   useEffect(() => {
     const connectionType = navigator.connection?.effectiveType || '4g'
     const saveData = navigator.connection?.saveData
-    const minDisplayMs = (saveData || connectionType === '2g' || connectionType === 'slow-2g') ? 1800 : 1200
+    const minDisplayMs = (saveData || connectionType === '2g' || connectionType === 'slow-2g') ? 1200 : 800
 
+    // Tinh gọn critical assets: chỉ preload 2 hình tranh nhẹ (w_400 ~15kB) để giải phóng hoàn toàn băng thông cho 3D render
     const criticalAssets = [
-      ...IMAGES.gallery,
       IMAGES.polaroid1,
-      IMAGES.polaroid2,
       IMAGES.frame1,
     ]
 
@@ -222,8 +249,8 @@ function AppContent() {
 
     const runPreload = async () => {
       await preloadImages(uniqueAssets, {
-        timeoutMs: isMobile ? 4000 : 3000,
-        retries: 2,
+        timeoutMs: isMobile ? 3000 : 2000,
+        retries: 1,
         onAssetSettled: (result) => {
           if (cancelled) return
           if (result.ok) {
@@ -236,7 +263,6 @@ function AppContent() {
 
       if (!cancelled) {
         mark('loading:preload-done')
-        // Failed assets vẫn được phép vào app vì component có fallback material.
         setCriticalAssetsReady(true)
       }
     }
@@ -269,16 +295,27 @@ function AppContent() {
     }))
   }, [isSceneReady, isCriticalAssetsReady, setLoadingMetrics])
 
+  // Trì hoãn nạp trước các chunks UI nặng đến khi phòng đã xây xong và CPU ở trạng thái rảnh rỗi (idle)
+  // Loại bỏ hoàn toàn nguyên nhân gây khựng/đứng hình khi phòng đang diễn hoạt mọc lên
   useEffect(() => {
-    if (!isSceneReady || !isCriticalAssetsReady) return
+    if (!hasEnteredRoom) return
 
-    // Warm up lazy chunks để giảm dead-click khi mở panel lần đầu.
-    import('./components/UI/PanelOverlay')
-    import('./components/UI/TVGameOverlay')
-    import('./components/UI/KanbanOverlay')
-    import('./components/UI/MusicPlayer')
-    import('./components/UI/PolaroidLightbox')
-  }, [isSceneReady, isCriticalAssetsReady])
+    const timer = setTimeout(() => {
+      const idleCallback = typeof window !== 'undefined' && window.requestIdleCallback
+        ? window.requestIdleCallback
+        : (cb) => setTimeout(cb, 600)
+
+      idleCallback(() => {
+        import('./components/UI/PanelOverlay')
+        import('./components/UI/TVGameOverlay')
+        import('./components/UI/KanbanOverlay')
+        import('./components/UI/MusicPlayer')
+        import('./components/UI/PolaroidLightbox')
+      })
+    }, 1200)
+
+    return () => clearTimeout(timer)
+  }, [hasEnteredRoom])
 
   const activePreset = isNightMode ? 'night' : (lightingPreset || 'morning')
   const currentBgColor = AMBIENT_BG_COLORS[activePreset] || AMBIENT_BG_COLORS.morning

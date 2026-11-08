@@ -12,26 +12,24 @@ import useStore from '../../store/useStore'
 function useMonitorTexture(type) {
   const canvasRef = useRef(null)
   const textureRef = useRef(null)
-  const lastDrawRef = useRef(0)
-  const blinkStateRef = useRef(true)
-  
+
   const { canvas, texture } = useMemo(() => {
     const cvs = document.createElement('canvas')
     cvs.width = 512
     cvs.height = 320
-    
+
     const tex = new THREE.CanvasTexture(cvs)
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
     tex.colorSpace = THREE.SRGBColorSpace
-    
+
     return { canvas: cvs, texture: tex }
   }, [])
-  
+
   canvasRef.current = canvas
   textureRef.current = texture
-  
-  // Initial draw
+
+  // Initial draw - Static 100% crisp render, zero main-thread texture upload stalls
   useEffect(() => {
     if (!canvasRef.current) return
     const ctx = canvasRef.current.getContext('2d')
@@ -44,23 +42,7 @@ function useMonitorTexture(type) {
       textureRef.current.needsUpdate = true
     }
   }, [type])
-  
-  // Only update cursor blink every 500ms for code editor
-  useFrame((state) => {
-    if (!canvasRef.current || !textureRef.current) return
-    if (type !== 'code') return // Browser is static
-    
-    const now = state.clock.elapsedTime * 1000
-    if (now - lastDrawRef.current < 500) return
-    
-    lastDrawRef.current = now
-    blinkStateRef.current = !blinkStateRef.current
-    
-    const ctx = canvasRef.current.getContext('2d')
-    drawCodeEditor(ctx, blinkStateRef.current)
-    textureRef.current.needsUpdate = true
-  })
-  
+
   return texture
 }
 
@@ -69,26 +51,26 @@ function useMonitorTexture(type) {
  */
 function drawCodeEditor(ctx, showCursor) {
   const W = 512, H = 320
-  
+
   // Background
   ctx.fillStyle = '#1e1e1e'
   ctx.fillRect(0, 0, W, H)
-  
+
   // Activity bar (left)
   ctx.fillStyle = '#333333'
   ctx.fillRect(0, 0, 35, H)
-  
+
   // Activity bar icons (VS Code style)
   const icons = ['◇', '○', '⌥', '▸', '□']
   ctx.font = '14px Consolas, monospace'
   icons.forEach((icon, i) => {
     ctx.fillText(icon, 10, 30 + i * 35)
   })
-  
+
   // Sidebar (file explorer)
   ctx.fillStyle = '#252526'
   ctx.fillRect(35, 0, 100, H)
-  
+
   // File tree
   ctx.fillStyle = '#cccccc'
   ctx.font = '10px Consolas, monospace'
@@ -97,28 +79,28 @@ function drawCodeEditor(ctx, showCursor) {
     ctx.fillStyle = i === 1 ? '#ffffff' : '#cccccc'
     ctx.fillText(file, 42, 25 + i * 16)
   })
-  
+
   // Tab bar
   ctx.fillStyle = '#2d2d2d'
   ctx.fillRect(135, 0, W - 135, 28)
-  
+
   // Active tab
   ctx.fillStyle = '#1e1e1e'
   ctx.fillRect(135, 0, 80, 28)
   ctx.fillStyle = '#ffffff'
   ctx.fillText('â—‡ App.jsx', 145, 18)
-  
+
   // Editor content - actual code
   ctx.fillStyle = '#1e1e1e'
   ctx.fillRect(135, 28, W - 135, H - 28)
-  
+
   // Line numbers
   ctx.fillStyle = '#858585'
   ctx.font = '11px Consolas, monospace'
   for (let i = 1; i <= 18; i++) {
     ctx.fillText(i.toString().padStart(2), 142, 42 + i * 15)
   }
-  
+
   // Code content with syntax highlighting
   const codeLines = [
     { text: 'import', color: '#c586c0' },
@@ -140,7 +122,7 @@ function drawCodeEditor(ctx, showCursor) {
     { text: '"app"', color: '#ce9178' },
     { text: '>', color: '#569cd6' },
   ]
-  
+
   let y = 42
   codeLines.forEach((line, i) => {
     if (line.text) {
@@ -148,31 +130,31 @@ function drawCodeEditor(ctx, showCursor) {
       ctx.fillText(line.text, 168, y + i * 15)
     }
   })
-  
+
   // Blinking cursor - now controlled by showCursor parameter
   if (showCursor) {
     ctx.fillStyle = '#aeafad'
     ctx.fillRect(168 + 8 * 10, 42 + 8 * 15 - 11, 2, 14)
   }
-  
+
   // Minimap (right side)
   ctx.fillStyle = '#252526'
   ctx.fillRect(W - 40, 28, 40, H - 28)
-  
+
   // Minimap lines (static pattern)
   const minimapWidths = [18, 25, 12, 30, 15, 22, 28, 10, 20, 14, 26, 18, 22, 30, 12, 24, 16, 28, 20, 14, 25, 18, 22, 30, 15, 20, 28, 12, 24, 18]
   for (let i = 0; i < 30; i++) {
     ctx.fillStyle = `rgba(255,255,255,${0.12})`
     ctx.fillRect(W - 38, 35 + i * 8, minimapWidths[i], 2)
   }
-  
+
   // Status bar
   ctx.fillStyle = '#007acc'
   ctx.fillRect(0, H - 22, W, 22)
   ctx.fillStyle = '#ffffff'
   ctx.font = '10px sans-serif'
   ctx.fillText('ðŸ”€ main  âœ“ Ln 8, Col 25  UTF-8  JavaScript React', 10, H - 8)
-  
+
   // Scanlines effect (subtle)
   ctx.fillStyle = 'rgba(0,0,0,0.03)'
   for (let y = 0; y < H; y += 2) {
@@ -185,47 +167,47 @@ function drawCodeEditor(ctx, showCursor) {
  */
 function drawBrowser(ctx) {
   const W = 512, H = 320
-  
+
   // Browser chrome
   ctx.fillStyle = '#f1f3f4'
   ctx.fillRect(0, 0, W, 50)
-  
+
   // Tab
   ctx.fillStyle = '#ffffff'
   ctx.beginPath()
   ctx.roundRect(8, 8, 140, 30, 8)
   ctx.fill()
-  
+
   ctx.fillStyle = '#333'
   ctx.font = '11px sans-serif'
   ctx.fillText('ðŸŒ letrongnghia.me', 20, 28)
-  
+
   // Address bar
   ctx.fillStyle = '#e8eaed'
   ctx.beginPath()
   ctx.roundRect(160, 12, 280, 26, 13)
   ctx.fill()
-  
+
   ctx.fillStyle = '#5f6368'
   ctx.font = '11px sans-serif'
   ctx.fillText('ðŸ”’ https://letrongnghia.me', 175, 30)
-  
+
   // Browser buttons
   ctx.fillStyle = '#5f6368'
   ctx.font = '16px sans-serif'
   ctx.fillText('â† â†’ âŸ³', 455, 30)
-  
+
   // Page content - Hero section
   ctx.fillStyle = '#0f172a'
   ctx.fillRect(0, 50, W, H - 50)
-  
+
   // Gradient overlay
   const gradient = ctx.createLinearGradient(0, 50, 0, H)
   gradient.addColorStop(0, '#0f172a')
   gradient.addColorStop(1, '#1e293b')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 50, W, H - 50)
-  
+
   // Static decorative particles (no animation)
   ctx.fillStyle = 'rgba(74, 222, 128, 0.3)'
   const particlePositions = [
@@ -237,7 +219,7 @@ function drawBrowser(ctx) {
     ctx.arc(p.x, p.y, 3 + (i % 3), 0, Math.PI * 2)
     ctx.fill()
   })
-  
+
   // Avatar
   ctx.fillStyle = '#4ade80'
   ctx.beginPath()
@@ -246,17 +228,17 @@ function drawBrowser(ctx) {
   ctx.fillStyle = '#1e293b'
   ctx.font = '30px sans-serif'
   ctx.fillText('ðŸ‘¨â€ðŸ’»', 57, 142)
-  
+
   // Text content
   ctx.fillStyle = '#f8fafc'
   ctx.font = 'bold 22px sans-serif'
   ctx.fillText("Hi, I'm Nghia ðŸ‘‹", 140, 110)
-  
+
   ctx.fillStyle = '#94a3b8'
   ctx.font = '12px sans-serif'
   ctx.fillText('Full-stack Developer', 140, 135)
   ctx.fillText('Building web experiences with React & Node.js', 140, 155)
-  
+
   // CTA Buttons
   ctx.fillStyle = '#4ade80'
   ctx.beginPath()
@@ -265,7 +247,7 @@ function drawBrowser(ctx) {
   ctx.fillStyle = '#0f172a'
   ctx.font = 'bold 11px sans-serif'
   ctx.fillText('View Projects', 158, 194)
-  
+
   ctx.strokeStyle = '#4ade80'
   ctx.lineWidth = 2
   ctx.beginPath()
@@ -273,7 +255,7 @@ function drawBrowser(ctx) {
   ctx.stroke()
   ctx.fillStyle = '#4ade80'
   ctx.fillText('Contact', 275, 194)
-  
+
   // Cards section
   ctx.fillStyle = '#1e293b'
   const cardY = 230
@@ -282,15 +264,15 @@ function drawBrowser(ctx) {
     ctx.beginPath()
     ctx.roundRect(20 + i * 160, cardY, 145, 70, 8)
     ctx.fill()
-    
+
     ctx.fillStyle = ['#f87171', '#fbbf24', '#60a5fa'][i]
     ctx.fillRect(20 + i * 160, cardY, 145, 25)
-    
+
     ctx.fillStyle = '#94a3b8'
     ctx.font = '10px sans-serif'
     ctx.fillText(['ðŸš€ Project 1', 'ðŸŽ¨ Project 2', 'âš¡ Project 3'][i], 30 + i * 160, cardY + 50)
   }
-  
+
   // Scanlines
   ctx.fillStyle = 'rgba(0,0,0,0.02)'
   for (let y = 0; y < H; y += 2) {
@@ -308,14 +290,14 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
   return (
     <group position={position} rotation={rotation} onClick={onClick}>
       {/* Screen light emission */}
-      <pointLight 
-        color={glowColor} 
-        intensity={0.08} 
-        distance={0.8} 
-        decay={2} 
-        position={[0, 0, 0.3]} 
+      <pointLight
+        color={glowColor}
+        intensity={0.08}
+        distance={0.8}
+        decay={2}
+        position={[0, 0, 0.3]}
       />
-      
+
       {/* Ambient screen glow */}
       <rectAreaLight
         color={glowColor}
@@ -329,7 +311,7 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
       <RoundedBox args={[0.72, 0.44, 0.025]} radius={0.008} smoothness={4} castShadow>
         <meshStandardMaterial color="#0a0a0a" roughness={0.3} metalness={0.8} />
       </RoundedBox>
-      
+
       {/* Inner bezel */}
       <mesh position={[0, 0, 0.013]}>
         <boxGeometry args={[0.69, 0.41, 0.002]} />
@@ -341,11 +323,11 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
         <planeGeometry args={[0.67, 0.39]} />
         <meshBasicMaterial map={screenTexture} toneMapped={false} />
       </mesh>
-      
+
       {/* Screen emissive layer (bloom effect) */}
       <mesh position={[0, 0, 0.017]}>
         <planeGeometry args={[0.67, 0.39]} />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           transparent
           opacity={0.15}
           emissive={glowColor}
@@ -354,11 +336,11 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
           depthWrite={false}
         />
       </mesh>
-      
+
       {/* Glass reflection layer */}
       <mesh position={[0, 0, 0.019]}>
         <planeGeometry args={[0.67, 0.39]} />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           transparent
           opacity={0.08}
           roughness={0.1}
@@ -367,7 +349,7 @@ const Monitor = ({ type, position, rotation, onClick, noStand = false }) => {
           depthWrite={false}
         />
       </mesh>
-      
+
       {/* Power LED */}
       <mesh position={[0.3, -0.19, 0.014]}>
         <circleGeometry args={[0.004, 16]} />
@@ -411,12 +393,12 @@ function DeskSetup({ onProjectClick }) {
   const toggleDeskLamp = useStore((state) => state.toggleDeskLamp)
 
   const DESK_H = 0.76   // Y-center của mặt bàn (dày 0.05 → top tại +0.025)
-  const LEG_H  = 0.74
+  const LEG_H = 0.74
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
-    if (pcRgbRef.current)  pcRgbRef.current.color.setHSL((t * 0.12) % 1, 0.95, 0.5)
-    if (kbRgbRef.current)  kbRgbRef.current.color.setHSL((t * 0.12 + 0.33) % 1, 0.85, 0.5)
+    if (pcRgbRef.current) pcRgbRef.current.color.setHSL((t * 0.12) % 1, 0.95, 0.5)
+    if (kbRgbRef.current) kbRgbRef.current.color.setHSL((t * 0.12 + 0.33) % 1, 0.85, 0.5)
   })
 
   return (
@@ -599,8 +581,8 @@ function DeskSetup({ onProjectClick }) {
           {[
             { z: -0.055, count: 13 },
             { z: -0.022, count: 14 },
-            { z:  0.011, count: 13 },
-            { z:  0.044, count: 12 },
+            { z: 0.011, count: 13 },
+            { z: 0.044, count: 12 },
           ].flatMap(({ z, count }, ri) => {
             const mat = ri === 0 ? keyMatRow0 : ri % 2 === 0 ? keyMatEven : keyMatOdd
             return Array.from({ length: count }, (_, ki) => (
@@ -731,8 +713,8 @@ function DeskSetup({ onProjectClick }) {
               <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
             </mesh>
             {/* LED bar - Nhấp chuột để bật/tắt đèn bàn làm việc */}
-            <group 
-              position={[0, 0, 0.19]} 
+            <group
+              position={[0, 0, 0.19]}
               rotation={[0.5, 0, 0]}
               onClick={(e) => {
                 e.stopPropagation()
@@ -748,12 +730,12 @@ function DeskSetup({ onProjectClick }) {
                 <boxGeometry args={[0.26, 0.003, 0.026]} />
                 <meshBasicMaterial color={deskLampOn ? "#fff8e1" : "#334155"} />
               </mesh>
-              <pointLight 
-                color="#fff5cc" 
-                intensity={deskLampOn ? 0.65 : 0} 
-                distance={1.2} 
-                decay={2} 
-                position={[0, -0.05, 0.08]} 
+              <pointLight
+                color="#fff5cc"
+                intensity={deskLampOn ? 0.65 : 0}
+                distance={1.2}
+                decay={2}
+                position={[0, -0.05, 0.08]}
               />
             </group>
           </group>
